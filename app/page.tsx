@@ -39,23 +39,38 @@ import { formatRelativeTime } from "@/lib/utils/format";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // Fetch real counts & real resolved issues from database
-  const [totalCount, resolvedCount, categoryCount, deptCount, recentResolvedIssues] = await Promise.all([
-    prisma.issue.count(),
-    prisma.issue.count({ where: { status: { in: ["RESOLVED", "USER_CONFIRMED", "CLOSED"] } } }),
-    prisma.category.count({ where: { active: true } }),
-    prisma.department.count({ where: { active: true } }),
-    prisma.issue.findMany({
-      where: { status: { in: ["RESOLVED", "USER_CONFIRMED", "CLOSED"] } },
-      include: {
-        location: true,
-        category: true,
-        assignedStaff: { select: { name: true } },
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 4,
-    }),
-  ]);
+  // Fetch real counts & real resolved issues from database (with graceful fallback)
+  let totalCount = 0;
+  let resolvedCount = 0;
+  let categoryCount = 0;
+  let deptCount = 0;
+  let recentResolvedIssues: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.issue.count(),
+      prisma.issue.count({ where: { status: { in: ["RESOLVED", "USER_CONFIRMED", "CLOSED"] } } }),
+      prisma.category.count({ where: { active: true } }),
+      prisma.department.count({ where: { active: true } }),
+      prisma.issue.findMany({
+        where: { status: { in: ["RESOLVED", "USER_CONFIRMED", "CLOSED"] } },
+        include: {
+          location: true,
+          category: true,
+          assignedStaff: { select: { name: true } },
+        },
+        orderBy: { updatedAt: "desc" },
+        take: 4,
+      }),
+    ]);
+    totalCount = results[0];
+    resolvedCount = results[1];
+    categoryCount = results[2];
+    deptCount = results[3];
+    recentResolvedIssues = results[4];
+  } catch (error) {
+    console.warn("Could not fetch database stats for homepage:", (error as Error).message);
+  }
 
   // Real campus notices that authentic GL Bajaj students care about
   const campusNotices = [
