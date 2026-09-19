@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "postinstall": "prisma generate --schema=prisma/schema.prisma",
-    "render-build": "prisma generate --schema=prisma/schema.prisma && prisma db push --schema=prisma/schema.prisma && next build",
+    "render-build": "node scripts/render-build.js",
     "render-seed": "tsx prisma/seed.ts",
     "db:generate": "prisma generate --schema=prisma/schema.prisma",
     "db:push": "prisma db push --schema=prisma/schema.prisma",

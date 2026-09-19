@@ -6,6 +6,17 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Starting SmartCampus — GL Bajaj Institute of Technology & Management seed...");
 
+  // Check if database is already seeded (unless FORCE_SEED=true)
+  try {
+    const userCount = await prisma.user.count();
+    if (userCount > 0 && !process.env.FORCE_SEED) {
+      console.log(`ℹ️ Database already contains data (${userCount} users). Skipping seed.`);
+      return { skipped: true, userCount };
+    }
+  } catch {
+    // Tables might not exist yet or empty — proceed
+  }
+
   // Clean existing tables in reverse dependency order
   try {
     await prisma.feedback.deleteMany();
@@ -800,8 +811,15 @@ async function main() {
 
   console.log("✅ Seeded GLBITM Issues, Histories, Comments, and Notifications");
   console.log("🚀 SmartCampus — GLBITM seed completed successfully!");
+  return { success: true };
 }
 
+export async function seedDatabase(force = false) {
+  if (force) process.env.FORCE_SEED = "true";
+  return await main();
+}
+
+// Auto-run when executed directly via CLI
 main()
   .catch((e) => {
     console.error("❌ Seeding failed:", e);
