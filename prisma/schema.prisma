@@ -1,0 +1,341 @@
+// SmartCampus — GL Bajaj (PostgreSQL Production)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  FACULTY
+  STAFF
+  MAINTENANCE_STAFF
+  DEPARTMENT_COORDINATOR
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IssueStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  USER_CONFIRMED
+  CLOSED
+  REOPENED
+  REJECTED
+  ON_HOLD
+}
+
+model Department {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  description String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  programs    Program[]
+  users       User[]
+  issues      Issue[]
+
+  @@index([code])
+  @@index([active])
+}
+
+model Program {
+  id           String     @id @default(cuid())
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  name         String
+  code         String
+  level        String     @default("UG")
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([departmentId])
+  @@index([code])
+}
+
+model Club {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  category    String    @default("Technical")
+  description String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  issues      Issue[]
+
+  @@index([name])
+  @@index([active])
+}
+
+model TransportRoute {
+  id          String    @id @default(cuid())
+  routeNumber String    @unique
+  routeName   String
+  startPoint  String
+  endPoint    String    @default("GLBITM Campus")
+  stops       String?
+  timings     String?
+  busNumber   String?
+  driverName  String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([routeNumber])
+}
+
+model SystemSetting {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  value       String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model User {
+  id                  String         @id @default(cuid())
+  name                String
+  email               String         @unique
+  passwordHash        String
+  role                Role           @default(STUDENT)
+  status              UserStatus     @default(ACTIVE)
+  studentOrEmployeeId String?
+  avatarUrl           String?
+  departmentId        String?
+  department          Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  lastLoginAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  // Relationships
+  staffProfile        StaffProfile?
+  reportedIssues      Issue[]        @relation("ReportedIssues")
+  assignedIssues      Issue[]        @relation("AssignedIssues")
+  comments            IssueComment[]
+  notifications       Notification[]
+  feedback            Feedback[]
+  auditLogs           AuditLog[]
+  historyActions      IssueHistory[]
+  uploadedAttachments IssueAttachment[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@index([departmentId])
+}
+
+model StaffProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization  String
+  availability    Boolean  @default(true)
+  currentWorkload Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([specialization])
+  @@index([availability])
+}
+
+model Category {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  description     String?
+  icon            String    @default("AlertCircle")
+  defaultPriority Priority  @default(MEDIUM)
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  issues          Issue[]
+
+  @@index([active])
+}
+
+model Location {
+  id               String     @id @default(cuid())
+  name             String
+  building         String
+  floor            String?
+  room             String?
+  facilityType     String     @default("ACADEMIC")
+  latitude         Float?
+  longitude        Float?
+  parentLocationId String?
+  parentLocation   Location?  @relation("LocationHierarchy", fields: [parentLocationId], references: [id], onDelete: SetNull)
+  subLocations     Location[] @relation("LocationHierarchy")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  issues           Issue[]
+
+  @@index([building])
+  @@index([facilityType])
+  @@index([parentLocationId])
+}
+
+model Issue {
+  id              String       @id @default(cuid())
+  publicIssueId   String       @unique
+  title           String
+  description     String
+  categoryId      String
+  category        Category     @relation(fields: [categoryId], references: [id])
+  reporterId      String
+  reporter        User         @relation("ReportedIssues", fields: [reporterId], references: [id])
+  assignedStaffId String?
+  assignedStaff   User?        @relation("AssignedIssues", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  locationId      String
+  location        Location     @relation(fields: [locationId], references: [id])
+  room            String?
+  departmentId    String?
+  department      Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  clubId          String?
+  club            Club?        @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  isSensitive     Boolean      @default(false)
+  latitude        Float?
+  longitude       Float?
+  priority        Priority     @default(MEDIUM)
+  status          IssueStatus  @default(SUBMITTED)
+  affectedCount   Int          @default(1)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+
+  attachments     IssueAttachment[]
+  history         IssueHistory[]
+  comments        IssueComment[]
+  feedback        Feedback?
+
+  @@index([publicIssueId])
+  @@index([status])
+  @@index([priority])
+  @@index([categoryId])
+  @@index([locationId])
+  @@index([departmentId])
+  @@index([reporterId])
+  @@index([assignedStaffId])
+  @@index([createdAt])
+}
+
+model IssueAttachment {
+  id           String   @id @default(cuid())
+  issueId      String
+  issue        Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  url          String
+  type         String
+  fileName     String
+  fileSize     Int
+  createdAt    DateTime @default(now())
+
+  @@index([issueId])
+}
+
+model IssueHistory {
+  id        String       @id @default(cuid())
+  issueId   String
+  issue     Issue        @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  actorId   String
+  actor     User         @relation(fields: [actorId], references: [id])
+  oldStatus IssueStatus?
+  newStatus IssueStatus
+  comment   String?
+  createdAt DateTime     @default(now())
+
+  @@index([issueId])
+  @@index([createdAt])
+}
+
+model IssueComment {
+  id        String   @id @default(cuid())
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([issueId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  issueId   String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([readAt])
+  @@index([createdAt])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  issueId   String   @unique
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int
+  resolved  Boolean
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([rating])
+  @@index([resolved])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  metadata   String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+}

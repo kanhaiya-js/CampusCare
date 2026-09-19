@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusCare — Project Presentation Deck (GL Bajaj IVD)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #e0e7ff;
+      --bg: #0b0f19;
+      --card-bg: rgba(17, 24, 39, 0.85);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e1b4b 0%, #0b0f19 70%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .font-orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Presentation Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 700;
+      background: rgba(79, 70, 229, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Progress bar */
+    .progress-track {
+      height: 4px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 61px;
+      z-index: 99;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 10%;
+      background: linear-gradient(90deg, #4f46e5, #8b5cf6, #ec4899);
+      transition: width 0.3s ease;
+    }
+
+    /* Slide Container */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .slide-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 48px;
+      width: 100%;
+      min-height: 580px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .slide-card.active {
+      display: flex;
+    }
+
+    .slide-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #4f46e5, #818cf8, #c084fc);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      margin-bottom: 28px;
+    }
+
+    .slide-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #818cf8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .slide-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    /* Grid layout helpers */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .card h4 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .card p, .card li {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .card ul {
+      list-style-type: none;
+    }
+
+    .card ul li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .bullet {
+      color: #818cf8;
+      font-weight: bold;
+    }
+
+    /* Speaker Notes */
+    .notes-box {
+      margin-top: 24px;
+      background: rgba(0, 0, 0, 0.35);
+      border-left: 3px solid #818cf8;
+      padding: 14px 18px;
+      border-radius: 0 12px 12px 0;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      font-style: italic;
+    }
+
+    .notes-box strong {
+      color: #818cf8;
+      font-style: normal;
+    }
+
+    /* Footer navigation */
+    footer {
+      padding: 16px 32px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(11, 15, 25, 0.9);
+      backdrop-filter: blur(12px);
+    }
+
+    .slide-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dot.active {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: white !important; color: black !important; }
+      header, footer, .progress-track, .btn { display: none !important; }
+      .slide-card {
+        display: flex !important;
+        page-break-after: always;
+        border: 1px solid #ccc !important;
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+        margin-bottom: 20px;
+      }
+      .card { border: 1px solid #ddd !important; background: #f9f9f9 !important; color: black !important; }
+      .slide-subtitle, .card p, .card li { color: #444 !important; }
+      .slide-title { color: #111 !important; }
+      .font-orbitron { color: #000 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span class="font-orbitron" style="color: white;">CampusCare</span>
+      <span class="badge">GL Bajaj IVD Project 2026</span>
+    </div>
+    <div class="deck-controls">
+      <button class="btn btn-outline" onclick="toggleNotes()">📝 Toggle Notes</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Export / Print PDF</button>
+      <button class="btn" onclick="toggleFullScreen()">⛶ Fullscreen (F)</button>
+    </div>
+  </header>
+
+  <!-- Progress Track -->
+  <div class="progress-track">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Slide Cards -->
+  <main>
+    <!-- Slide 1: Cover -->
+    <div class="slide-card active" data-slide="1">
+      <div class="slide-header" style="text-align: center;">
+        <span class="slide-tag">Institutional Vocational Project Presentation</span>
+        <h1 class="slide-title font-orbitron" style="font-size: 3rem; margin: 12px 0;">CampusCare — GL Bajaj</h1>
+        <p class="slide-subtitle" style="font-size: 1.25rem;">Autonomous Campus Facility Maintenance &amp; Problem Resolution Ecosystem</p>
+      </div>
+      <div class="slide-body" style="text-align: center;">
+        <p style="font-size: 1rem; color: #94a3b8; max-width: 700px; margin: 0 auto 30px;">
+          Engineered for <strong>10,000+ students, faculty, and maintenance teams</strong> at G.L. Bajaj Institute of Technology &amp; Management (GLBITM Greater Noida) to digitize, transparently track, and resolve campus infrastructure issues.
+        </p>
+
+        <div class="grid-3" style="max-width: 850px; margin: 0 auto; text-align: left;">
+          <div class="card" style="border-top: 3px solid #6366f1;">
+            <h4 style="color: #818cf8;">Kanhaiya</h4>
+            <p style="font-weight: 700; color: #fff; font-size: 0.8rem;">Lead Developer</p>
+            <p style="font-size: 0.75rem; margin-top: 4px;">Architected full-stack systems, Next.js 14, Prisma ORM, APIs &amp; interactive UI.</p>
+          </div>
+          <div class="card" style="border-top: 3px solid #10b981;">
+            <h4 style="color: #34d399;">Rishav</h4>
+            <p style="font-weight: 700; color: #fff; font-size: 0.8rem;">Project Researcher</p>
+            <p style="font-size: 0.75rem; margin-top: 4px;">Led on-ground campus field study, SLA benchmarking &amp; student user feedback.</p>
+          </div>
+          <div class="card" style="border-top: 3px solid #a855f7;">
+            <h4 style="color: #c084fc;">Badri</h4>
+            <p style="font-weight: 700; color: #fff; font-size: 0.8rem;">Supporter &amp; Presentation</p>
+            <p style="font-size: 0.75rem; margin-top: 4px;">Designed slide decks, visual diagrams, PPT documentation &amp; presentation pitch.</p>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes1">
+        <strong>Speaker Script:</strong> "Good morning esteemed professors and evaluators. We are proud to present CampusCare, an innovative institutional platform engineered for GL Bajaj. Our team consists of Kanhaiya, our lead developer; Rishav, our project researcher; and Badri, our supporter and presentation specialist. Let's look into the real campus challenge we solved."
+      </div>
+    </div>
+
+    <!-- Slide 2: Problem Statement -->
+    <div class="slide-card" data-slide="2">
+      <div class="slide-header">
+        <span class="slide-tag">Problem Analysis</span>
+        <h2 class="slide-title font-orbitron">Why Traditional Campus Maintenance Fails</h2>
+        <p class="slide-subtitle">Operational breakdowns in modern large-scale educational institutions</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="card" style="border-left: 4px solid var(--accent-red);">
+            <h4 style="color: #f87171;">1. Lost Complaints &amp; Physical Paper Logs</h4>
+            <p>Students and faculty currently log broken fans, AC issues, or projector faults in paper registers at building receptions. Entries get misplaced, skipped, or forgotten without any timestamp or proof.</p>
+          </div>
+          <div class="card" style="border-left: 4px solid var(--accent-amber);">
+            <h4 style="color: #fbbf24;">2. Zero Status Visibility &amp; SLA Accountability</h4>
+            <p>Complainants have no idea whether a technician was notified or when repairs will occur. Technicians face no enforced service-level agreements (SLAs), causing multi-day delays during exam or lecture hours.</p>
+          </div>
+          <div class="card" style="border-left: 4px solid #818cf8;">
+            <h4 style="color: #a5b4fc;">3. Campus Spatial Ambiguity (Large Footprint)</h4>
+            <p>GLBITM covers multiple massive blocks (AB-1, AB-2, AB-3, AB-4, Library, Hostels). Technicians waste 30 to 45 minutes simply searching for the exact room, wing, or faulty electrical panel.</p>
+          </div>
+          <div class="card" style="border-left: 4px solid #34d399;">
+            <h4 style="color: #6ee7b7;">4. Statutory Redressal Misrouting</h4>
+            <p>Critical issues (safety, anti-ragging, mental health emergencies) cannot be treated like plumbing issues. Without automated guardrails, confidential matters risk delayed statutory action.</p>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes2">
+        <strong>Speaker Script:</strong> "In a campus of over 10,000 students, paper complaint registers cause massive friction. Problems like broken projectors or lab power outages stall academics. There is no accountability, technicians don't know the exact room, and critical safety concerns risk being misrouted."
+      </div>
+    </div>
+
+    <!-- Slide 3: Solution Overview -->
+    <div class="slide-card" data-slide="3">
+      <div class="slide-header">
+        <span class="slide-tag">The Solution</span>
+        <h2 class="slide-title font-orbitron">Introducing CampusCare</h2>
+        <p class="slide-subtitle">Centralized, intelligent infrastructure management and problem resolution</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3" style="margin-bottom: 20px;">
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 8px;">⚡</div>
+            <h4>60-Second Issue Wizard</h4>
+            <p>Frictionless 4-step report flow with location pickers, live photo evidence, and urgency tags.</p>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 8px;">🗺️</div>
+            <h4>Interactive Campus Map</h4>
+            <p>Vector floor-by-floor navigation highlighting exact rooms, labs, and reported problem clusters.</p>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 8px;">🛡️</div>
+            <h4>AI Safeguard Screening</h4>
+            <p>Instant detection of sensitive terms, guiding students directly to Anti-Ragging and ICC helplines.</p>
+          </div>
+        </div>
+        <div class="card" style="background: rgba(79, 70, 229, 0.1); border-color: rgba(79, 70, 229, 0.3);">
+          <h4 style="color: #a5b4fc;">Autonomous Dispatch &amp; Live SLA Clocks</h4>
+          <p>Every ticket is autonomously routed to the assigned department (Electrical, IT, HVAC, Plumbing, Transport) with automated countdown timers (2h, 6h, 24h) and auto-escalation to the Administrative Controller.</p>
+        </div>
+      </div>
+      <div class="notes-box" id="notes3">
+        <strong>Speaker Script:</strong> "CampusCare bridges this gap completely. Students can report any malfunction in under 60 seconds with photo proof and exact room tagging on our interactive map. Our engine automatically filters emergencies, routes tickets to specialized staff, and initiates an SLA countdown."
+      </div>
+    </div>
+
+    <!-- Slide 4: System Architecture & Workflow -->
+    <div class="slide-card" data-slide="4">
+      <div class="slide-header">
+        <span class="slide-tag">Technical Architecture</span>
+        <h2 class="slide-title font-orbitron">How CampusCare Operates: End-to-End</h2>
+        <p class="slide-subtitle">Automated pipeline from incident submission to verified physical resolution</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-5" style="margin-bottom: 24px;">
+          <div class="card" style="text-align: center; padding: 14px;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #818cf8;">01</div>
+            <h4 style="font-size: 0.85rem; margin: 6px 0;">Log Issue</h4>
+            <p style="font-size: 0.7rem;">Block, floor, room &amp; camera upload</p>
+          </div>
+          <div class="card" style="text-align: center; padding: 14px;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #818cf8;">02</div>
+            <h4 style="font-size: 0.85rem; margin: 6px 0;">Safety Filter</h4>
+            <p style="font-size: 0.7rem;">Keyword scan for statutory topics</p>
+          </div>
+          <div class="card" style="text-align: center; padding: 14px;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #818cf8;">03</div>
+            <h4 style="font-size: 0.85rem; margin: 6px 0;">Auto Dispatch</h4>
+            <p style="font-size: 0.7rem;">Directly queued to technician board</p>
+          </div>
+          <div class="card" style="text-align: center; padding: 14px;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #818cf8;">04</div>
+            <h4 style="font-size: 0.85rem; margin: 6px 0;">SLA Timer</h4>
+            <p style="font-size: 0.7rem;">Active countdown with auto-escalation</p>
+          </div>
+          <div class="card" style="text-align: center; padding: 14px;">
+            <div style="font-size: 1.25rem; font-weight: 800; color: #34d399;">05</div>
+            <h4 style="font-size: 0.85rem; margin: 6px 0;">Resolved</h4>
+            <p style="font-size: 0.7rem;">Timestamped audit log &amp; alert</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h4 style="color: #818cf8;">Role-Based Authentication (RBAC)</h4>
+            <p>Protected by HTTP-only encrypted JSON Web Tokens (JWT). Distinct views and authority levels are enforced across Students, Maintenance Technicians, and College Administrators.</p>
+          </div>
+          <div class="card">
+            <h4 style="color: #34d399;">Real-Time Escalation Engine</h4>
+            <p>If an urgent electrical failure or server room glitch exceeds its 2-hour resolution window, the system flags the ticket with red alert indicators and notifies the Maintenance Head.</p>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes4">
+        <strong>Speaker Script:</strong> "The architectural flow is clean and robust. Our backend handles authentication via JWT, runs automated safety checks, and manages technician task boards. The automatic SLA clock guarantees that urgent tickets get immediate priority."
+      </div>
+    </div>
+
+    <!-- Slide 5: Core Features Breakdown -->
+    <div class="slide-card" data-slide="5">
+      <div class="slide-header">
+        <span class="slide-tag">Feature Suite</span>
+        <h2 class="slide-title font-orbitron">Specialized Features for GL Bajaj</h2>
+        <p class="slide-subtitle">Engineered specifically around our campus layout, facilities, and student life</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card">
+            <h4>🗺️ Spatial Vector Campus Map</h4>
+            <p>Explores Academic Blocks 1-4, Central Library, and Cafeterias with visual floor breakdowns and problem pinpoints.</p>
+          </div>
+          <div class="card">
+            <h4>🚌 Institutional Transport Fleet</h4>
+            <p>Details 12+ institute bus routes connecting Noida, Greater Noida, Delhi &amp; Ghaziabad with bus maintenance reporting.</p>
+          </div>
+          <div class="card">
+            <h4>🎭 Student Clubs Logistics Hub</h4>
+            <p>Allows student clubs (Rotaract, Coding Club, IEEE) to request mics, seminar projectors, and venue lighting smoothly.</p>
+          </div>
+          <div class="card">
+            <h4>🛡️ Official Support Gateway</h4>
+            <p>Clear demarcation of institutional channels: 24x7 Anti-Ragging Committee, ICC, YourDOST mental health &amp; campus clinic.</p>
+          </div>
+          <div class="card">
+            <h4>📊 Executive Analytics &amp; Reports</h4>
+            <p>Comprehensive issue resolution rate charts, technician performance metrics, and 1-click CSV report exports for audits.</p>
+          </div>
+          <div class="card">
+            <h4>🌓 Modern Responsive Design</h4>
+            <p>Engineered with tailored glassmorphic styling, sleek dark/light mode switcher, and mobile-first responsive layouts.</p>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes5">
+        <strong>Speaker Script:</strong> "CampusCare isn't just a generic form. It includes a custom interactive map of our exact blocks, a transport tracker for institute buses, logistics support for campus clubs, and a dedicated support gateway for student safety."
+      </div>
+    </div>
+
+    <!-- Slide 6: Stakeholder Benefits -->
+    <div class="slide-card" data-slide="6">
+      <div class="slide-header">
+        <span class="slide-tag">Impact &amp; Benefits</span>
+        <h2 class="slide-title font-orbitron">Institutional Benefits &amp; ROI</h2>
+        <p class="slide-subtitle">Measurable advantages for students, technicians, and college leadership</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card" style="border-top: 3px solid #818cf8;">
+            <h4 style="color: #818cf8;">For Students &amp; Faculty</h4>
+            <ul>
+              <li><span class="bullet">✓</span> <strong>Instant Reporting:</strong> File complaints from classroom or lab in seconds.</li>
+              <li><span class="bullet">✓</span> <strong>Transparent Tracking:</strong> Real-time progress notifications without follow-up calls.</li>
+              <li><span class="bullet">✓</span> <strong>Enhanced Learning:</strong> Quick resolution of AC, fan, and projector faults.</li>
+            </ul>
+          </div>
+          <div class="card" style="border-top: 3px solid #f59e0b;">
+            <h4 style="color: #fbbf24;">For Maintenance Teams</h4>
+            <ul>
+              <li><span class="bullet">✓</span> <strong>Clear Digital Orders:</strong> Exact room and photo proof eliminate ambiguity.</li>
+              <li><span class="bullet">✓</span> <strong>Priority Routing:</strong> High-severity tasks are addressed first.</li>
+              <li><span class="bullet">✓</span> <strong>Performance Record:</strong> Verified proof of completed work and technician SLA.</li>
+            </ul>
+          </div>
+          <div class="card" style="border-top: 3px solid #10b981;">
+            <h4 style="color: #34d399;">For Administration</h4>
+            <ul>
+              <li><span class="bullet">✓</span> <strong>NAAC &amp; NIRF Ready:</strong> Digital audit trail of infrastructure maintenance.</li>
+              <li><span class="bullet">✓</span> <strong>Preventive Analytics:</strong> Detect recurring equipment breakdown patterns.</li>
+              <li><span class="bullet">✓</span> <strong>Cost Efficiency:</strong> Reduced downtime and optimized contractor dispatch.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes6">
+        <strong>Speaker Script:</strong> "The benefits span the entire institution. Students study in well-maintained labs, technicians have organized digital queues with photo evidence, and college directors gain an indisputable audit trail that directly aids in NAAC and NIRF accreditation evaluations."
+      </div>
+    </div>
+
+    <!-- Slide 7: Tech Stack -->
+    <div class="slide-card" data-slide="7">
+      <div class="slide-header">
+        <span class="slide-tag">Implementation Details</span>
+        <h2 class="slide-title font-orbitron">Technology Stack &amp; Standards</h2>
+        <p class="slide-subtitle">Built with enterprise full-stack web architecture</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-4" style="margin-bottom: 20px;">
+          <div class="card" style="text-align: center;">
+            <h4 style="color: #818cf8;">Next.js 14</h4>
+            <p>App Router, React Server Components &amp; dynamic routing.</p>
+          </div>
+          <div class="card" style="text-align: center;">
+            <h4 style="color: #60a5fa;">TypeScript</h4>
+            <p>End-to-end type safety across client interfaces and server APIs.</p>
+          </div>
+          <div class="card" style="text-align: center;">
+            <h4 style="color: #34d399;">Prisma ORM</h4>
+            <p>Unified schema supporting SQLite local dev &amp; PostgreSQL prod.</p>
+          </div>
+          <div class="card" style="text-align: center;">
+            <h4 style="color: #c084fc;">Tailwind CSS</h4>
+            <p>Custom glassmorphic design system with theme toggles.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-bottom: 10px;">Security &amp; Engineering Highlights</h4>
+          <div class="grid-2">
+            <p>• <strong>JWT Cryptography:</strong> Jose encrypted tokens with backward-compatible cookie fallback verification.</p>
+            <p>• <strong>Bcrypt Hashing:</strong> Salting and secure storage of user and administrative credentials.</p>
+            <p>• <strong>Optimistic UI:</strong> Instant feedback, micro-animations, and toast alerts.</p>
+            <p>• <strong>Zero Bloat:</strong> Clean component architecture delivering sub-second load times.</p>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes7">
+        <strong>Speaker Script:</strong> "On the engineering side, Kanhaiya implemented Next.js 14 with TypeScript and Prisma ORM. We use JWT session security with fallback verification, custom Tailwind tokens for sleek dark and light mode, and zero bloated libraries for optimal performance."
+      </div>
+    </div>
+
+    <!-- Slide 8: Team Showcase -->
+    <div class="slide-card" data-slide="8">
+      <div class="slide-header">
+        <span class="slide-tag">Project Team</span>
+        <h2 class="slide-title font-orbitron">Team Contributions &amp; Ownership</h2>
+        <p class="slide-subtitle">Collaboration and role distribution behind CampusCare</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card" style="border: 1px solid rgba(99, 102, 241, 0.4);">
+            <h4 style="color: #818cf8; font-size: 1.2rem;">Kanhaiya</h4>
+            <p style="font-weight: 700; color: #fff; margin-bottom: 12px;">Lead Full-Stack Developer</p>
+            <ul>
+              <li><span class="bullet">✦</span> Built complete frontend &amp; backend architecture</li>
+              <li><span class="bullet">✦</span> Designed Prisma database models &amp; REST APIs</li>
+              <li><span class="bullet">✦</span> Implemented JWT auth &amp; role authorization</li>
+              <li><span class="bullet">✦</span> Created Interactive Map &amp; Report Wizard</li>
+            </ul>
+          </div>
+          <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.4);">
+            <h4 style="color: #34d399; font-size: 1.2rem;">Rishav</h4>
+            <p style="font-weight: 700; color: #fff; margin-bottom: 12px;">Project Researcher</p>
+            <ul>
+              <li><span class="bullet">✦</span> Conducted campus surveys across blocks AB-1 to 4</li>
+              <li><span class="bullet">✦</span> Mapped issue resolution workflows and SLA bounds</li>
+              <li><span class="bullet">✦</span> Formulated sensitive keyword screening matrix</li>
+              <li><span class="bullet">✦</span> Led usability testing sessions with student peers</li>
+            </ul>
+          </div>
+          <div class="card" style="border: 1px solid rgba(168, 85, 247, 0.4);">
+            <h4 style="color: #c084fc; font-size: 1.2rem;">Badri</h4>
+            <p style="font-weight: 700; color: #fff; margin-bottom: 12px;">Supporter &amp; Presentation</p>
+            <ul>
+              <li><span class="bullet">✦</span> Designed presentation slide decks and PPT assets</li>
+              <li><span class="bullet">✦</span> Prepared visual diagrams, charts &amp; pitch decks</li>
+              <li><span class="bullet">✦</span> Coordinated project documentation &amp; verification</li>
+              <li><span class="bullet">✦</span> Aligned deliverables with institutional rubrics</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes8">
+        <strong>Speaker Script:</strong> "Our team worked in tight synergy: Kanhaiya took charge of all full-stack coding and system architecture; Rishav gathered on-ground problem data across GL Bajaj blocks to define real workflows; and Badri crafted our structured presentations, slide decks, and documentation."
+      </div>
+    </div>
+
+    <!-- Slide 9: Future Scope -->
+    <div class="slide-card" data-slide="9">
+      <div class="slide-header">
+        <span class="slide-tag">Future Roadmap</span>
+        <h2 class="slide-title font-orbitron">Scalability &amp; Future Scope</h2>
+        <p class="slide-subtitle">Next evolution steps for smart campus infrastructure</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="card">
+            <h4>🏷️ Physical QR-Code Desk Tags</h4>
+            <p>Affixing QR code stickers to every classroom desk, projector stand, and water point. Scanning the code automatically loads the wizard with exact block, floor, and room number pre-selected.</p>
+          </div>
+          <div class="card">
+            <h4>🤖 AI Visual Damage Severity Assessment</h4>
+            <p>Computer vision model to automatically grade photo evidence (e.g. water pipe burst vs slight drip) to dynamically adjust emergency urgency and pre-order replacement parts.</p>
+          </div>
+          <div class="card">
+            <h4>📡 IoT Smart Sensor Telemetry</h4>
+            <p>Integrating hardware ultrasonic sensors on hostel water tanks and power grid sensors in electrical substations to autonomously dispatch tickets before outages affect campus life.</p>
+          </div>
+          <div class="card">
+            <h4>📱 Native Mobile App &amp; Web Push</h4>
+            <p>Instant push alerts dispatched to maintenance technicians' mobile phones, enabling one-tap job acceptance, camera photo capture, and on-site completion verification.</p>
+          </div>
+        </div>
+      </div>
+      <div class="notes-box" id="notes9">
+        <strong>Speaker Script:</strong> "Looking ahead, CampusCare has massive growth potential. We envision QR codes on every classroom desk for 5-second reporting, AI photo analysis to classify damage severity, and IoT sensors on water tanks and power lines to detect issues proactively."
+      </div>
+    </div>
+
+    <!-- Slide 10: Conclusion & Q&A -->
+    <div class="slide-card" data-slide="10">
+      <div class="slide-header" style="text-align: center;">
+        <span class="slide-tag">Conclusion</span>
+        <h2 class="slide-title font-orbitron" style="font-size: 2.75rem;">Transforming Campus Operations</h2>
+        <p class="slide-subtitle">CampusCare: Smarter, Faster, and More Transparent</p>
+      </div>
+      <div class="slide-body" style="text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 12px;">🎓</div>
+        <p style="font-size: 1.15rem; color: #cbd5e1; max-width: 650px; margin: 0 auto 24px;">
+          CampusCare proves how targeted software engineering can solve real everyday problems at G.L. Bajaj Institute of Technology &amp; Management.
+        </p>
+        <div class="card" style="max-width: 500px; margin: 0 auto; background: rgba(79, 70, 229, 0.15); border-color: rgba(79, 70, 229, 0.3);">
+          <h4 style="color: #a5b4fc;">Live Web Application Ready</h4>
+          <p style="font-size: 0.85rem; color: #fff;">Open for Live System Demonstration &amp; Evaluator Q&amp;A</p>
+        </div>
+      </div>
+      <div class="notes-box" id="notes10">
+        <strong>Speaker Script:</strong> "Thank you respected professors and jury members. CampusCare is fully live, operational, and tested. We welcome your questions and would love to walk you through a live demonstration."
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-size: 0.85rem; color: var(--text-muted);" id="slideIndicator">Slide 1 of 10</span>
+      <div class="slide-dots" id="dotContainer"></div>
+    </div>
+    <div class="deck-controls">
+      <button class="btn btn-outline" id="prevBtn" onclick="prevSlide()">← Previous</button>
+      <button class="btn" id="nextBtn" onclick="nextSlide()">Next →</button>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 10;
+
+    function initDots() {
+      const container = document.getElementById("dotContainer");
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement("button");
+        dot.className = "dot" + (i === 1 ? " active" : "");
+        dot.innerText = i;
+        dot.onclick = () => goToSlide(i);
+        container.appendChild(dot);
+      }
+    }
+
+    function updateSlide() {
+      document.querySelectorAll(".slide-card").forEach((card, index) => {
+        card.classList.toggle("active", index + 1 === currentSlide);
+      });
+
+      document.querySelectorAll(".dot").forEach((dot, index) => {
+        dot.classList.toggle("active", index + 1 === currentSlide);
+      });
+
+      document.getElementById("slideIndicator").innerText = `Slide ${currentSlide} of ${totalSlides}`;
+      document.getElementById("progressBar").style.width = `${(currentSlide / totalSlides) * 100}%`;
+
+      document.getElementById("prevBtn").disabled = currentSlide === 1;
+      document.getElementById("nextBtn").disabled = currentSlide === totalSlides;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(n) {
+      currentSlide = n;
+      updateSlide();
+    }
+
+    function toggleNotes() {
+      document.querySelectorAll(".notes-box").forEach(el => {
+        el.style.display = (el.style.display === "none") ? "block" : "none";
+      });
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === "f" || e.key === "F") {
+        toggleFullScreen();
+      }
+    });
+
+    initDots();
+    updateSlide();
+  </script>
+</body>
+</html>

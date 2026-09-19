@@ -1,0 +1,249 @@
+// SmartCampus — GL Bajaj (SQLite Local Development)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Department {
+  id          String    @id @default(cuid())
+  code        String    @unique // e.g. "CSE", "ECE", "ME", "IT", "ASH", "EEE", "MCA", "MBA"
+  name        String
+  description String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  programs    Program[]
+  users       User[]
+  issues      Issue[]
+}
+
+model Program {
+  id           String     @id @default(cuid())
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  name         String
+  code         String
+  level        String     @default("UG") // "UG" or "PG"
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Club {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  category    String    @default("Technical") // "Technical", "Cultural", "Social", "Literary", "Sports"
+  description String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  issues      Issue[]
+}
+
+model TransportRoute {
+  id          String    @id @default(cuid())
+  routeNumber String    @unique // e.g. "Route 01"
+  routeName   String    // e.g. "Dilshad Garden to GLBITM"
+  startPoint  String
+  endPoint    String    @default("GLBITM Campus")
+  stops       String?   // comma-separated key stops
+  timings     String?   // e.g. "07:00 AM Departure"
+  busNumber   String?
+  driverName  String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SystemSetting {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  value       String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model User {
+  id                  String         @id @default(cuid())
+  name                String
+  email               String         @unique
+  passwordHash        String
+  role                String         @default("STUDENT") // STUDENT, FACULTY, STAFF, MAINTENANCE_STAFF, DEPARTMENT_COORDINATOR, ADMIN
+  status              String         @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  studentOrEmployeeId String?
+  avatarUrl           String?
+  departmentId        String?
+  department          Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  lastLoginAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  // Relationships
+  staffProfile        StaffProfile?
+  reportedIssues      Issue[]        @relation("ReportedIssues")
+  assignedIssues      Issue[]        @relation("AssignedIssues")
+  comments            IssueComment[]
+  notifications       Notification[]
+  feedback            Feedback[]
+  auditLogs           AuditLog[]
+  historyActions      IssueHistory[]
+  uploadedAttachments IssueAttachment[]
+}
+
+model StaffProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization  String   // "ELECTRICAL", "PLUMBING", "HVAC", "NETWORK", "CARPENTRY", "CLEANING"
+  availability    Boolean  @default(true)
+  currentWorkload Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Category {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  description     String?
+  icon            String    @default("AlertCircle")
+  defaultPriority String    @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  issues          Issue[]
+}
+
+model Location {
+  id               String     @id @default(cuid())
+  name             String
+  building         String     // Block A, Block B, Block C, Central Library, SHD Auditorium, Boys Hostel, Girls Hostel, Cafeteria
+  floor            String?
+  room             String?
+  facilityType     String     @default("ACADEMIC") // ACADEMIC, LABORATORY, LIBRARY, STUDENT_LIFE, HOSTEL, SPORTS, TRANSPORT, ADMINISTRATION
+  latitude         Float?
+  longitude        Float?
+  parentLocationId String?
+  parentLocation   Location?  @relation("LocationHierarchy", fields: [parentLocationId], references: [id], onDelete: SetNull)
+  subLocations     Location[] @relation("LocationHierarchy")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  issues           Issue[]
+}
+
+model Issue {
+  id              String       @id @default(cuid())
+  publicIssueId   String       @unique // e.g. SC-2026-000101
+  title           String
+  description     String
+  categoryId      String
+  category        Category     @relation(fields: [categoryId], references: [id])
+  reporterId      String
+  reporter        User         @relation("ReportedIssues", fields: [reporterId], references: [id])
+  assignedStaffId String?
+  assignedStaff   User?        @relation("AssignedIssues", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  locationId      String
+  location        Location     @relation(fields: [locationId], references: [id])
+  room            String?
+  departmentId    String?
+  department      Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  clubId          String?
+  club            Club?        @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  isSensitive     Boolean      @default(false)
+  latitude        Float?
+  longitude       Float?
+  priority        String       @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status          String       @default("SUBMITTED") // SUBMITTED, UNDER_REVIEW, VERIFIED, ASSIGNED, IN_PROGRESS, RESOLVED, USER_CONFIRMED, CLOSED, REOPENED, REJECTED, ON_HOLD
+  affectedCount   Int          @default(1)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+
+  attachments     IssueAttachment[]
+  history         IssueHistory[]
+  comments        IssueComment[]
+  feedback        Feedback?
+}
+
+model IssueAttachment {
+  id           String   @id @default(cuid())
+  issueId      String
+  issue        Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  url          String
+  type         String   // "IMAGE" or "VIDEO" or "DOCUMENT"
+  fileName     String
+  fileSize     Int
+  createdAt    DateTime @default(now())
+}
+
+model IssueHistory {
+  id        String    @id @default(cuid())
+  issueId   String
+  issue     Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  actorId   String
+  actor     User      @relation(fields: [actorId], references: [id])
+  oldStatus String?
+  newStatus String
+  comment   String?
+  createdAt DateTime  @default(now())
+}
+
+model IssueComment {
+  id        String   @id @default(cuid())
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  issueId   String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  issueId   String   @unique
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int
+  resolved  Boolean
+  comment   String?
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  metadata   String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+}
