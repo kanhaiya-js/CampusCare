@@ -124,18 +124,18 @@ export function Navbar() {
               duration: 450,
               easing: "cubic-bezier(0.4, 0, 0.2, 1)",
               pseudoElement: "::view-transition-new(root)",
-            }
+            } as any
           );
         })
         .catch(() => {
           setTheme(nextTheme);
         });
     } else {
-      if (typeof document !== "undefined") {
-        document.documentElement.classList.add("theme-transition");
+      if (typeof window !== "undefined" && typeof document !== "undefined") {
+        (document as any).documentElement.classList.add("theme-transition");
         setTheme(nextTheme);
         setTimeout(() => {
-          document.documentElement.classList.remove("theme-transition");
+          (document as any).documentElement.classList.remove("theme-transition");
         }, 450);
       } else {
         setTheme(nextTheme);

@@ -231,15 +231,15 @@ export async function POST(req: NextRequest) {
               {
                 actorId: session.userId,
                 oldStatus: null,
-                newStatus: "SUBMITTED",
+                newStatus: "SUBMITTED" as const,
                 comment: "Issue submitted by reporter",
               },
               ...(bestStaff
                 ? [
                     {
                       actorId: session.userId,
-                      oldStatus: "SUBMITTED",
-                      newStatus: "ASSIGNED",
+                      oldStatus: "SUBMITTED" as const,
+                      newStatus: "ASSIGNED" as const,
                       comment: `Auto-assigned to ${bestStaff.staffName} (${bestStaff.specialization})`,
                     },
                   ]

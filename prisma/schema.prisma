@@ -43,6 +43,7 @@ enum IssueStatus {
   CLOSED
   REOPENED
   REJECTED
+  DUPLICATE
   ON_HOLD
 }
 

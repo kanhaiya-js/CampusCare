@@ -74,8 +74,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         data: {
           issueId: issue.id,
           actorId: session.userId,
-          oldStatus,
-          newStatus,
+          oldStatus: oldStatus as any,
+          newStatus: newStatus as any,
           comment: comment || `Status changed from ${oldStatus} to ${newStatus}`,
         },
       });
