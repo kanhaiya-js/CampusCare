@@ -1,55 +1,17 @@
-// SmartCampus — GL Bajaj (PostgreSQL Production)
+// SmartCampus — GL Bajaj (SQLite Local & Internal File Database)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-enum Role {
-  STUDENT
-  FACULTY
-  STAFF
-  MAINTENANCE_STAFF
-  DEPARTMENT_COORDINATOR
-  ADMIN
-  USER
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
-enum IssueStatus {
-  SUBMITTED
-  UNDER_REVIEW
-  VERIFIED
-  ASSIGNED
-  IN_PROGRESS
-  RESOLVED
-  USER_CONFIRMED
-  CLOSED
-  REOPENED
-  REJECTED
-  DUPLICATE
-  ON_HOLD
 }
 
 model Department {
   id          String    @id @default(cuid())
-  code        String    @unique
+  code        String    @unique // e.g. "CSE", "ECE", "ME", "IT", "ASH", "EEE", "MCA", "MBA"
   name        String
   description String?
   active      Boolean   @default(true)
@@ -59,9 +21,6 @@ model Department {
   programs    Program[]
   users       User[]
   issues      Issue[]
-
-  @@index([code])
-  @@index([active])
 }
 
 model Program {
@@ -70,45 +29,37 @@ model Program {
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   name         String
   code         String
-  level        String     @default("UG")
+  level        String     @default("UG") // "UG" or "PG"
   active       Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-
-  @@index([departmentId])
-  @@index([code])
 }
 
 model Club {
   id          String    @id @default(cuid())
   name        String    @unique
-  category    String    @default("Technical")
+  category    String    @default("Technical") // "Technical", "Cultural", "Social", "Literary", "Sports"
   description String?
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   issues      Issue[]
-
-  @@index([name])
-  @@index([active])
 }
 
 model TransportRoute {
   id          String    @id @default(cuid())
-  routeNumber String    @unique
-  routeName   String
+  routeNumber String    @unique // e.g. "Route 01"
+  routeName   String    // e.g. "Dilshad Garden to GLBITM"
   startPoint  String
   endPoint    String    @default("GLBITM Campus")
-  stops       String?
-  timings     String?
+  stops       String?   // comma-separated key stops
+  timings     String?   // e.g. "07:00 AM Departure"
   busNumber   String?
   driverName  String?
   active      Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
-  @@index([routeNumber])
 }
 
 model SystemSetting {
@@ -125,8 +76,8 @@ model User {
   name                String
   email               String         @unique
   passwordHash        String
-  role                Role           @default(STUDENT)
-  status              UserStatus     @default(ACTIVE)
+  role                String         @default("STUDENT") // STUDENT, FACULTY, STAFF, MAINTENANCE_STAFF, DEPARTMENT_COORDINATOR, ADMIN
+  status              String         @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
   studentOrEmployeeId String?
   avatarUrl           String?
   departmentId        String?
@@ -145,25 +96,17 @@ model User {
   auditLogs           AuditLog[]
   historyActions      IssueHistory[]
   uploadedAttachments IssueAttachment[]
-
-  @@index([email])
-  @@index([role])
-  @@index([status])
-  @@index([departmentId])
 }
 
 model StaffProfile {
   id              String   @id @default(cuid())
   userId          String   @unique
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  specialization  String
+  specialization  String   // "ELECTRICAL", "PLUMBING", "HVAC", "NETWORK", "CARPENTRY", "CLEANING"
   availability    Boolean  @default(true)
   currentWorkload Int      @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
-  @@index([specialization])
-  @@index([availability])
 }
 
 model Category {
@@ -171,23 +114,21 @@ model Category {
   name            String    @unique
   description     String?
   icon            String    @default("AlertCircle")
-  defaultPriority Priority  @default(MEDIUM)
+  defaultPriority String    @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
   active          Boolean   @default(true)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   issues          Issue[]
-
-  @@index([active])
 }
 
 model Location {
   id               String     @id @default(cuid())
   name             String
-  building         String
+  building         String     // Block A, Block B, Block C, Central Library, SHD Auditorium, Boys Hostel, Girls Hostel, Cafeteria
   floor            String?
   room             String?
-  facilityType     String     @default("ACADEMIC")
+  facilityType     String     @default("ACADEMIC") // ACADEMIC, LABORATORY, LIBRARY, STUDENT_LIFE, HOSTEL, SPORTS, TRANSPORT, ADMINISTRATION
   latitude         Float?
   longitude        Float?
   parentLocationId String?
@@ -197,15 +138,11 @@ model Location {
   updatedAt        DateTime   @updatedAt
 
   issues           Issue[]
-
-  @@index([building])
-  @@index([facilityType])
-  @@index([parentLocationId])
 }
 
 model Issue {
   id              String       @id @default(cuid())
-  publicIssueId   String       @unique
+  publicIssueId   String       @unique // e.g. SC-2026-000101
   title           String
   description     String
   categoryId      String
@@ -224,8 +161,8 @@ model Issue {
   isSensitive     Boolean      @default(false)
   latitude        Float?
   longitude       Float?
-  priority        Priority     @default(MEDIUM)
-  status          IssueStatus  @default(SUBMITTED)
+  priority        String       @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status          String       @default("SUBMITTED") // SUBMITTED, UNDER_REVIEW, VERIFIED, ASSIGNED, IN_PROGRESS, RESOLVED, USER_CONFIRMED, CLOSED, REOPENED, REJECTED, ON_HOLD
   affectedCount   Int          @default(1)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -236,16 +173,6 @@ model Issue {
   history         IssueHistory[]
   comments        IssueComment[]
   feedback        Feedback?
-
-  @@index([publicIssueId])
-  @@index([status])
-  @@index([priority])
-  @@index([categoryId])
-  @@index([locationId])
-  @@index([departmentId])
-  @@index([reporterId])
-  @@index([assignedStaffId])
-  @@index([createdAt])
 }
 
 model IssueAttachment {
@@ -255,27 +182,22 @@ model IssueAttachment {
   uploadedById String
   uploadedBy   User     @relation(fields: [uploadedById], references: [id])
   url          String
-  type         String
+  type         String   // "IMAGE" or "VIDEO" or "DOCUMENT"
   fileName     String
   fileSize     Int
   createdAt    DateTime @default(now())
-
-  @@index([issueId])
 }
 
 model IssueHistory {
-  id        String       @id @default(cuid())
+  id        String    @id @default(cuid())
   issueId   String
-  issue     Issue        @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issue     Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
   actorId   String
-  actor     User         @relation(fields: [actorId], references: [id])
-  oldStatus IssueStatus?
-  newStatus IssueStatus
+  actor     User      @relation(fields: [actorId], references: [id])
+  oldStatus String?
+  newStatus String
   comment   String?
-  createdAt DateTime     @default(now())
-
-  @@index([issueId])
-  @@index([createdAt])
+  createdAt DateTime  @default(now())
 }
 
 model IssueComment {
@@ -287,9 +209,6 @@ model IssueComment {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([issueId])
-  @@index([createdAt])
 }
 
 model Notification {
@@ -302,10 +221,6 @@ model Notification {
   issueId   String?
   readAt    DateTime?
   createdAt DateTime  @default(now())
-
-  @@index([userId])
-  @@index([readAt])
-  @@index([createdAt])
 }
 
 model Feedback {
@@ -318,9 +233,6 @@ model Feedback {
   resolved  Boolean
   comment   String?
   createdAt DateTime @default(now())
-
-  @@index([rating])
-  @@index([resolved])
 }
 
 model AuditLog {
@@ -334,9 +246,4 @@ model AuditLog {
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
-
-  @@index([actorId])
-  @@index([action])
-  @@index([entityType])
-  @@index([createdAt])
 }

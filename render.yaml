@@ -1,4 +1,4 @@
-# Render Blueprint Specification for CampusCare
+# Render Blueprint Specification for CampusCare (Internal File-Based Database)
 # Docs: https://render.com/docs/blueprint-spec
 
 services:
@@ -13,20 +13,12 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: campuscare-db
-          property: connectionString
+        value: "file:./dev.db"
       - key: AUTH_SECRET
         generateValue: true
       - key: ADMIN_REGISTER_KEY
-        generateValue: true
+        value: "CampusCare2026AdminKey"
       - key: NEXT_PUBLIC_APP_URL
         sync: false
       - key: STORAGE_DRIVER
         value: local
-
-databases:
-  - name: campuscare-db
-    plan: free
-    databaseName: campuscare
-    user: campuscare

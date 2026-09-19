@@ -30,14 +30,11 @@
 # ==========================================
 # Databases & Local SQLite files
 # ==========================================
-*.db
 *.db-journal
-*.sqlite
 *.sqlite-journal
-prisma/*.db
 prisma/*.db-journal
-prisma/*.sqlite
 prisma/*.sqlite-journal
+!prisma/dev.db
 
 # ==========================================
 # User Uploads (Preserve folder via .gitkeep)
