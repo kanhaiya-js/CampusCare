@@ -59,10 +59,17 @@ export default function QRGeneratorPage() {
     url: string;
   } | null>(null);
 
-  // Directory Search & Filter
+  // Directory Search, Filter & Pagination
   const [searchQuery, setSearchQuery] = useState("");
   const [filterBuilding, setFilterBuilding] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 9;
   const [useLiveDomain, setUseLiveDomain] = useState(true);
+
+  // Reset page when filtering
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterBuilding]);
 
   // Target domain for QR encoding (ensures any external camera can open the URL from any device)
   const origin = useMemo(() => {
@@ -151,16 +158,28 @@ export default function QRGeneratorPage() {
   };
 
   // Buildings list for filtering
-  const allBuildings = Array.from(new Set(locations.map((l) => l.building)));
+  const allBuildings = useMemo(() => {
+    return Array.from(new Set(locations.map((l) => l.building)));
+  }, [locations]);
 
-  const filteredDirectory = locations.filter((loc) => {
-    const matchesSearch =
-      loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      loc.building.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (loc.room && loc.room.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesBuilding = filterBuilding === "ALL" || loc.building === filterBuilding;
-    return matchesSearch && matchesBuilding;
-  });
+  const filteredDirectory = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return locations.filter((loc) => {
+      const matchesSearch =
+        !q ||
+        loc.name.toLowerCase().includes(q) ||
+        loc.building.toLowerCase().includes(q) ||
+        (loc.room && loc.room.toLowerCase().includes(q));
+      const matchesBuilding = filterBuilding === "ALL" || loc.building === filterBuilding;
+      return matchesSearch && matchesBuilding;
+    });
+  }, [locations, searchQuery, filterBuilding]);
+
+  const totalPages = Math.ceil(filteredDirectory.length / PAGE_SIZE) || 1;
+  const paginatedDirectory = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredDirectory.slice(start, start + PAGE_SIZE);
+  }, [filteredDirectory, currentPage]);
 
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
@@ -551,67 +570,101 @@ export default function QRGeneratorPage() {
                 No campus locations match your filter.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDirectory.map((loc) => {
-                  const locUrl = `${origin}/scan?locationId=${loc.id}${loc.room ? `&room=${encodeURIComponent(loc.room)}` : ""}`;
-                  return (
-                    <div
-                      key={loc.id}
-                      className="p-5 rounded-2xl border border-border bg-card hover:border-primary-400 dark:hover:border-primary-700 shadow-sm transition-all flex flex-col justify-between space-y-4"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                            {loc.building}
-                          </span>
-                          <h3 className="font-bold text-sm text-foreground truncate mt-0.5">
-                            {loc.name}
-                          </h3>
-                          {loc.room && (
-                            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-muted text-foreground border border-border">
-                              📍 {loc.room}
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {paginatedDirectory.map((loc) => {
+                    const locUrl = `${origin}/scan?locationId=${loc.id}${loc.room ? `&room=${encodeURIComponent(loc.room)}` : ""}`;
+                    return (
+                      <div
+                        key={loc.id}
+                        className="p-5 rounded-2xl border border-border bg-card hover:border-primary-400 dark:hover:border-primary-700 shadow-sm transition-all flex flex-col justify-between space-y-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                              {loc.building}
                             </span>
-                          )}
+                            <h3 className="font-bold text-sm text-foreground truncate mt-0.5">
+                              {loc.name}
+                            </h3>
+                            {loc.room && (
+                              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-muted text-foreground border border-border">
+                                📍 {loc.room}
+                              </span>
+                            )}
+                          </div>
+
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 shrink-0">
+                            {loc.facilityType || "CAMPUS"}
+                          </span>
                         </div>
 
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 shrink-0">
-                          {loc.facilityType || "CAMPUS"}
-                        </span>
-                      </div>
+                        {/* Scannable Thumbnail */}
+                        <div className="flex items-center justify-center p-3 bg-muted/40 rounded-xl">
+                          <QRCodeDisplay
+                            value={locUrl}
+                            size={150}
+                            fgColor="#000000"
+                            bgColor="#ffffff"
+                            title={loc.name}
+                          />
+                        </div>
 
-                      {/* Scannable Thumbnail */}
-                      <div className="flex items-center justify-center p-3 bg-muted/40 rounded-xl">
-                        <QRCodeDisplay
-                          value={locUrl}
-                          size={150}
-                          fgColor="#0f172a"
-                          bgColor="#ffffff"
-                          title={loc.name}
-                        />
-                      </div>
-
-                      {/* Card Actions */}
-                      <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handlePrintDirectoryItem(loc)}
-                          className="gap-1.5 text-xs font-semibold"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                          Print Tag
-                        </Button>
-
-                        <Link href={`/scan?locationId=${loc.id}${loc.room ? `&room=${encodeURIComponent(loc.room)}` : ""}`}>
-                          <Button size="sm" variant="primary" className="w-full gap-1.5 text-xs font-semibold">
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            Scan Link
+                        {/* Card Actions */}
+                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handlePrintDirectoryItem(loc)}
+                            className="gap-1.5 text-xs font-semibold"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                            Print Tag
                           </Button>
-                        </Link>
+
+                          <Link href={`/scan?locationId=${loc.id}${loc.room ? `&room=${encodeURIComponent(loc.room)}` : ""}`}>
+                            <Button size="sm" variant="primary" className="w-full gap-1.5 text-xs font-semibold">
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Scan Link
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
+                    );
+                  })}
+                </div>
+
+                {/* Directory Pagination & Stats Controls */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border text-xs text-muted-foreground">
+                  <span className="font-medium">
+                    Showing {paginatedDirectory.length} of {filteredDirectory.length} campus facilities
+                  </span>
+                  {totalPages > 1 && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        className="text-xs h-8 px-3"
+                      >
+                        Previous
+                      </Button>
+                      <span className="font-bold text-foreground text-xs px-2">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        className="text-xs h-8 px-3"
+                      >
+                        Next
+                      </Button>
                     </div>
-                  );
-                })}
+                  )}
+                </div>
               </div>
             )}
           </div>

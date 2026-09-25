@@ -82,4 +82,5 @@ Thumbs.db
 *.sln
 *.sw?
 *.bak
+*.pdf
 node_modules

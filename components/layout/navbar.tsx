@@ -212,7 +212,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 print:hidden">
       <div className="w-full px-4 sm:px-6 lg:px-8 h-15 flex items-center justify-between gap-3">
         {/* Brand */}
         <div className="flex items-center gap-3 shrink-0">

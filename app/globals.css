@@ -234,3 +234,62 @@
   background-size: 100% 4px, 6px 100%;
 }
 
+/* Professional Print Stylesheet — Zero header/tab overlay on placards */
+@media print {
+  @page {
+    size: auto;
+    margin: 12mm 15mm;
+  }
+
+  /* Force hide all top bars, navbars, footers, toasts, and UI chrome */
+  header,
+  nav,
+  footer,
+  aside,
+  button,
+  .print\\:hidden,
+  [data-radix-portal],
+  [role="region"],
+  [aria-live="polite"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    top: -9999px !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Target Print Placard Container */
+  #print-placard-area {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 650px !important;
+    margin: 0 auto !important;
+    padding: 1rem !important;
+    page-break-inside: avoid !important;
+  }
+
+  #print-placard-area * {
+    visibility: visible !important;
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

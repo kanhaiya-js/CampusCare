@@ -2,8 +2,8 @@ import QRCode from "qrcode";
 
 /**
  * CampusCare — Professional ISO/IEC 18004 Compliant QR Code Generator
- * Powered by standard QR matrix compilation for 100% scannability across
- * all smartphone cameras (iOS Camera, Google Lens, Paytm, WhatsApp, etc.)
+ * Universal scannability across all smartphone cameras (iOS, Google Lens, Paytm, WhatsApp)
+ * with strict XML sanitation and high-performance vector path generation.
  */
 
 export type QRErrorCorrectionLevel = "L" | "M" | "Q" | "H";
@@ -16,11 +16,32 @@ export interface QRCodeData {
 
 export interface QRRenderOptions {
   size?: number; // Output SVG width/height in px
-  margin?: number; // Margin modules around QR (min 2-4 recommended for standard cameras)
+  margin?: number; // Margin modules around QR (min 4 recommended for standard cameras)
   fgColor?: string; // Foreground color (dark modules)
   bgColor?: string; // Background color (light modules)
   title?: string;
   errorCorrectionLevel?: QRErrorCorrectionLevel;
+}
+
+export interface QRVectorData {
+  pathData: string;
+  viewBoxSize: number;
+  size: number;
+  fgColor: string;
+  bgColor: string;
+  title: string;
+}
+
+/**
+ * Sanitizes XML strings to prevent malformed SVG parser crashes on ampersands (&), quotes, etc.
+ */
+export function escapeXml(unsafe: string): string {
+  return (unsafe || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 /**
@@ -30,7 +51,7 @@ export function generateQRCodeMatrix(
   text: string,
   errorCorrectionLevel: QRErrorCorrectionLevel = "M"
 ): QRCodeData {
-  const qr = QRCode.create(text, {
+  const qr = QRCode.create(text || "https://campuscare.onrender.com", {
     errorCorrectionLevel,
   });
 
@@ -53,12 +74,12 @@ export function generateQRCodeMatrix(
 }
 
 /**
- * Returns a standalone, crisp SVG string of the QR Code with guaranteed quiet zone.
+ * Computes vector path data for high-performance direct SVG rendering (zero image decode overhead).
  */
-export function generateQRCodeSVG(
+export function getQRCodeVectorData(
   text: string,
   options: QRRenderOptions = {}
-): string {
+): QRVectorData {
   const {
     size = 280,
     margin = 4,
@@ -81,20 +102,63 @@ export function generateQRCodeSVG(
     }
   }
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxSize} ${viewBoxSize}" width="${size}" height="${size}" shape-rendering="crispEdges">
-  <title>${title}</title>
-  <rect width="${viewBoxSize}" height="${viewBoxSize}" fill="${bgColor}"/>
-  <path d="${pathData.trim()}" fill="${fgColor}"/>
+  return {
+    pathData: pathData.trim(),
+    viewBoxSize,
+    size,
+    fgColor,
+    bgColor,
+    title: escapeXml(title),
+  };
+}
+
+/**
+ * Returns a standalone, crisp SVG string with guaranteed quiet zone and XML sanitation.
+ */
+export function generateQRCodeSVG(
+  text: string,
+  options: QRRenderOptions = {}
+): string {
+  const vector = getQRCodeVectorData(text, options);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vector.viewBoxSize} ${vector.viewBoxSize}" width="${vector.size}" height="${vector.size}" shape-rendering="crispEdges">
+  <title>${vector.title}</title>
+  <rect width="${vector.viewBoxSize}" height="${vector.viewBoxSize}" fill="${vector.bgColor}"/>
+  <path d="${vector.pathData}" fill="${vector.fgColor}"/>
 </svg>`;
 }
 
 /**
- * Returns a Data URL for direct use in <img src="..." />
+ * Returns a valid RFC 2397 Data URL for direct use in <img src="..." />
  */
 export function generateQRCodeDataUrl(
   text: string,
   options: QRRenderOptions = {}
 ): string {
   const svg = generateQRCodeSVG(text, options);
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Generates high-res PNG data URL for crystal-clear offline export
+ */
+export async function generateQRCodePNGDataUrl(
+  text: string,
+  options: QRRenderOptions = {}
+): Promise<string> {
+  const {
+    margin = 4,
+    fgColor = "#000000",
+    bgColor = "#ffffff",
+    errorCorrectionLevel = "M",
+  } = options;
+
+  return QRCode.toDataURL(text || "https://campuscare.onrender.com", {
+    errorCorrectionLevel,
+    margin,
+    scale: 8,
+    color: {
+      dark: fgColor,
+      light: bgColor,
+    },
+  });
 }

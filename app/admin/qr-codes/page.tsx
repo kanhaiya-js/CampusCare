@@ -374,6 +374,8 @@ export default function AdminQRCodesPage() {
                       <QRCodeDisplay
                         value={qrUrl}
                         size={170}
+                        fgColor="#000000"
+                        bgColor="#ffffff"
                         title={`${loc.building} - ${loc.name}`}
                         showCopy={true}
                         showDownload={true}
