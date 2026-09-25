@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   QrCode,
@@ -44,8 +44,16 @@ export default function AdminQRCodesPage() {
   const [customBuilding, setCustomBuilding] = useState("");
   const [customRoom, setCustomRoom] = useState("");
   const [customLocationName, setCustomLocationName] = useState("");
-
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://campuscare.glbitm.edu";
+  const origin = useMemo(() => {
+    if (typeof window !== "undefined") {
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      if (isLocal) {
+        return "https://campuscare.onrender.com";
+      }
+      return window.location.origin;
+    }
+    return "https://campuscare.onrender.com";
+  }, []);
 
   useEffect(() => {
     fetchLocations();

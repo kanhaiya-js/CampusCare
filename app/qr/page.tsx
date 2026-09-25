@@ -62,8 +62,19 @@ export default function QRGeneratorPage() {
   // Directory Search & Filter
   const [searchQuery, setSearchQuery] = useState("");
   const [filterBuilding, setFilterBuilding] = useState("ALL");
+  const [useLiveDomain, setUseLiveDomain] = useState(true);
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://campuscare.glbitm.edu";
+  // Target domain for QR encoding (ensures any external camera can open the URL from any device)
+  const origin = useMemo(() => {
+    if (typeof window !== "undefined") {
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      if (isLocal && useLiveDomain) {
+        return "https://campuscare.onrender.com";
+      }
+      return window.location.origin;
+    }
+    return "https://campuscare.onrender.com";
+  }, [useLiveDomain]);
 
   useEffect(() => {
     fetchLocations();
@@ -413,9 +424,9 @@ export default function QRGeneratorPage() {
             {/* Right Live Preview Column (5 cols) */}
             <div className="lg:col-span-5 bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 sticky top-20 text-center">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 mb-2">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Live Preview
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 mb-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  Universal Scannable Placard
                 </div>
                 <h3 className="text-xl font-bold text-foreground">{displayName}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{displayBuilding}</p>
@@ -427,17 +438,20 @@ export default function QRGeneratorPage() {
               </div>
 
               {/* Dynamic QR Code */}
-              <div className="flex justify-center p-3">
+              <div className="flex flex-col items-center justify-center p-2 space-y-2">
                 <QRCodeDisplay
                   value={generatedUrl}
                   size={240}
-                  fgColor="#0f172a"
+                  fgColor="#000000"
                   bgColor="#ffffff"
                   title={`${displayBuilding} - ${roomNumber}`}
                   showDownload={true}
                   showCopy={false}
                   fileName={`campuscare-${displayBuilding.toLowerCase().replace(/\s+/g, "-")}-${roomNumber.toLowerCase().replace(/\s+/g, "-")}`}
                 />
+                <p className="text-[11px] text-muted-foreground font-medium">
+                  📷 Scannable with any camera (iPhone, Google Lens, Paytm, WhatsApp)
+                </p>
               </div>
 
               {/* Action Buttons */}

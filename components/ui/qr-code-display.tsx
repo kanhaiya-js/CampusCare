@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import { generateQRCodeSVG, generateQRCodeDataUrl } from "@/lib/qr/qrcode";
 import { Download, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ interface QRCodeDisplayProps {
 export function QRCodeDisplay({
   value,
   size = 220,
-  fgColor = "#0f172a",
+  fgColor = "#000000",
   bgColor = "#ffffff",
   title = "CampusCare Location QR",
   showDownload = false,
@@ -31,14 +31,17 @@ export function QRCodeDisplay({
 }: QRCodeDisplayProps) {
   const { success } = useToast();
   const [copied, setCopied] = React.useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   const dataUrl = useMemo(() => {
     try {
       return generateQRCodeDataUrl(value, {
         size,
+        margin: 4, // 4 modules ISO quiet zone for 100% camera lock
         fgColor,
         bgColor,
         title,
+        errorCorrectionLevel: "M", // Standard optimal density for smartphone cameras
       });
     } catch (e) {
       console.error("QR Code generation error:", e);
@@ -55,7 +58,7 @@ export function QRCodeDisplay({
     }
   };
 
-  const handleDownload = () => {
+  const handleDownloadSVG = () => {
     if (!dataUrl) return;
     const a = document.createElement("a");
     a.href = dataUrl;
@@ -63,7 +66,35 @@ export function QRCodeDisplay({
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    success("QR Code downloaded as SVG!");
+    success("Vector QR Code downloaded (.svg)");
+  };
+
+  const handleDownloadPNG = () => {
+    if (!dataUrl || typeof window === "undefined") return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = dataUrl;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      // High-res print scale (4x)
+      const exportSize = Math.max(800, size * 3);
+      canvas.width = exportSize;
+      canvas.height = exportSize;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, exportSize, exportSize);
+        ctx.drawImage(img, 0, 0, exportSize, exportSize);
+        const pngUrl = canvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = pngUrl;
+        a.download = `${fileName}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        success("High-res QR Code downloaded (.png)");
+      }
+    };
   };
 
   if (!dataUrl) {
@@ -76,28 +107,20 @@ export function QRCodeDisplay({
 
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
-      <div className="relative p-3 rounded-2xl bg-white border border-slate-200 shadow-md transition-transform hover:scale-[1.01]">
+      {/* 100% Unobstructed, High-Contrast QR Code Container */}
+      <div className="relative p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-md transition-transform hover:scale-[1.01]">
         <img
+          ref={imgRef}
           src={dataUrl}
           alt={title}
           width={size}
           height={size}
-          className="rounded-lg block select-none pointer-events-none"
+          className="rounded-lg block select-none"
         />
-        {/* Subtle CampusCare center watermark badge */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-10 h-10 rounded-xl bg-white/95 shadow-md border border-slate-200/80 flex items-center justify-center p-1.5 backdrop-blur-xs">
-            <img
-              src="/logo.png"
-              alt="CampusCare"
-              className="w-full h-full object-contain"
-            />
-          </div>
-        </div>
       </div>
 
       {(showDownload || showCopy) && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap justify-center gap-2">
           {showCopy && (
             <Button
               type="button"
@@ -111,16 +134,27 @@ export function QRCodeDisplay({
             </Button>
           )}
           {showDownload && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleDownload}
-              className="gap-1.5 text-xs h-8"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Download SVG
-            </Button>
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadPNG}
+                className="gap-1.5 text-xs h-8 font-medium"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Download PNG
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleDownloadSVG}
+                className="gap-1.5 text-xs h-8 text-muted-foreground hover:text-foreground"
+              >
+                SVG
+              </Button>
+            </>
           )}
         </div>
       )}

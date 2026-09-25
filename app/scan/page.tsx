@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import jsQR from "jsqr";
+
 interface LocationData {
   id: string;
   name: string;
@@ -44,7 +46,7 @@ function playScanChirp() {
     osc.frequency.setValueAtTime(880, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1);
 
-    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
 
     osc.connect(gain);
@@ -52,6 +54,11 @@ function playScanChirp() {
 
     osc.start();
     osc.stop(ctx.currentTime + 0.13);
+
+    // Haptic feedback vibration on mobile devices
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate([40, 50, 40]);
+    }
   } catch {
     // Ignore audio permission or autoplay restrictions
   }
@@ -83,6 +90,8 @@ function ScanPageContent() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Check auth and load locations on mount
   useEffect(() => {
@@ -140,6 +149,21 @@ function ScanPageContent() {
     }
   };
 
+  // Stop camera helper
+  const stopCamera = () => {
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+    setTorchOn(false);
+    setTargetLocked(false);
+  };
+
   // Camera start / stop handlers
   const startCamera = async () => {
     setCameraError(null);
@@ -156,49 +180,104 @@ function ScanPageContent() {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        videoRef.current.setAttribute("playsinline", "true");
+        await videoRef.current.play().catch(() => {});
       }
 
-      // Live BarcodeDetector API for instant QR recognition
-      if ("BarcodeDetector" in window) {
-        const barcodeDetector = new (window as any).BarcodeDetector({
-          formats: ["qr_code"],
-        });
+      // Prepare offscreen canvas for decoding frames
+      if (!canvasRef.current && typeof document !== "undefined") {
+        canvasRef.current = document.createElement("canvas");
+      }
 
-        const interval = setInterval(async () => {
-          if (!videoRef.current || !streamRef.current) {
-            clearInterval(interval);
-            return;
-          }
+      let barcodeDetector: any = null;
+      if (typeof window !== "undefined" && "BarcodeDetector" in window) {
+        try {
+          barcodeDetector = new (window as any).BarcodeDetector({
+            formats: ["qr_code"],
+          });
+        } catch {
+          barcodeDetector = null;
+        }
+      }
+
+      // Continuous universal frame scanning loop (every 140ms)
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+      }
+
+      scanIntervalRef.current = setInterval(async () => {
+        const video = videoRef.current;
+        if (!video || !streamRef.current || video.readyState < 2) {
+          return;
+        }
+
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        if (width === 0 || height === 0) return;
+
+        // 1. First attempt hardware-accelerated BarcodeDetector if available
+        if (barcodeDetector) {
           try {
-            const barcodes = await barcodeDetector.detect(videoRef.current);
-            if (barcodes.length > 0) {
-              clearInterval(interval);
+            const barcodes = await barcodeDetector.detect(video);
+            if (barcodes.length > 0 && barcodes[0].rawValue) {
+              if (scanIntervalRef.current) {
+                clearInterval(scanIntervalRef.current);
+                scanIntervalRef.current = null;
+              }
               playScanChirp();
               setTargetLocked(true);
               setTimeout(() => {
                 handleScannedUrl(barcodes[0].rawValue);
               }, 400);
+              return;
             }
           } catch {
-            // Frame detection error, continue next frame
+            // Fall through to jsQR frame decoder
           }
-        }, 200);
-      }
+        }
+
+        // 2. High-performance client-side jsQR canvas scan (100% supported in all browsers)
+        try {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+
+          // Downsample slightly if video is large for instant 60fps responsiveness
+          const targetW = width > 1000 ? Math.round(width / 2) : width;
+          const targetH = height > 1000 ? Math.round(height / 2) : height;
+
+          if (canvas.width !== targetW || canvas.height !== targetH) {
+            canvas.width = targetW;
+            canvas.height = targetH;
+          }
+
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          if (!ctx) return;
+
+          ctx.drawImage(video, 0, 0, targetW, targetH);
+          const imageData = ctx.getImageData(0, 0, targetW, targetH);
+          const code = jsQR(imageData.data, targetW, targetH, {
+            inversionAttempts: "attemptBoth",
+          });
+
+          if (code && code.data && code.data.trim().length > 0) {
+            if (scanIntervalRef.current) {
+              clearInterval(scanIntervalRef.current);
+              scanIntervalRef.current = null;
+            }
+            playScanChirp();
+            setTargetLocked(true);
+            setTimeout(() => {
+              handleScannedUrl(code.data);
+            }, 400);
+          }
+        } catch {
+          // Continue scanning next frame
+        }
+      }, 140);
     } catch (err: any) {
       setCameraError(err.message || "Could not access device camera");
       setIsCameraActive(false);
     }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    setIsCameraActive(false);
-    setTorchOn(false);
-    setTargetLocked(false);
   };
 
   const toggleTorch = async () => {
@@ -229,8 +308,10 @@ function ScanPageContent() {
 
   const handleScannedUrl = (scannedText: string) => {
     stopCamera();
+    const cleanText = scannedText.trim();
+
     try {
-      const url = new URL(scannedText);
+      const url = new URL(cleanText);
       const locId = url.searchParams.get("locationId");
       const r = url.searchParams.get("room") || "";
       if (locId) {
@@ -238,8 +319,9 @@ function ScanPageContent() {
         return;
       }
     } catch {
-      if (scannedText.includes("locationId=")) {
-        const params = new URLSearchParams(scannedText.split("?")[1] || scannedText);
+      if (cleanText.includes("locationId=")) {
+        const queryPart = cleanText.includes("?") ? cleanText.split("?")[1] : cleanText;
+        const params = new URLSearchParams(queryPart);
         const locId = params.get("locationId");
         const r = params.get("room") || "";
         if (locId) {
@@ -249,13 +331,20 @@ function ScanPageContent() {
       }
     }
 
+    // Direct match against known locations or IDs
     const match = allLocations.find(
-      (l) => l.name.toLowerCase().includes(scannedText.toLowerCase()) || l.id === scannedText
+      (l) =>
+        l.id === cleanText ||
+        l.name.toLowerCase() === cleanText.toLowerCase() ||
+        l.building.toLowerCase() === cleanText.toLowerCase()
     );
+
     if (match) {
       router.push(`/scan?locationId=${match.id}`);
     } else {
-      setCameraError("Unrecognized QR code format. Please scan a valid CampusCare room placard.");
+      setCameraError(
+        `Unrecognized QR code (${cleanText.slice(0, 35)}...). Please scan an official CampusCare room placard.`
+      );
     }
   };
 
@@ -263,22 +352,56 @@ function ScanPageContent() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setCameraError(null);
+
     try {
       const img = new Image();
-      img.src = URL.createObjectURL(file);
+      const objectUrl = URL.createObjectURL(file);
+      img.src = objectUrl;
       await img.decode();
-      if ("BarcodeDetector" in window) {
-        const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
-        const codes = await detector.detect(img);
-        if (codes.length > 0) {
-          playScanChirp();
-          handleScannedUrl(codes[0].rawValue);
-          return;
+
+      // 1. Try BarcodeDetector if available
+      if (typeof window !== "undefined" && "BarcodeDetector" in window) {
+        try {
+          const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
+          const codes = await detector.detect(img);
+          if (codes.length > 0 && codes[0].rawValue) {
+            URL.revokeObjectURL(objectUrl);
+            playScanChirp();
+            handleScannedUrl(codes[0].rawValue);
+            return;
+          }
+        } catch {
+          // Fall through
         }
       }
-      setCameraError("No valid CampusCare QR code found in the selected image.");
+
+      // 2. Fallback to jsQR canvas decoder (works universally across all devices)
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "attemptBoth",
+        });
+
+        URL.revokeObjectURL(objectUrl);
+        if (code && code.data && code.data.trim().length > 0) {
+          playScanChirp();
+          handleScannedUrl(code.data);
+          return;
+        }
+      } else {
+        URL.revokeObjectURL(objectUrl);
+      }
+
+      setCameraError("No valid CampusCare QR code found in the selected image. Please try a clearer picture.");
     } catch {
-      setCameraError("Could not process the selected image file.");
+      setCameraError("Could not process the selected image file. Please choose a valid image format.");
     }
   };
 
