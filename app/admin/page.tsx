@@ -13,6 +13,7 @@ import {
   Star,
   MapPin,
   Layers,
+  QrCode,
 } from "lucide-react";
 import prisma from "@/lib/db/prisma";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,11 @@ export default async function AdminOverviewPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <Link href="/admin/qr-codes">
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs font-semibold">
+              <QrCode className="w-3.5 h-3.5 text-primary-500" /> Room QR Hub
+            </Button>
+          </Link>
           <a href="/api/admin/reports" target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="sm" className="gap-1.5 text-xs font-semibold">
               <Download className="w-3.5 h-3.5" /> Export CSV Report

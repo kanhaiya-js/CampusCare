@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { MapPin, Plus, Building, Layers } from "lucide-react";
+import Link from "next/link";
+import { MapPin, Plus, Building, Layers, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
@@ -84,9 +85,16 @@ export default function AdminLocationsPage() {
           </p>
         </div>
 
-        <Button size="sm" onClick={() => setModalOpen(true)} className="gap-1.5 font-semibold text-xs">
-          <Plus className="w-4 h-4" /> Add Campus Location
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/qr-codes">
+            <Button variant="outline" size="sm" className="gap-1.5 font-semibold text-xs">
+              <QrCode className="w-4 h-4 text-primary-500" /> Room QR Hub
+            </Button>
+          </Link>
+          <Button size="sm" onClick={() => setModalOpen(true)} className="gap-1.5 font-semibold text-xs">
+            <Plus className="w-4 h-4" /> Add Campus Location
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -119,6 +127,11 @@ export default function AdminLocationsPage() {
 
               <div className="pt-2 border-t border-border flex items-center justify-between text-muted-foreground font-mono">
                 <span>{loc._count?.issues || 0} tickets linked</span>
+                <Link href={`/admin/qr-codes`}>
+                  <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1 px-2">
+                    <QrCode className="w-3.5 h-3.5 text-primary-500" /> Room QR
+                  </Button>
+                </Link>
               </div>
             </div>
           ))

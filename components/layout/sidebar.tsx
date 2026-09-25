@@ -14,6 +14,7 @@ import {
   Download,
   ShieldCheck,
   PlusCircle,
+  QrCode,
 } from "lucide-react";
 import { cn } from "@/lib/utils/format";
 
@@ -33,6 +34,7 @@ export function Sidebar({ role, className }: SidebarProps) {
     { href: "/admin/staff", label: "Staff & Workload", icon: Wrench },
     { href: "/admin/categories", label: "Categories", icon: Layers },
     { href: "/admin/locations", label: "Campus Locations", icon: MapPin },
+    { href: "/admin/qr-codes", label: "Room QR Directory", icon: QrCode },
     { href: "/admin/reports", label: "Export Reports", icon: Download },
     { href: "/admin/audit-logs", label: "Audit Logs", icon: ShieldCheck },
   ];
@@ -46,6 +48,7 @@ export function Sidebar({ role, className }: SidebarProps) {
 
   const userLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/scan", label: "Scan Room QR", icon: QrCode },
     { href: "/issues/report", label: "Report Issue", icon: PlusCircle },
     { href: "/issues?scope=my", label: "My Reported Issues", icon: FileText },
     { href: "/issues", label: "All Campus Issues", icon: Layers },

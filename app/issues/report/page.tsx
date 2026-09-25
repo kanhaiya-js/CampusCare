@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ShieldAlert,
@@ -16,6 +16,7 @@ import {
   Sparkles,
   HelpCircle,
   Eye,
+  QrCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -82,9 +83,13 @@ const SENSITIVE_KEYWORDS = [
   "criminal",
 ];
 
-export default function ReportIssuePage() {
+function ReportIssueForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { success, error: toastError } = useToast();
+
+  const locationIdParam = searchParams.get("locationId") || "";
+  const roomParam = searchParams.get("room") || "";
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -98,10 +103,10 @@ export default function ReportIssuePage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [locationId, setLocationId] = useState("");
+  const [locationId, setLocationId] = useState(locationIdParam);
   const [departmentId, setDepartmentId] = useState("");
   const [clubId, setClubId] = useState("");
-  const [room, setRoom] = useState("");
+  const [room, setRoom] = useState(roomParam);
   const [isSensitive, setIsSensitive] = useState(false);
   const [sensitiveModalOpen, setSensitiveModalOpen] = useState(false);
   const [detectedSensitiveTerm, setDetectedSensitiveTerm] = useState("");
@@ -120,6 +125,13 @@ export default function ReportIssuePage() {
   useEffect(() => {
     fetchInitialData();
   }, []);
+
+  useEffect(() => {
+    if (locationIdParam) setLocationId(locationIdParam);
+    if (roomParam) setRoom(roomParam);
+  }, [locationIdParam, roomParam]);
+
+  const qrLocation = locations.find((l) => l.id === locationId);
 
   const fetchInitialData = async () => {
     try {
@@ -399,6 +411,32 @@ export default function ReportIssuePage() {
             <strong>Campus Care Promise:</strong> Including your exact room number or lab name helps GLBITM maintenance specialists arrive with the right replacement parts in under 30 minutes.
           </span>
         </div>
+
+        {qrLocation && (
+          <div className="mt-4 p-3.5 rounded-xl border border-emerald-300 dark:border-emerald-800/80 bg-emerald-500/10 dark:bg-emerald-950/40 text-xs text-foreground flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                <QrCode className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                    Location Pre-Filled from QR Code
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-200/70 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200">
+                    Verified Room
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-foreground">
+                  📍 {qrLocation.building} — {qrLocation.name} {room ? `• Room: ${room}` : ""}
+                </p>
+              </div>
+            </div>
+            <span className="hidden sm:inline-block text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-white/70 dark:bg-slate-900/80 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-800">
+              Auto-Targeted
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Step 1: WHAT? - Issue Info & Category */}
@@ -478,6 +516,15 @@ export default function ReportIssuePage() {
       {/* Step 2: WHERE? - Location, Department, Club & Evidence */}
       {step === 2 && (
         <div className="p-6 rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-slate-900/90 shadow-sm space-y-6">
+          {qrLocation && (
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-xs text-foreground flex items-center gap-2.5">
+              <QrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>
+                <strong>Scanned Room Auto-Selected:</strong> {qrLocation.building} — {qrLocation.name} {room ? `(${room})` : ""}.
+                Maintenance dispatch is targeted to this specific room.
+              </span>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
               Where is the problem located? <span className="text-red-500">*</span>
@@ -795,5 +842,19 @@ export default function ReportIssuePage() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+export default function ReportIssuePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-xs text-muted-foreground">
+          Loading issue reporting wizard...
+        </div>
+      }
+    >
+      <ReportIssueForm />
+    </Suspense>
   );
 }

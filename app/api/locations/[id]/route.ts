@@ -8,6 +8,29 @@ interface RouteParams {
   params: { id: string };
 }
 
+export async function GET(req: NextRequest, { params }: RouteParams) {
+  try {
+    const { id } = params;
+    const location = await prisma.location.findUnique({
+      where: { id },
+      include: {
+        parentLocation: { select: { id: true, name: true, building: true } },
+        subLocations: { select: { id: true, name: true, floor: true, room: true } },
+        _count: { select: { issues: true } },
+      },
+    });
+
+    if (!location) {
+      return apiError("NOT_FOUND", "Location not found", 404);
+    }
+
+    return apiSuccess(location);
+  } catch (error) {
+    console.error("Get single location error:", error);
+    return apiError("INTERNAL_ERROR", "Failed to retrieve location", 500);
+  }
+}
+
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const session = await getSession();

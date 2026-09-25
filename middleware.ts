@@ -57,7 +57,10 @@ export async function middleware(request: NextRequest) {
     // If accessing protected page without session, redirect to login
     if (isProtectedPage && !session) {
       const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
+      const fullCallback = request.nextUrl.search
+        ? `${pathname}${request.nextUrl.search}`
+        : pathname;
+      loginUrl.searchParams.set("callbackUrl", fullCallback);
       return NextResponse.redirect(loginUrl);
     }
 

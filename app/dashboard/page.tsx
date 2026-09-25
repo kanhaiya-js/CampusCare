@@ -12,6 +12,7 @@ import {
   Calendar,
   MessageSquare,
   ArrowRight,
+  QrCode,
 } from "lucide-react";
 import prisma from "@/lib/db/prisma";
 import { getSession } from "@/lib/auth/session";
@@ -72,6 +73,12 @@ export default async function UserDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link href="/scan">
+            <Button variant="outline" size="md" className="gap-2 shadow-xs font-semibold">
+              <QrCode className="w-4 h-4 text-primary-500" />
+              Scan Room QR
+            </Button>
+          </Link>
           <Link href="/issues/report">
             <Button size="md" className="gap-2 shadow-sm font-semibold">
               <PlusCircle className="w-4 h-4" />

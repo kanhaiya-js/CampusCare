@@ -4,7 +4,7 @@ import { Shield, LifeBuoy, MapPin, ExternalLink, Lightbulb, Users, Presentation 
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card text-card-foreground mt-auto relative overflow-hidden">
+    <footer className="hidden md:block border-t border-border bg-card text-card-foreground mt-auto relative overflow-hidden">
       {/* Radiant Top Border Accent */}
       <div className="h-[2px] w-full bg-gradient-to-r from-blue-600/60 via-purple-600/60 to-amber-500/60" />
 

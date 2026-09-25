@@ -237,31 +237,6 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Top Student Bulletin Marquee / Notice Bar */}
-      <div className="w-full bg-indigo-50/90 dark:bg-indigo-950/40 border-b border-indigo-200/70 dark:border-indigo-800/50 py-2 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2 font-semibold text-indigo-900 dark:text-indigo-200">
-            <span className="flex h-2 w-2 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
-            </span>
-            <span className="font-bold uppercase tracking-wider text-[10px] bg-indigo-200/80 dark:bg-indigo-900/80 px-2 py-0.5 rounded text-indigo-800 dark:text-indigo-200">
-              Campus Bulletin
-            </span>
-            <span className="truncate">
-              Mid-term week in progress: Tech crews on priority standby across Block A, B & C labs.
-            </span>
-          </div>
-          <div className="flex items-center gap-3 shrink-0 text-muted-foreground text-[11px]">
-            <span>Knowledge Park 3, Greater Noida</span>
-            <span>•</span>
-            <Link href="/support" className="text-rose-600 dark:text-rose-400 font-semibold hover:underline">
-              Emergency Desks →
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Hero Section with Warm College Atmosphere & Real Campus Backdrop */}
       <section className="relative overflow-hidden py-10 md:py-16 border-b border-border">
         {/* Real GL Bajaj Campus Hero Background Image - Blurry for crisp text contrast in both Light and Dark modes */}
