@@ -458,13 +458,13 @@ export function Navbar() {
             Support
           </Link>
 
-          {/* Scan QR Button */}
+          {/* Highlighted Scan QR Button */}
           <Link
             href="/scan"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 hover:bg-primary-100 dark:hover:bg-primary-900/60 transition-colors shadow-2xs"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 via-[#00baf2] to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-md shadow-cyan-500/25 border border-cyan-300/30 hover:shadow-cyan-500/40 hover:scale-105 active:scale-95 transition-all"
             title="Scan Campus Room QR Code"
           >
-            <QrCode className="w-3.5 h-3.5" />
+            <QrCode className="w-3.5 h-3.5 animate-pulse text-white" />
             <span>Scan QR</span>
           </Link>
 
@@ -793,14 +793,22 @@ export function Navbar() {
               </span>
             </Link>
 
-            {/* Location QR Scanner */}
+            {/* Highlighted: Scan Location / Room QR Code */}
             <Link
               href="/scan"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/50 transition-colors"
+              className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-[#00baf2] to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold text-sm shadow-md shadow-cyan-500/25 border border-cyan-300/30 active:scale-[0.98] transition-all group"
             >
-              <QrCode className="w-4 h-4" />
-              <span>Scan Location / Room QR Code</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+                  <QrCode className="w-4 h-4 text-white animate-pulse" />
+                </div>
+                <span className="tracking-tight">Scan Location / Room QR Code</span>
+              </div>
+              <span className="text-[10px] font-black bg-white/25 px-2 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping"></span>
+                Instant
+              </span>
             </Link>
           </div>
         </div>
