@@ -463,7 +463,7 @@ export default function QRGeneratorPage() {
                   <Link href={generatedUrl.replace(origin, "")} className="w-full">
                     <Button variant="outline" className="w-full gap-1.5 text-xs font-semibold">
                       <ExternalLink className="w-3.5 h-3.5" />
-                      Test Scan
+                      Open Room Link
                     </Button>
                   </Link>
                 </div>

@@ -5,22 +5,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   QrCode,
-  MapPin,
   Shield,
   ArrowRight,
   Camera,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   Building,
   RefreshCw,
-  Upload,
   Lock,
   ArrowLeft,
-  Zap,
-  Target,
-  Maximize2,
-  Radio,
+  Flashlight,
+  Image as ImageIcon,
+  Check,
+  ShieldCheck,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -32,8 +30,8 @@ interface LocationData {
   room?: string;
 }
 
-// Play pleasant sci-fi synthesizer chirp using Web Audio API (Zero external assets needed)
-function playScanBeep() {
+// Synthesizer audio feedback upon QR lock (Web Audio API)
+function playScanChirp() {
   if (typeof window === "undefined") return;
   try {
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -43,20 +41,19 @@ function playScanBeep() {
     const gain = ctx.createGain();
 
     osc.type = "sine";
-    // Quick ascending sci-fi double beep
     osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1);
 
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.14);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + 0.15);
+    osc.stop(ctx.currentTime + 0.13);
   } catch {
-    // Ignore audio permission or context restrictions
+    // Ignore audio permission or autoplay restrictions
   }
 }
 
@@ -72,20 +69,22 @@ function ScanPageContent() {
   const [scannedLocation, setScannedLocation] = useState<LocationData | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
-  // In-app camera scanner states
+  // Camera scanner states
   const [allLocations, setAllLocations] = useState<LocationData[]>([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [manualLocationId, setManualLocationId] = useState("");
-  const [manualRoom, setManualRoom] = useState("");
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  // Scan simulation state
-  const [isSimulating, setIsSimulating] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
   const [targetLocked, setTargetLocked] = useState(false);
 
-  // Check auth on mount
+  // Manual Facility Direct Selector
+  const [manualLocationId, setManualLocationId] = useState("");
+  const [manualRoom, setManualRoom] = useState("");
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check auth and load locations on mount
   useEffect(() => {
     checkAuth();
     fetchLocations();
@@ -145,12 +144,14 @@ function ScanPageContent() {
   const startCamera = async () => {
     setCameraError(null);
     setIsCameraActive(true);
+    setTargetLocked(false);
+
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Camera not supported on this browser");
+        throw new Error("Camera hardware is not supported or accessible on this browser");
       }
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
       });
       streamRef.current = stream;
       if (videoRef.current) {
@@ -158,7 +159,7 @@ function ScanPageContent() {
         videoRef.current.play();
       }
 
-      // Check for BarcodeDetector API
+      // Live BarcodeDetector API for instant QR recognition
       if ("BarcodeDetector" in window) {
         const barcodeDetector = new (window as any).BarcodeDetector({
           formats: ["qr_code"],
@@ -173,16 +174,16 @@ function ScanPageContent() {
             const barcodes = await barcodeDetector.detect(videoRef.current);
             if (barcodes.length > 0) {
               clearInterval(interval);
-              playScanBeep();
+              playScanChirp();
               setTargetLocked(true);
               setTimeout(() => {
                 handleScannedUrl(barcodes[0].rawValue);
-              }, 600);
+              }, 400);
             }
           } catch {
             // Frame detection error, continue next frame
           }
-        }, 300);
+        }, 200);
       }
     } catch (err: any) {
       setCameraError(err.message || "Could not access device camera");
@@ -196,7 +197,28 @@ function ScanPageContent() {
       streamRef.current = null;
     }
     setIsCameraActive(false);
+    setTorchOn(false);
     setTargetLocked(false);
+  };
+
+  const toggleTorch = async () => {
+    if (!streamRef.current) return;
+    const track = streamRef.current.getVideoTracks()[0];
+    if (!track) return;
+    try {
+      const capabilities = track.getCapabilities?.() as any;
+      if (capabilities?.torch) {
+        const next = !torchOn;
+        await track.applyConstraints({
+          advanced: [{ torch: next } as any],
+        });
+        setTorchOn(next);
+      } else {
+        setTorchOn(!torchOn);
+      }
+    } catch {
+      setTorchOn(!torchOn);
+    }
   };
 
   useEffect(() => {
@@ -216,7 +238,6 @@ function ScanPageContent() {
         return;
       }
     } catch {
-      // If it's a relative path or raw ID
       if (scannedText.includes("locationId=")) {
         const params = new URLSearchParams(scannedText.split("?")[1] || scannedText);
         const locId = params.get("locationId");
@@ -227,7 +248,7 @@ function ScanPageContent() {
         }
       }
     }
-    // Fallback: search by name
+
     const match = allLocations.find(
       (l) => l.name.toLowerCase().includes(scannedText.toLowerCase()) || l.id === scannedText
     );
@@ -238,43 +259,45 @@ function ScanPageContent() {
     }
   };
 
-  // Live Scan Simulation for demoing the animation without a physical QR code
-  const triggerScanSimulation = (locId: string, roomName: string) => {
-    setIsSimulating(true);
-    setTargetLocked(false);
-    setCameraError(null);
-
-    // Step 1: Laser sweeps across viewport
-    setTimeout(() => {
-      // Step 2: Target acquired lock
-      playScanBeep();
-      setTargetLocked(true);
-    }, 1200);
-
-    // Step 3: Navigate to decoded room
-    setTimeout(() => {
-      setIsSimulating(false);
-      setTargetLocked(false);
-      router.push(`/scan?locationId=${locId}&room=${encodeURIComponent(roomName)}`);
-    }, 1900);
+  // Upload QR image from gallery
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      await img.decode();
+      if ("BarcodeDetector" in window) {
+        const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
+        const codes = await detector.detect(img);
+        if (codes.length > 0) {
+          playScanChirp();
+          handleScannedUrl(codes[0].rawValue);
+          return;
+        }
+      }
+      setCameraError("No valid CampusCare QR code found in the selected image.");
+    } catch {
+      setCameraError("Could not process the selected image file.");
+    }
   };
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualLocationId) return;
-    triggerScanSimulation(manualLocationId, manualRoom || "Room 101");
+    router.push(
+      `/scan?locationId=${manualLocationId}${manualRoom ? `&room=${encodeURIComponent(manualRoom)}` : ""}`
+    );
   };
 
-  // Determine target report URL
   const targetReportUrl = locationIdParam
     ? `/issues/report?locationId=${locationIdParam}${roomParam ? `&room=${encodeURIComponent(roomParam)}` : ""}`
     : "/issues/report";
 
-  // Login callback URL
   const loginUrl = `/login?callbackUrl=${encodeURIComponent(targetReportUrl)}`;
 
   // ==========================================
-  // SCENARIO 1: SCANNED A SPECIFIC LOCATION QR (CELEBRATORY HOLOGRAM RESULT)
+  // SCENARIO 1: SCANNED ROOM VERIFIED CARD
   // ==========================================
   if (locationIdParam) {
     const displayBuilding = scannedLocation?.building || "Campus Building";
@@ -283,7 +306,6 @@ function ScanPageContent() {
 
     return (
       <div className="max-w-xl mx-auto px-4 py-12 sm:py-16 w-full">
-        {/* Top return link */}
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground mb-6"
@@ -291,33 +313,24 @@ function ScanPageContent() {
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
 
-        {/* Main Holographic Verified Card */}
+        {/* Verified Facility Card */}
         <div className="p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-2xl text-center space-y-6 relative overflow-hidden">
-          {/* Animated decorative glow rings */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-primary-500/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+          {/* Subtle ambient lighting */}
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#00baf2]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* QR Scan Success Hologram Badge with Expanding Ripple Waves */}
-          <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
-            {/* Ripple Wave 1 */}
-            <div className="absolute inset-0 rounded-3xl bg-emerald-500/20 animate-ping [animation-duration:2.5s] pointer-events-none" />
-            {/* Ripple Wave 2 */}
-            <div className="absolute -inset-2 rounded-3xl border-2 border-emerald-400/40 animate-pulse [animation-duration:1.8s] pointer-events-none" />
-            {/* Core Badge */}
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 relative z-10">
-              <QrCode className="w-10 h-10 animate-pulse" />
+          {/* Verified Badge */}
+          <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-emerald-500/20 animate-ping [animation-duration:2.5s] pointer-events-none" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 relative z-10">
+              <CheckCircle2 className="w-9 h-9" />
             </div>
-            {/* Corner Sci-Fi Accents */}
-            <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-emerald-500" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-emerald-500" />
-            <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-emerald-500" />
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-emerald-500" />
           </div>
 
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 mb-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              Room QR Verified &amp; Locked
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              Verified Campus Location
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight font-orbitron">
               {displayBuilding}
@@ -326,20 +339,19 @@ function ScanPageContent() {
               {displayName}
             </p>
             {displayRoom && (
-              <div className="mt-2 inline-block px-3.5 py-1.5 rounded-xl bg-muted text-xs font-black text-foreground border border-border tracking-wide font-mono">
-                📍 ROOM / ZONE: {displayRoom}
+              <div className="mt-2.5 inline-block px-3.5 py-1.5 rounded-xl bg-muted text-xs font-black text-foreground border border-border tracking-wide font-mono">
+                📍 ROOM / LAB: {displayRoom}
               </div>
             )}
           </div>
 
-          {/* User Authentication Status Check */}
+          {/* Authentication State */}
           {isAuthChecking ? (
             <div className="p-4 rounded-xl border border-border bg-muted/30 text-xs text-muted-foreground flex items-center justify-center gap-2">
               <RefreshCw className="w-4 h-4 animate-spin text-primary-500" />
               Verifying student credentials...
             </div>
           ) : currentUser ? (
-            // LOGGED IN USER
             <div className="space-y-4 pt-2 border-t border-border">
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-primary-50/60 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800/60 text-left">
                 <div className="flex items-center gap-2.5">
@@ -354,18 +366,17 @@ function ScanPageContent() {
                   </div>
                 </div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                  Authenticated
+                  Signed In
                 </span>
               </div>
 
               <Link href={targetReportUrl} className="block">
                 <Button size="lg" className="w-full gap-2 shadow-lg shadow-indigo-500/20 text-sm font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white">
-                  Continue to Report Issue <ArrowRight className="w-4 h-4" />
+                  Proceed to Report Issue <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>
           ) : (
-            // NOT LOGGED IN
             <div className="space-y-4 pt-2 border-t border-border text-left">
               <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-800 dark:text-amber-200 space-y-1">
                 <p className="font-bold flex items-center gap-1.5">
@@ -373,7 +384,7 @@ function ScanPageContent() {
                   Sign In Required to Submit Issue
                 </p>
                 <p className="text-amber-900/90 dark:text-amber-300/90 leading-relaxed text-[11px]">
-                  To prevent unauthorized reports, students and staff authenticate before logging campus repairs. You will be taken directly to the dispatch form for <strong>{displayBuilding} ({displayRoom || displayName})</strong>.
+                  Please sign in with your student credentials to log repairs for <strong>{displayBuilding} ({displayRoom || displayName})</strong>.
                 </p>
               </div>
 
@@ -401,50 +412,46 @@ function ScanPageContent() {
   }
 
   // ==========================================
-  // SCENARIO 2: LIVE IN-APP CAMERA SCANNER & ANIMATION VIEWPORT
+  // SCENARIO 2: PAYTM-STYLE CINEMATIC ANIMATED QR SCANNER
   // ==========================================
-  const isScannerActive = isCameraActive || isSimulating;
-
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full space-y-8">
       {/* Header */}
       <div className="text-center max-w-xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 shadow-2xs">
-          <QrCode className="w-4 h-4 text-primary-600 animate-pulse" />
-          GLBITM SmartCampus Scanner
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#00baf2]/10 text-[#00baf2] border border-[#00baf2]/30 shadow-2xs">
+          <QrCode className="w-4 h-4 text-[#00baf2]" />
+          Instant Campus QR Scanner
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight font-orbitron">
-          Scan Location / Room QR Code
+          Scan Room QR Code
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-          Point your device camera at any CampusCare door placard to instantly identify the room and dispatch technicians.
+          Align any official CampusCare door placard within the viewfinder to automatically identify the room.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-        {/* Camera / Animation Viewfinder Box (7 cols) */}
+        {/* Cinematic Animated Viewfinder (7 cols) */}
         <div className="md:col-span-7 p-6 rounded-3xl border border-border bg-card shadow-xl space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-border">
             <span className="font-bold text-sm text-foreground flex items-center gap-2">
               <Camera className="w-4 h-4 text-primary-500" />
-              Interactive QR Viewfinder
+              Camera Scanner
             </span>
-            {isScannerActive ? (
+            {isCameraActive && (
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 animate-pulse">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                {targetLocked ? "TARGET LOCKED" : "SCANNING ACTIVE"}
+                {targetLocked ? "DECODED" : "SCANNING"}
               </span>
-            ) : (
-              <span className="text-[10px] font-bold text-muted-foreground">Standby</span>
             )}
           </div>
 
-          {/* VIEWPORT CANVAS WITH FUTURISTIC SCI-FI SCANNING LASER */}
-          <div className="relative aspect-square sm:aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950 border-2 border-slate-800 shadow-inner flex items-center justify-center select-none">
-            {/* Background scanlines grid */}
-            <div className="absolute inset-0 scanline-grid opacity-30 pointer-events-none z-10" />
+          {/* CINEMATIC VIEWPORT CANVAS */}
+          <div className="relative aspect-square rounded-3xl overflow-hidden bg-slate-950 border-2 border-slate-800 shadow-2xl flex items-center justify-center select-none">
+            {/* Ambient scanlines */}
+            <div className="absolute inset-0 scanline-grid opacity-25 pointer-events-none z-10" />
 
-            {/* Video feed or simulated placard */}
+            {/* Video stream feed */}
             {isCameraActive ? (
               <video
                 ref={videoRef}
@@ -452,101 +459,85 @@ function ScanPageContent() {
                 playsInline
                 muted
               />
-            ) : isSimulating ? (
-              <div className="relative w-full h-full flex flex-col items-center justify-center p-6 bg-radial from-slate-900 via-slate-950 to-black text-center">
-                {/* Simulated physical door QR placard */}
-                <div className={`p-4 rounded-2xl bg-white text-slate-900 border-2 shadow-2xl transition-all duration-300 ${
-                  targetLocked ? "scale-105 border-emerald-400 ring-4 ring-emerald-400/50" : "border-slate-300"
-                }`}>
-                  <div className="flex items-center gap-1.5 mb-2 justify-center">
-                    <img src="/logo.png" alt="Logo" className="w-4 h-4 object-contain" />
-                    <span className="text-[9px] font-black uppercase tracking-wider text-slate-800">GLBITM Central Library</span>
-                  </div>
-                  <div className="w-28 h-28 bg-slate-900 p-1 rounded-lg mx-auto flex items-center justify-center">
-                    <QrCode className="w-full h-full text-white" />
-                  </div>
-                  <span className="text-[10px] font-bold font-mono text-indigo-700 block mt-1.5">
-                    ROOM: 3rd Floor Quiet Wing
-                  </span>
-                </div>
-              </div>
             ) : (
               <div className="p-8 text-center text-slate-400 space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-slate-900/80 border border-slate-800 text-slate-400 flex items-center justify-center mx-auto shadow-inner">
+                <div className="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 flex items-center justify-center mx-auto shadow-inner">
                   <Camera className="w-8 h-8" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-200">Camera Scanner is on Standby</p>
-                  <p className="text-xs text-slate-500 mt-1">Tap below to activate camera or run the live scan animation</p>
+                  <p className="text-sm font-bold text-slate-200">Camera is Ready</p>
+                  <p className="text-xs text-slate-500 mt-1">Tap &quot;Activate Camera Scanner&quot; to begin</p>
                 </div>
               </div>
             )}
 
-            {/* ============================================================ */}
-            {/* ADVANCED SCI-FI SCANNING OVERLAY (ACTIVE WHEN SCANNING) */}
-            {/* ============================================================ */}
-            {isScannerActive && (
+            {/* PAYTM-INSPIRED ANIMATED SCANNER OVERLAY */}
+            {isCameraActive && (
               <>
-                {/* 1. Four Glowing Animated Corner Brackets */}
-                <div className="absolute inset-8 sm:inset-10 pointer-events-none z-20">
-                  <div className={`w-8 h-8 border-t-4 border-l-4 rounded-tl-xl absolute top-0 left-0 transition-colors duration-300 ${
-                    targetLocked ? "border-emerald-400 shadow-[0_0_15px_#10b981]" : "border-cyan-400 animate-qr-corner shadow-[0_0_12px_#06b6d4]"
+                {/* 1. Curved Glowing Corner Reticles (Paytm Cyan Glow) */}
+                <div className="absolute inset-10 pointer-events-none z-20">
+                  {/* Top-Left */}
+                  <div className={`w-9 h-9 border-t-[3.5px] border-l-[3.5px] rounded-tl-2xl absolute top-0 left-0 transition-all duration-300 ${
+                    targetLocked ? "border-emerald-400 shadow-[0_0_18px_#10b981]" : "border-[#00baf2] animate-paytm-glow shadow-[0_0_14px_rgba(0,186,242,0.9)]"
                   }`} />
-                  <div className={`w-8 h-8 border-t-4 border-r-4 rounded-tr-xl absolute top-0 right-0 transition-colors duration-300 ${
-                    targetLocked ? "border-emerald-400 shadow-[0_0_15px_#10b981]" : "border-cyan-400 animate-qr-corner shadow-[0_0_12px_#06b6d4]"
+                  {/* Top-Right */}
+                  <div className={`w-9 h-9 border-t-[3.5px] border-r-[3.5px] rounded-tr-2xl absolute top-0 right-0 transition-all duration-300 ${
+                    targetLocked ? "border-emerald-400 shadow-[0_0_18px_#10b981]" : "border-[#00baf2] animate-paytm-glow shadow-[0_0_14px_rgba(0,186,242,0.9)]"
                   }`} />
-                  <div className={`w-8 h-8 border-b-4 border-l-4 rounded-bl-xl absolute bottom-0 left-0 transition-colors duration-300 ${
-                    targetLocked ? "border-emerald-400 shadow-[0_0_15px_#10b981]" : "border-cyan-400 animate-qr-corner shadow-[0_0_12px_#06b6d4]"
+                  {/* Bottom-Left */}
+                  <div className={`w-9 h-9 border-b-[3.5px] border-l-[3.5px] rounded-bl-2xl absolute bottom-0 left-0 transition-all duration-300 ${
+                    targetLocked ? "border-emerald-400 shadow-[0_0_18px_#10b981]" : "border-[#00baf2] animate-paytm-glow shadow-[0_0_14px_rgba(0,186,242,0.9)]"
                   }`} />
-                  <div className={`w-8 h-8 border-b-4 border-r-4 rounded-br-xl absolute bottom-0 right-0 transition-colors duration-300 ${
-                    targetLocked ? "border-emerald-400 shadow-[0_0_15px_#10b981]" : "border-cyan-400 animate-qr-corner shadow-[0_0_12px_#06b6d4]"
+                  {/* Bottom-Right */}
+                  <div className={`w-9 h-9 border-b-[3.5px] border-r-[3.5px] rounded-br-2xl absolute bottom-0 right-0 transition-all duration-300 ${
+                    targetLocked ? "border-emerald-400 shadow-[0_0_18px_#10b981]" : "border-[#00baf2] animate-paytm-glow shadow-[0_0_14px_rgba(0,186,242,0.9)]"
                   }`} />
                 </div>
 
-                {/* 2. Rotating Radar Reticle Crosshairs */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                  <div className="w-36 h-36 rounded-full border border-cyan-500/25 flex items-center justify-center animate-spin [animation-duration:10s]">
-                    <div className="w-full h-[1px] bg-cyan-400/20" />
-                    <div className="h-full w-[1px] bg-cyan-400/20 absolute" />
-                  </div>
-                  <div className="w-20 h-20 rounded-full border border-indigo-400/30 absolute animate-pulse" />
-                </div>
-
-                {/* 3. High-Energy Oscillating Laser Sweep Beam */}
+                {/* 2. Paytm Cinematic Laser Light Curtain ("Lights. Scan. Pay.") */}
                 {!targetLocked && (
-                  <div className="absolute inset-x-8 sm:inset-x-10 animate-qr-laser z-30 pointer-events-none">
-                    {/* Glowing trail sheet */}
-                    <div className="h-16 w-full bg-gradient-to-t from-cyan-400/35 via-cyan-400/10 to-transparent -top-16 absolute pointer-events-none" />
-                    {/* Razor-sharp glowing laser core line */}
-                    <div className="h-[2.5px] w-full bg-gradient-to-r from-transparent via-cyan-300 to-transparent shadow-[0_0_16px_rgba(6,182,212,1),0_0_30px_rgba(6,182,212,0.8)] relative" />
-                    {/* Traveling focal photon spark */}
-                    <div className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_#fff,0_0_16px_#06b6d4] absolute -top-1 left-1/2 -translate-x-1/2" />
+                  <div className="absolute inset-x-10 animate-paytm-laser z-30 pointer-events-none">
+                    {/* Trailing luminous light wash sheet */}
+                    <div className="h-20 w-full bg-gradient-to-t from-[#00baf2]/30 via-[#00baf2]/8 to-transparent -top-20 absolute pointer-events-none" />
+                    {/* Razor-sharp radiant cyan light bar */}
+                    <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#00baf2] to-transparent shadow-[0_0_16px_#00baf2,0_0_28px_rgba(0,186,242,0.85)] relative" />
+                    {/* Glowing focal photon points at ends and center */}
+                    <div className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_10px_#fff,0_0_18px_#00baf2] absolute -top-1 left-1/2 -translate-x-1/2" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#00baf2] shadow-[0_0_8px_#00baf2] absolute -top-0.5 left-4" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#00baf2] shadow-[0_0_8px_#00baf2] absolute -top-0.5 right-4" />
                   </div>
                 )}
 
-                {/* 4. Target Acquired Lock Flash Banner */}
+                {/* 3. Target Acquired Flash Banner */}
                 {targetLocked && (
-                  <div className="absolute inset-0 flex items-center justify-center z-40 bg-emerald-950/40 backdrop-blur-xs animate-in zoom-in-90 fade-in duration-200">
+                  <div className="absolute inset-0 flex items-center justify-center z-40 bg-emerald-950/50 backdrop-blur-xs animate-in zoom-in-95 fade-in duration-200">
                     <div className="p-4 rounded-2xl bg-emerald-500/90 text-white font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-2xl border-2 border-emerald-300">
                       <CheckCircle2 className="w-5 h-5 animate-bounce" />
-                      Target Acquired &bull; Decoding QR Placard
+                      QR Code Recognized
                     </div>
                   </div>
                 )}
 
-                {/* 5. HUD Status Overlays */}
-                <div className="absolute top-3 left-4 right-4 flex items-center justify-between text-[10px] font-mono text-cyan-300 font-bold z-20 pointer-events-none">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                    AI LOCATOR ACTIVE
+                {/* 4. Top & Bottom HUD Controls */}
+                <div className="absolute top-4 inset-x-6 flex items-center justify-between text-[11px] font-mono font-bold text-slate-200 z-30 pointer-events-auto">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-800 text-[10px]">
+                    <span className="w-2 h-2 rounded-full bg-[#00baf2] animate-pulse" />
+                    ALIGN QR CODE
                   </span>
-                  <span className="opacity-80">60 FPS &bull; 1080p</span>
-                </div>
 
-                <div className="absolute bottom-3 inset-x-4 text-center text-[10px] font-mono font-bold text-slate-300 z-20 pointer-events-none">
-                  <span className="px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/80 backdrop-blur-xs">
-                    {targetLocked ? "SUCCESSFULLY DECODED" : "ALIGN WITH GLBITM ROOM QR PLACARD"}
-                  </span>
+                  {/* Flashlight / Torch Toggle Button */}
+                  <button
+                    type="button"
+                    onClick={toggleTorch}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold backdrop-blur-md transition-colors ${
+                      torchOn
+                        ? "bg-amber-400 text-slate-950 border-amber-300 shadow-md shadow-amber-400/30"
+                        : "bg-slate-900/80 text-slate-300 border-slate-700 hover:text-white"
+                    }`}
+                  >
+                    <Flashlight className={`w-3.5 h-3.5 ${torchOn ? "fill-slate-950" : ""}`} />
+                    <span>{torchOn ? "Torch On" : "Torch"}</span>
+                  </button>
                 </div>
               </>
             )}
@@ -559,48 +550,55 @@ function ScanPageContent() {
             </div>
           )}
 
-          {/* Viewfinder Action Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          {/* Primary Viewfinder Controls */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             {!isCameraActive ? (
-              <Button size="md" className="w-full gap-2 font-bold shadow-md" onClick={startCamera}>
-                <Camera className="w-4 h-4" /> Start Device Camera
+              <Button size="lg" className="w-full gap-2 font-bold shadow-md bg-gradient-to-r from-[#00baf2] via-blue-600 to-indigo-700 text-white" onClick={startCamera}>
+                <Camera className="w-4 h-4" /> Activate Camera Scanner
               </Button>
             ) : (
-              <Button size="md" variant="outline" className="w-full" onClick={stopCamera}>
-                Stop Camera
+              <Button size="lg" variant="outline" className="w-full" onClick={stopCamera}>
+                Stop Camera Scanner
               </Button>
             )}
 
-            <Button
-              size="md"
-              variant="outline"
-              disabled={isSimulating}
-              onClick={() => {
-                const sampleLoc = allLocations[0] || { id: "sample", room: "3rd Floor Quiet Wing" };
-                triggerScanSimulation(sampleLoc.id, "3rd Floor Quiet Reading Wing");
-              }}
-              className="w-full gap-2 text-primary-600 dark:text-primary-400 font-bold border-primary-200 dark:border-primary-800 hover:bg-primary-50 dark:hover:bg-primary-950/50"
-            >
-              <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-              ⚡ Try Scan Animation
-            </Button>
+            {/* Gallery Upload Scan Button */}
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <Button
+                size="lg"
+                variant="outline"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full gap-2 text-foreground font-semibold"
+              >
+                <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                Upload QR from Gallery
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Manual Room Selector & Quick Test Panel (5 cols) */}
+        {/* Direct Facility Selector Panel (5 cols) */}
         <div className="md:col-span-5 space-y-6">
           <div className="p-6 rounded-3xl border border-border bg-card shadow-lg space-y-4">
             <div className="pb-3 border-b border-border">
               <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
                 <Building className="w-4 h-4 text-primary-500" />
-                Select Room / Test Scan
+                Select Facility Manually
               </h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                Simulate a QR scan with full laser animations or pick a campus location manually
+                If camera access is restricted on your browser, select your campus location directly
               </p>
             </div>
 
-            <form onSubmit={handleManualSubmit} className="space-y-3 text-xs">
+            <form onSubmit={handleManualSubmit} className="space-y-3.5 text-xs">
               <div>
                 <label className="block text-xs font-semibold text-foreground mb-1.5">
                   Campus Facility / Building <span className="text-red-500">*</span>
@@ -608,7 +606,7 @@ function ScanPageContent() {
                 <select
                   value={manualLocationId}
                   onChange={(e) => setManualLocationId(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus-visible:ring-2 focus-visible:ring-primary-500 font-medium"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs text-foreground focus-visible:ring-2 focus-visible:ring-primary-500 font-medium"
                   required
                 >
                   <option value="">-- Choose Campus Facility --</option>
@@ -622,14 +620,14 @@ function ScanPageContent() {
 
               <div>
                 <label className="block text-xs font-semibold text-foreground mb-1.5">
-                  Specific Room / Hall (Optional)
+                  Specific Room / Lab / Desk (Optional)
                 </label>
                 <input
                   type="text"
                   value={manualRoom}
                   onChange={(e) => setManualRoom(e.target.value)}
                   placeholder="e.g. Lab A-102, Room 304, AV Booth"
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus-visible:ring-2 focus-visible:ring-primary-500 font-medium"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs text-foreground focus-visible:ring-2 focus-visible:ring-primary-500 font-medium"
                 />
               </div>
 
@@ -637,47 +635,37 @@ function ScanPageContent() {
                 type="submit"
                 size="md"
                 className="w-full gap-2 font-bold mt-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-md shadow-indigo-500/20"
-                disabled={!manualLocationId || isSimulating}
+                disabled={!manualLocationId}
               >
-                <Zap className="w-4 h-4" />
-                {isSimulating ? "Scanning Target..." : "Simulate QR Scan with Animation"}
+                Proceed to Location Portal <ArrowRight className="w-4 h-4" />
               </Button>
             </form>
           </div>
 
-          {/* Quick Shortcuts */}
+          {/* Direct Campus Directory Links */}
           <div className="p-5 rounded-2xl border border-border bg-card space-y-3 text-xs">
-            <span className="font-bold text-foreground block text-[11px] uppercase tracking-wider flex items-center justify-between">
-              <span>Quick Test Room Scenarios</span>
-              <span className="text-[10px] text-primary-600 font-mono">1-Tap Scan</span>
+            <span className="font-bold text-foreground block text-[11px] uppercase tracking-wider">
+              Popular Campus Locations
             </span>
             <div className="space-y-2">
-              {[
-                { name: "Central Library AC (3rd Floor)", room: "3rd Floor North Reading Wing", id: allLocations[0]?.id },
-                { name: "CSE Lab 3 Projector", room: "Lab A-102", id: allLocations[1]?.id },
-                { name: "Block B Staircase Water Cooler", room: "Ground Floor Staircase Lobby", id: allLocations[2]?.id },
-              ].map((item, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    const targetId = item.id || allLocations[0]?.id || "sample";
-                    triggerScanSimulation(targetId, item.room);
-                  }}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl border border-border bg-background hover:bg-primary-50/50 dark:hover:bg-primary-950/40 hover:border-primary-500 text-left transition-all group"
+              {allLocations.slice(0, 3).map((loc) => (
+                <Link
+                  key={loc.id}
+                  href={`/scan?locationId=${loc.id}${loc.room ? `&room=${encodeURIComponent(loc.room)}` : ""}`}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl border border-border bg-background hover:bg-muted text-left transition-all group"
                 >
                   <div>
-                    <p className="font-bold text-xs text-foreground group-hover:text-primary-600">{item.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{item.room}</p>
+                    <p className="font-bold text-xs text-foreground group-hover:text-primary-600">{loc.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{loc.building} {loc.room ? `• ${loc.room}` : ""}</p>
                   </div>
                   <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary-600 group-hover:translate-x-0.5 transition-transform" />
-                </button>
+                </Link>
               ))}
             </div>
 
             <div className="pt-2 text-center border-t border-border">
               <Link href="/qr" className="text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:underline">
-                Open QR Generator &amp; Print Room Placards →
+                View Full Campus QR Directory &rarr;
               </Link>
             </div>
           </div>
