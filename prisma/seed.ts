@@ -222,7 +222,7 @@ async function main() {
       role: "ADMIN",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-FAC-ADM01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=ProfVerma",
+      avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
     },
   });
 
@@ -235,7 +235,7 @@ async function main() {
       status: "ACTIVE",
       departmentId: deptCSE.id,
       studentOrEmployeeId: "GLB-FAC-CS108",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=DrNeha",
+      avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
     },
   });
 
@@ -247,7 +247,7 @@ async function main() {
       role: "MAINTENANCE_STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STF-EL01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ramesh",
+      avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
       staffProfile: {
         create: {
           specialization: "ELECTRICAL",
@@ -266,7 +266,7 @@ async function main() {
       role: "MAINTENANCE_STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STF-PL02",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sunil",
+      avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
       staffProfile: {
         create: {
           specialization: "PLUMBING",
@@ -285,7 +285,7 @@ async function main() {
       role: "MAINTENANCE_STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STF-HV03",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Amit",
+      avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
       staffProfile: {
         create: {
           specialization: "HVAC",
@@ -304,7 +304,7 @@ async function main() {
       role: "MAINTENANCE_STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STF-IT04",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Vikas",
+      avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
       staffProfile: {
         create: {
           specialization: "NETWORK",
@@ -317,14 +317,14 @@ async function main() {
 
   const student1 = await prisma.user.create({
     data: {
-      name: "Aarav Sharma",
-      email: "aarav.sharma@glbitm.edu",
+      name: "Kanhaiya Kumar",
+      email: "kanhaiya.rai@glbitm.edu",
       passwordHash: defaultPasswordHash,
       role: "STUDENT",
       status: "ACTIVE",
       departmentId: deptCSE.id,
       studentOrEmployeeId: "GLB-2023-CS1042",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav",
+      avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80",
     },
   });
 
@@ -337,7 +337,7 @@ async function main() {
       status: "ACTIVE",
       departmentId: deptECE.id,
       studentOrEmployeeId: "GLB-2024-EC2015",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya",
+      avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
     },
   });
 

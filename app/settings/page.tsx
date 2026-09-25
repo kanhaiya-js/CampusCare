@@ -54,7 +54,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div className="p-5 rounded-2xl border border-border bg-card text-center space-y-3">
             <img
-              src={user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || "User"}`}
+              src={user?.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || "User")}&backgroundColor=4f46e5&textColor=ffffff`}
               alt="Avatar"
               className="w-20 h-20 rounded-full mx-auto bg-slate-200 border-2 border-primary-500 shadow-sm"
             />

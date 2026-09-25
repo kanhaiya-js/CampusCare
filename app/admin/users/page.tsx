@@ -168,7 +168,7 @@ export default function AdminUsersPage() {
                     <td className="p-3.5">
                       <div className="flex items-center gap-2.5">
                         <img
-                          src={u.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.name}`}
+                          src={u.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(u.name)}&backgroundColor=4f46e5&textColor=ffffff`}
                           alt={u.name}
                           className="w-7 h-7 rounded-full bg-slate-200"
                         />

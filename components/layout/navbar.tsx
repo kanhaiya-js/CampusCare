@@ -573,7 +573,7 @@ export function Navbar() {
                 className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors"
               >
                 <img
-                  src={user.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`}
+                  src={user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=4f46e5&textColor=ffffff`}
                   alt={user.name}
                   className="w-7 h-7 rounded-full bg-slate-200 border border-border"
                 />

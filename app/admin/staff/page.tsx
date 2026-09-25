@@ -110,7 +110,7 @@ export default function AdminStaffPage() {
               <div className="flex items-center justify-between pb-3 border-b border-border">
                 <div className="flex items-center gap-2.5">
                   <img
-                    src={staff.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`}
+                    src={staff.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(staff.name)}&backgroundColor=059669&textColor=ffffff`}
                     alt={staff.name}
                     className="w-8 h-8 rounded-full bg-slate-200"
                   />
