@@ -40,27 +40,26 @@ export async function POST(req: NextRequest) {
       return apiError("EMAIL_EXISTS", "An account with this email already exists", 409);
     }
 
-    // Role verification & assignment
-    let assignedRole: "USER" | "STAFF" | "ADMIN" = "USER";
-    if (role === "ADMIN") {
-      // SECURITY (V1): Use ONLY the env-configured admin key. Never hardcode or leak it.
-      const requiredKey = process.env.ADMIN_REGISTER_KEY;
-      if (!requiredKey) {
-        // Admin registration is disabled if no key is configured
-        return apiError("FORBIDDEN", "Admin registration is not available. Contact your system administrator.", 403);
-      }
-
-      const trimmedKey = adminKey ? adminKey.trim() : "";
-      if (trimmedKey !== requiredKey) {
-        // SECURITY: Generic error message — never reveal the correct key
-        return apiError("FORBIDDEN", "Invalid admin registration key. Contact your system administrator.", 403);
-      }
-      assignedRole = "ADMIN";
-    } else if (role === "STAFF" || role === "MAINTENANCE_STAFF") {
-      assignedRole = "STAFF";
-    } else {
-      assignedRole = "USER";
+    // Policy: Only students can self-register. Staff & Admin accounts must be created by an administrator.
+    if (
+      role === "ADMIN" ||
+      role === "STAFF" ||
+      role === "MAINTENANCE_STAFF" ||
+      role === "FACULTY" ||
+      role === "DEPARTMENT_COORDINATOR" ||
+      body.role === "ADMIN" ||
+      body.role === "STAFF" ||
+      body.role === "MAINTENANCE_STAFF" ||
+      body.role === "FACULTY"
+    ) {
+      return apiError(
+        "FORBIDDEN",
+        "Public self-registration is restricted exclusively to students. If you need a Staff or Administrator account, please contact an administrator (Prabhat Sir at prabhat.sir@glbitm.edu).",
+        403
+      );
     }
+
+    const assignedRole: "USER" = "USER";
 
     const passwordHash = await hashPassword(password);
     const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
@@ -76,17 +75,6 @@ export async function POST(req: NextRequest) {
         avatarUrl,
         departmentId: departmentId && departmentId.trim().length > 0 ? departmentId.trim() : null,
         lastLoginAt: new Date(),
-        ...(assignedRole === "STAFF"
-          ? {
-              staffProfile: {
-                create: {
-                  specialization: (body.specialization as string) || "GENERAL",
-                  availability: true,
-                  currentWorkload: 0,
-                },
-              },
-            }
-          : {}),
       },
     });
 
