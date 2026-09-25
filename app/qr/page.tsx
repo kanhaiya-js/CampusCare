@@ -246,8 +246,8 @@ export default function QRGeneratorPage() {
 
             {/* Placard Footer */}
             <div className="pt-3 border-t border-slate-300 flex justify-between items-center text-[10px] text-slate-500 font-mono">
-              <span>CampusCare QR Location Tag</span>
-              <span>Emergency Helpline: 1800-180-5522</span>
+              <span>Official CampusCare Room Placard</span>
+              <span>G.L. Bajaj Institute of Technology &amp; Management</span>
             </div>
           </div>
         </div>

@@ -180,8 +180,8 @@ export default function AdminQRCodesPage() {
 
             {/* Placard Footer */}
             <div className="pt-3 border-t border-slate-300 flex justify-between items-center text-[10px] text-slate-500 font-mono">
-              <span>Location ID: {activePlacard.id.slice(0, 10)}</span>
-              <span>CampusCare Emergency Support: 1800-180-5522</span>
+              <span>Official CampusCare Room Placard (ID: {activePlacard.id.slice(0, 8)})</span>
+              <span>G.L. Bajaj Institute of Technology &amp; Management</span>
             </div>
           </div>
         </div>
