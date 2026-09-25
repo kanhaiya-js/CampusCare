@@ -101,6 +101,53 @@ function LoginForm() {
         </div>
       )}
 
+      {/* Quick Demo Credentials for Kanhaiya Kumar & Prabhat Sir */}
+      <div className="mb-5 p-3 rounded-xl border border-border bg-muted/40">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center justify-between">
+          <span>Quick Login Demo Accounts</span>
+          <span className="text-[10px] text-primary-600 font-mono">1-Click Auto Fill</span>
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setEmail("kanhaiya.rai@glbitm.edu");
+              setPassword("password123");
+            }}
+            className="flex items-center gap-2 p-2 rounded-lg border border-border bg-card hover:border-primary-500 hover:bg-primary-50/50 dark:hover:bg-primary-950/40 transition-all text-left group"
+          >
+            <img
+              src="https://api.dicebear.com/7.x/adventurer/svg?seed=KanhaiyaKumar&backgroundColor=b6e3f4,c0aede,d1d4f9"
+              alt="Kanhaiya"
+              className="w-7 h-7 rounded-full bg-slate-200 shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate group-hover:text-primary-600">Kanhaiya</p>
+              <p className="text-[10px] text-muted-foreground">Student</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setEmail("prabhat.sir@glbitm.edu");
+              setPassword("password123");
+            }}
+            className="flex items-center gap-2 p-2 rounded-lg border border-border bg-card hover:border-primary-500 hover:bg-primary-50/50 dark:hover:bg-primary-950/40 transition-all text-left group"
+          >
+            <img
+              src="https://api.dicebear.com/7.x/adventurer/svg?seed=PrabhatSir&backgroundColor=ffd5dc,ffdfbf,d1d4f9"
+              alt="Prabhat Sir"
+              className="w-7 h-7 rounded-full bg-slate-200 shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate group-hover:text-primary-600">Prabhat Sir</p>
+              <p className="text-[10px] text-muted-foreground">Admin</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
           <Input

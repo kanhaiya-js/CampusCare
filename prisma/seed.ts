@@ -213,105 +213,16 @@ async function main() {
   }
   console.log("✅ Seeded GLBITM Transport Fleet & Routes");
 
-  // 4. Create Realistic GLBITM Seed Users
+  // 4. Create GLBITM Seed Users (Only 2 Users: Kanhaiya Kumar & Prabhat Sir)
   const admin = await prisma.user.create({
     data: {
-      name: "Prof. S. K. Verma",
-      email: "admin@glbitm.edu",
+      name: "Prabhat Sir",
+      email: "prabhat.sir@glbitm.edu",
       passwordHash: defaultPasswordHash,
       role: "ADMIN",
       status: "ACTIVE",
-      studentOrEmployeeId: "GLB-FAC-ADM01",
-      avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    },
-  });
-
-  const facultyCoordinator = await prisma.user.create({
-    data: {
-      name: "Dr. Neha Kapoor",
-      email: "neha.kapoor@glbitm.edu",
-      passwordHash: defaultPasswordHash,
-      role: "FACULTY",
-      status: "ACTIVE",
-      departmentId: deptCSE.id,
-      studentOrEmployeeId: "GLB-FAC-CS108",
-      avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-    },
-  });
-
-  const electrician = await prisma.user.create({
-    data: {
-      name: "Ramesh Kumar",
-      email: "electrician@glbitm.edu",
-      passwordHash: defaultPasswordHash,
-      role: "MAINTENANCE_STAFF",
-      status: "ACTIVE",
-      studentOrEmployeeId: "GLB-STF-EL01",
-      avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
-      staffProfile: {
-        create: {
-          specialization: "ELECTRICAL",
-          availability: true,
-          currentWorkload: 1,
-        },
-      },
-    },
-  });
-
-  const plumber = await prisma.user.create({
-    data: {
-      name: "Sunil Yadav",
-      email: "plumber@glbitm.edu",
-      passwordHash: defaultPasswordHash,
-      role: "MAINTENANCE_STAFF",
-      status: "ACTIVE",
-      studentOrEmployeeId: "GLB-STF-PL02",
-      avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
-      staffProfile: {
-        create: {
-          specialization: "PLUMBING",
-          availability: true,
-          currentWorkload: 1,
-        },
-      },
-    },
-  });
-
-  const hvacTech = await prisma.user.create({
-    data: {
-      name: "Amit Sharma",
-      email: "hvac@glbitm.edu",
-      passwordHash: defaultPasswordHash,
-      role: "MAINTENANCE_STAFF",
-      status: "ACTIVE",
-      studentOrEmployeeId: "GLB-STF-HV03",
-      avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
-      staffProfile: {
-        create: {
-          specialization: "HVAC",
-          availability: true,
-          currentWorkload: 1,
-        },
-      },
-    },
-  });
-
-  const networkTech = await prisma.user.create({
-    data: {
-      name: "Vikas Verma",
-      email: "network@glbitm.edu",
-      passwordHash: defaultPasswordHash,
-      role: "MAINTENANCE_STAFF",
-      status: "ACTIVE",
-      studentOrEmployeeId: "GLB-STF-IT04",
-      avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-      staffProfile: {
-        create: {
-          specialization: "NETWORK",
-          availability: true,
-          currentWorkload: 1,
-        },
-      },
+      studentOrEmployeeId: "GLB-FAC-PRABHAT01",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=PrabhatSir&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
     },
   });
 
@@ -324,24 +235,11 @@ async function main() {
       status: "ACTIVE",
       departmentId: deptCSE.id,
       studentOrEmployeeId: "GLB-2023-CS1042",
-      avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=KanhaiyaKumar&backgroundColor=b6e3f4,c0aede,d1d4f9",
     },
   });
 
-  const student2 = await prisma.user.create({
-    data: {
-      name: "Priya Verma",
-      email: "priya.verma@glbitm.edu",
-      passwordHash: defaultPasswordHash,
-      role: "STUDENT",
-      status: "ACTIVE",
-      departmentId: deptECE.id,
-      studentOrEmployeeId: "GLB-2024-EC2015",
-      avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-    },
-  });
-
-  console.log("✅ Seeded GLBITM Users, Faculty, and Technicians");
+  console.log("✅ Seeded GLBITM Users: Kanhaiya Kumar (Student) & Prabhat Sir (Admin)");
 
   // 5. Create GLBITM Campus Facilities & Categories
   const catElectrical = await prisma.category.create({
@@ -536,7 +434,7 @@ async function main() {
 
   console.log("✅ Seeded GLBITM Campus Locations");
 
-  // 7. Create Realistic GLBITM Campus Issues
+  // 7. Create Realistic GLBITM Campus Issues (Referencing Kanhaiya Kumar and Prabhat Sir)
   // Ticket 1: Central Library AC
   const issue1 = await prisma.issue.create({
     data: {
@@ -553,7 +451,7 @@ async function main() {
       priority: "HIGH",
       status: "IN_PROGRESS",
       reporterId: student1.id,
-      assignedStaffId: hvacTech.id,
+      assignedStaffId: admin.id,
       affectedCount: 6,
       history: {
         create: [
@@ -561,22 +459,22 @@ async function main() {
             actorId: student1.id,
             oldStatus: null,
             newStatus: "SUBMITTED",
-            comment: "Reported by Aarav Sharma from Central Library study desk",
+            comment: "Reported by Kanhaiya Kumar from Central Library study desk",
           },
           {
             actorId: admin.id,
             oldStatus: "SUBMITTED",
             newStatus: "VERIFIED",
-            comment: "Verified by facilities desk. High academic traffic area.",
+            comment: "Verified by facilities administration. High academic traffic area.",
           },
           {
             actorId: admin.id,
             oldStatus: "VERIFIED",
             newStatus: "ASSIGNED",
-            comment: "Assigned to HVAC technician Amit Sharma",
+            comment: "Assigned to Prabhat Sir for maintenance dispatch",
           },
           {
-            actorId: hvacTech.id,
+            actorId: admin.id,
             oldStatus: "ASSIGNED",
             newStatus: "IN_PROGRESS",
             comment: "Inspecting drainage line of duct unit 3B.",
@@ -590,7 +488,7 @@ async function main() {
             content: "Placed a plastic bin beneath the drip for now to protect textbooks.",
           },
           {
-            authorId: hvacTech.id,
+            authorId: admin.id,
             content: "Condensate drain tray was clogged with dust buildup. Cleaning and resealing today.",
           },
         ],
@@ -613,22 +511,22 @@ async function main() {
       longitude: 77.4894,
       priority: "MEDIUM",
       status: "ASSIGNED",
-      reporterId: facultyCoordinator.id,
-      assignedStaffId: networkTech.id,
+      reporterId: student1.id,
+      assignedStaffId: admin.id,
       affectedCount: 45,
       history: {
         create: [
           {
-            actorId: facultyCoordinator.id,
+            actorId: student1.id,
             oldStatus: null,
             newStatus: "SUBMITTED",
-            comment: "Reported by Dr. Neha Kapoor during afternoon lab practical session",
+            comment: "Reported by Kanhaiya Kumar during afternoon lab practical session",
           },
           {
             actorId: admin.id,
             oldStatus: "SUBMITTED",
             newStatus: "ASSIGNED",
-            comment: "Auto-routed to IT infrastructure team Vikas Verma",
+            comment: "Auto-routed to IT infrastructure supervision",
           },
         ],
       },
@@ -649,31 +547,31 @@ async function main() {
       longitude: 77.4898,
       priority: "HIGH",
       status: "RESOLVED",
-      reporterId: student2.id,
-      assignedStaffId: plumber.id,
+      reporterId: student1.id,
+      assignedStaffId: admin.id,
       resolvedAt: new Date(Date.now() - 3600000 * 3),
       history: {
         create: [
           {
-            actorId: student2.id,
+            actorId: student1.id,
             oldStatus: null,
             newStatus: "SUBMITTED",
-            comment: "Ticket raised by Priya Verma",
+            comment: "Ticket raised by Kanhaiya Kumar",
           },
           {
             actorId: admin.id,
             oldStatus: "SUBMITTED",
             newStatus: "ASSIGNED",
-            comment: "Assigned to Sunil Yadav (Plumbing)",
+            comment: "Assigned for campus plumbing inspection",
           },
           {
-            actorId: plumber.id,
+            actorId: admin.id,
             oldStatus: "ASSIGNED",
             newStatus: "IN_PROGRESS",
             comment: "Replaced drain hose clamp and tightened waste connection.",
           },
           {
-            actorId: plumber.id,
+            actorId: admin.id,
             oldStatus: "IN_PROGRESS",
             newStatus: "RESOLVED",
             comment: "Drain pipe fixed and floor wiped dry. Pending student confirmation.",
@@ -698,7 +596,7 @@ async function main() {
       priority: "MEDIUM",
       status: "CLOSED",
       reporterId: student1.id,
-      assignedStaffId: electrician.id,
+      assignedStaffId: admin.id,
       resolvedAt: new Date(Date.now() - 86400000 * 2),
       closedAt: new Date(Date.now() - 86400000),
       history: {
@@ -707,10 +605,10 @@ async function main() {
             actorId: student1.id,
             oldStatus: null,
             newStatus: "SUBMITTED",
-            comment: "Reported by student Aarav Sharma",
+            comment: "Reported by student Kanhaiya Kumar",
           },
           {
-            actorId: electrician.id,
+            actorId: admin.id,
             oldStatus: "ASSIGNED",
             newStatus: "RESOLVED",
             comment: "Ground loop isolator installed on audio patch cable.",
@@ -728,7 +626,7 @@ async function main() {
           userId: student1.id,
           rating: 5,
           resolved: true,
-          comment: "Super fast turnaround before our club event. Thanks Ramesh ji!",
+          comment: "Super fast turnaround before our club event. Thanks Prabhat Sir!",
         },
       },
     },
@@ -755,7 +653,7 @@ async function main() {
             actorId: student1.id,
             oldStatus: null,
             newStatus: "SUBMITTED",
-            comment: "Ticket raised by hostel resident Aarav Sharma",
+            comment: "Ticket raised by hostel resident Kanhaiya Kumar",
           },
         ],
       },
@@ -769,21 +667,21 @@ async function main() {
         userId: student1.id,
         type: "STATUS_CHANGE",
         title: "Work In Progress: Central Library AC",
-        message: "Technician Amit Sharma is currently addressing issue #SC-2026-000101 in Central Library.",
+        message: "Maintenance team is currently addressing issue #SC-2026-000101 in Central Library.",
         issueId: issue1.id,
       },
       {
-        userId: student2.id,
+        userId: student1.id,
         type: "RESOLUTION_CONFIRMATION",
         title: "Please Verify: Water Cooler Repair",
-        message: "Plumbing issue #SC-2026-000103 in Block B marked resolved. Did Sunil Yadav fix the leak?",
+        message: "Plumbing issue #SC-2026-000103 in Block B marked resolved. Did the repair solve the leak?",
         issueId: issue3.id,
       },
       {
-        userId: facultyCoordinator.id,
+        userId: admin.id,
         type: "ASSIGNMENT",
         title: "Ticket Assigned: CSE Lab Projector",
-        message: "Your complaint regarding Lab A-102 projector has been assigned to Vikas Verma (IT Support).",
+        message: "Complaint regarding Lab A-102 projector has been routed for attention.",
         issueId: issue2.id,
       },
     ],
@@ -804,7 +702,7 @@ async function main() {
         action: "STAFF_DISPATCHED",
         entityType: "Issue",
         entityId: issue2.id,
-        metadata: JSON.stringify({ assignedTo: "Vikas Verma", department: "CSE" }),
+        metadata: JSON.stringify({ assignedTo: "Prabhat Sir", department: "Administration" }),
       },
     ],
   });

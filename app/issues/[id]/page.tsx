@@ -530,7 +530,7 @@ export default function IssueDetailsPage() {
                 <span className="text-muted-foreground block text-[11px]">Reported By</span>
                 <div className="flex items-center gap-2 mt-1">
                   <img
-                    src={issue.reporter.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(issue.reporter.name)}&backgroundColor=4f46e5&textColor=ffffff`}
+                    src={issue.reporter.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(issue.reporter.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
                     alt="Reporter"
                     className="w-6 h-6 rounded-full bg-slate-200"
                   />
@@ -546,7 +546,7 @@ export default function IssueDetailsPage() {
                 {issue.assignedStaff ? (
                   <div className="flex items-center gap-2 mt-1">
                     <img
-                      src={issue.assignedStaff.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(issue.assignedStaff.name)}&backgroundColor=059669&textColor=ffffff`}
+                      src={issue.assignedStaff.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(issue.assignedStaff.name)}&backgroundColor=ffd5dc,ffdfbf,d1d4f9`}
                       alt="Staff"
                       className="w-6 h-6 rounded-full bg-slate-200"
                     />

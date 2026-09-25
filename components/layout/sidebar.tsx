@@ -48,6 +48,7 @@ export function Sidebar({ role, className }: SidebarProps) {
 
   const userLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/qr", label: "QR Generator", icon: QrCode },
     { href: "/scan", label: "Scan Room QR", icon: QrCode },
     { href: "/issues/report", label: "Report Issue", icon: PlusCircle },
     { href: "/issues?scope=my", label: "My Reported Issues", icon: FileText },

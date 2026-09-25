@@ -293,6 +293,25 @@ export function Navbar() {
             />
           </Link>
           <Link
+            href="/qr"
+            className={`group relative flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold transition-all rounded-lg ${
+              pathname === "/qr" || pathname === "/qr-generator"
+                ? "text-primary-600 dark:text-primary-300 bg-primary-50/80 dark:bg-primary-950/50 border border-primary-200/80 dark:border-primary-800/70 shadow-2xs"
+                : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80 border border-transparent"
+            }`}
+          >
+            <QrCode className="w-3.5 h-3.5 text-indigo-500 shrink-0 group-hover:scale-110 transition-transform" />
+            <span>QR Generator</span>
+            {/* Underground Line Hover & Active Indicator */}
+            <span
+              className={`absolute bottom-0 left-3 right-3 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+                pathname === "/qr" || pathname === "/qr-generator"
+                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                  : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
+              }`}
+            />
+          </Link>
+          <Link
             href="/facilities"
             className={`group relative flex items-center px-3.5 py-2 text-[13px] font-medium transition-all rounded-lg ${
               pathname === "/facilities"
@@ -573,7 +592,7 @@ export function Navbar() {
                 className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors"
               >
                 <img
-                  src={user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=4f46e5&textColor=ffffff`}
+                  src={user.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
                   alt={user.name}
                   className="w-7 h-7 rounded-full bg-slate-200 border border-border"
                 />
@@ -695,6 +714,19 @@ export function Navbar() {
             className="block px-3 py-2 rounded-lg text-sm font-medium hover:bg-muted"
           >
             Interactive Campus Map
+          </Link>
+          <Link
+            href="/qr"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium hover:bg-muted text-primary-600 dark:text-primary-400 font-semibold"
+          >
+            <span className="flex items-center gap-2">
+              <QrCode className="w-4 h-4 text-indigo-500" />
+              QR Generator &amp; Directory
+            </span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+              New
+            </span>
           </Link>
           <Link
             href="/facilities"
