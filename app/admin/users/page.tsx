@@ -179,7 +179,7 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="p-3.5 font-mono text-muted-foreground">
-                      {u.studentOrEmployeeId || "—"}
+                      {u.studentOrEmployeeId || "-"}
                     </td>
                     <td className="p-3.5">
                       <select
@@ -187,21 +187,21 @@ export default function AdminUsersPage() {
                         onChange={(e) => handleRoleChange(u, e.target.value)}
                         className={`px-2 py-1 rounded text-[11px] font-bold border transition-colors cursor-pointer outline-none ${
                           u.role === "ADMIN"
-                            ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-800"
+                            ? "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800"
                             : u.role === "STAFF" || u.role === "MAINTENANCE_STAFF"
                             ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800"
                             : "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-800"
                         }`}
                         title="Click to promote or change user system role"
                       >
-                        <option value="USER">🎓 USER (Student)</option>
-                        <option value="STAFF">🔧 STAFF (Technician)</option>
-                        <option value="ADMIN">🏛️ ADMIN (Operations)</option>
+                        <option value="USER">USER (Student)</option>
+                        <option value="STAFF">STAFF (Technician)</option>
+                        <option value="ADMIN">ADMIN (Operations)</option>
                       </select>
                     </td>
                     <td className="p-3.5">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${
                           u.status === "ACTIVE"
                             ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
                             : "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"

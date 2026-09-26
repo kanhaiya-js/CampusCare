@@ -10,17 +10,51 @@ export interface CreateAuditLogParams {
   userAgent?: string | null;
 }
 
+const SENSITIVE_KEYS = new Set([
+  "password",
+  "passwordhash",
+  "newpassword",
+  "currentpassword",
+  "confirmpassword",
+  "token",
+  "tokenhash",
+  "authtoken",
+  "resettoken",
+  "secret",
+  "adminkey",
+  "cookie",
+  "authorization",
+  "session",
+]);
+
+/**
+ * Recursively redacts sensitive keys from audit log metadata.
+ */
+function sanitizeAuditObject(obj: any): any {
+  if (!obj || typeof obj !== "object") return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeAuditObject);
+  }
+
+  const clean: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (SENSITIVE_KEYS.has(key.toLowerCase())) {
+      clean[key] = "[REDACTED]";
+    } else if (typeof value === "object" && value !== null) {
+      clean[key] = sanitizeAuditObject(value);
+    } else {
+      clean[key] = value;
+    }
+  }
+  return clean;
+}
+
 export async function createAuditLog(params: CreateAuditLogParams): Promise<void> {
   try {
     let sanitizedMetadata: string | undefined = undefined;
     if (params.metadata) {
-      // Remove any sensitive keys if accidentally present
-      const copy = { ...params.metadata };
-      delete copy.password;
-      delete copy.passwordHash;
-      delete copy.token;
-      delete copy.secret;
-      sanitizedMetadata = JSON.stringify(copy);
+      const clean = sanitizeAuditObject(params.metadata);
+      sanitizedMetadata = JSON.stringify(clean);
     }
 
     await prisma.auditLog.create({

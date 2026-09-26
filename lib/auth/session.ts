@@ -10,22 +10,19 @@ export interface SessionPayload {
   email: string;
   name: string;
   role: UserRole;
+  tokenVersion?: number;
   avatarUrl?: string | null;
   studentOrEmployeeId?: string | null;
 }
 
 const COOKIE_NAME = "campuscare_session";
 
-// SECURITY: Use only the env-configured secret. No hardcoded fallbacks.
+// SECURITY: Use only the env-configured secret with min 32 chars.
 function getSecretKey(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
   if (!secret || secret.length < 32) {
-    console.error(
-      "[SECURITY] AUTH_SECRET is missing or too short (min 32 chars). JWT operations will fail in production."
-    );
-    // In development, allow a fallback so devs can run the app without setup.
     if (process.env.NODE_ENV === "production") {
-      throw new Error("AUTH_SECRET environment variable is required in production");
+      throw new Error("AUTH_SECRET environment variable (min 32 chars) is required in production");
     }
     return new TextEncoder().encode("campuscare-dev-only-fallback-key-32ch");
   }
@@ -33,7 +30,15 @@ function getSecretKey(): Uint8Array {
 }
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
-  return new SignJWT({ ...payload })
+  return new SignJWT({
+    userId: payload.userId,
+    email: payload.email,
+    name: payload.name,
+    role: payload.role,
+    tokenVersion: payload.tokenVersion ?? 0,
+    avatarUrl: payload.avatarUrl ?? null,
+    studentOrEmployeeId: payload.studentOrEmployeeId ?? null,
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
@@ -47,7 +52,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
     });
     const payload = res.payload;
 
-    // Validate that required claims exist
+    // Validate required claims
     if (!payload.userId || !payload.email || !payload.name || !payload.role) {
       return null;
     }
@@ -57,6 +62,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
       email: payload.email as string,
       name: payload.name as string,
       role: payload.role as UserRole,
+      tokenVersion: typeof payload.tokenVersion === "number" ? payload.tokenVersion : 0,
       avatarUrl: (payload.avatarUrl as string | undefined | null) ?? null,
       studentOrEmployeeId: (payload.studentOrEmployeeId as string | undefined | null) ?? null,
     };
@@ -82,12 +88,11 @@ export async function setSessionCookie(payload: SessionPayload): Promise<string>
 export async function clearSessionCookie(): Promise<void> {
   const cookieStore = cookies();
   cookieStore.delete(COOKIE_NAME);
-  // Also clear legacy cookies if they exist, for clean migration
   try {
     cookieStore.delete("campuscore_session");
     cookieStore.delete("smartcampus_session");
   } catch {
-    // Ignore — these may not exist
+    // Ignore legacy cookie errors
   }
 }
 
@@ -123,28 +128,55 @@ export async function requireRole(allowedRoles: UserRole[]): Promise<SessionPayl
 }
 
 /**
- * SECURITY: For admin/staff-critical operations, re-validate the session
- * against the database to ensure the user is still active and their role
- * hasn't been revoked since the JWT was issued.
+ * SECURITY: Re-validates the session against the database to guarantee:
+ * 1. User account still exists and is ACTIVE (not suspended/deactivated)
+ * 2. Role has not been revoked
+ * 3. Session tokenVersion matches DB (invalidated on password change / logout all)
  */
 export async function requireActiveUser(allowedRoles?: UserRole[]): Promise<SessionPayload> {
   const session = await requireAuth();
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, role: true, status: true },
+    select: { id: true, role: true, status: true, tokenVersion: true },
   });
 
   if (!user || user.status !== "ACTIVE") {
     throw new Error("UNAUTHORIZED");
   }
 
-  // If the role in the DB differs from the JWT, use the DB truth
+  // Token revocation check: If token version in JWT doesn't match active version in DB
+  if (
+    session.tokenVersion !== undefined &&
+    user.tokenVersion !== undefined &&
+    session.tokenVersion !== user.tokenVersion
+  ) {
+    throw new Error("UNAUTHORIZED");
+  }
+
   const currentRole = user.role as UserRole;
   if (allowedRoles && !allowedRoles.includes(currentRole)) {
     throw new Error("FORBIDDEN");
   }
 
-  // Return session with the DB-verified role
-  return { ...session, role: currentRole };
+  return {
+    ...session,
+    role: currentRole,
+    tokenVersion: user.tokenVersion ?? 0,
+  };
+}
+
+/**
+ * SECURITY: Revokes all issued sessions for a user by incrementing tokenVersion.
+ * Used on password change, account suspension, or security alerts.
+ */
+export async function revokeUserSessions(userId: string): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { tokenVersion: { increment: 1 } },
+    });
+  } catch (error) {
+    console.error("Failed to revoke sessions for user:", userId, error);
+  }
 }

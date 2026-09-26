@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 
 /**
- * CampusCare — Professional ISO/IEC 18004 Compliant QR Code Generator
+ * CampusCare - Professional ISO/IEC 18004 Compliant QR Code Generator
  * Universal scannability across all smartphone cameras (iOS, Google Lens, Paytm, WhatsApp)
  * with strict XML sanitation and high-performance vector path generation.
  */
@@ -51,7 +51,8 @@ export function generateQRCodeMatrix(
   text: string,
   errorCorrectionLevel: QRErrorCorrectionLevel = "M"
 ): QRCodeData {
-  const qr = QRCode.create(text || "https://campuscare.onrender.com", {
+  const defaultUrl = process.env.NEXT_PUBLIC_APP_URL || "https://campuscare.glbitm.ac.in";
+  const qr = QRCode.create(text || defaultUrl, {
     errorCorrectionLevel,
   });
 
@@ -152,7 +153,8 @@ export async function generateQRCodePNGDataUrl(
     errorCorrectionLevel = "M",
   } = options;
 
-  return QRCode.toDataURL(text || "https://campuscare.onrender.com", {
+  const defaultUrl = process.env.NEXT_PUBLIC_APP_URL || "https://campuscare.glbitm.ac.in";
+  return QRCode.toDataURL(text || defaultUrl, {
     errorCorrectionLevel,
     margin,
     scale: 8,

@@ -1,15 +1,20 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email("Please provide a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().trim().toLowerCase().email("Please provide a valid email address"),
+  password: z.string().min(1, "Password is required").max(128, "Password is too long"),
 });
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters").max(100),
-    email: z.string().email("Please provide a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
+    email: z.string().trim().toLowerCase().email("Please provide a valid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .max(128, "Password cannot exceed 128 characters")
+      .regex(/[a-zA-Z]/, "Password must contain at least one letter")
+      .regex(/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one number or special character"),
     confirmPassword: z.string().optional().nullable().or(z.literal("")),
     studentOrEmployeeId: z.string().max(50).optional().nullable().or(z.literal("")),
     role: z
@@ -30,6 +35,42 @@ export const registerSchema = z
   .refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
+  });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Please provide a valid registered email address"),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().trim().min(20, "Invalid reset token").max(128, "Invalid reset token"),
+    password: z
+      .string()
+      .min(8, "New password must be at least 8 characters long")
+      .max(128, "Password cannot exceed 128 characters")
+      .regex(/[a-zA-Z]/, "Password must contain at least one letter")
+      .regex(/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one number or special character"),
+    confirmPassword: z.string().optional().nullable().or(z.literal("")),
+  })
+  .refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z
+      .string()
+      .min(8, "New password must be at least 8 characters long")
+      .max(128, "New password cannot exceed 128 characters")
+      .regex(/[a-zA-Z]/, "New password must contain at least one letter")
+      .regex(/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "New password must contain at least one number or special character"),
+    confirmNewPassword: z.string().optional().nullable().or(z.literal("")),
+  })
+  .refine((data) => !data.confirmNewPassword || data.newPassword === data.confirmNewPassword, {
+    message: "Passwords do not match",
+    path: ["confirmNewPassword"],
   });
 
 export const createIssueSchema = z.object({
@@ -94,7 +135,7 @@ export const updatePrioritySchema = z.object({
   comment: z.string().max(500).optional(),
 });
 
-// SECURITY (V7): Partial schema for issue PATCH — validates all fields with safe bounds
+// SECURITY (V7): Partial schema for issue PATCH - validates all fields with safe bounds
 export const updateIssueSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters").max(150).optional(),
   description: z.string().trim().min(5).max(3000).optional(),
@@ -111,7 +152,7 @@ export const updateIssueSchema = z.object({
   comment: z.string().max(1000).optional(),
 }).strict(); // Reject any unexpected fields
 
-// SECURITY (V8): Schema for admin staff onboarding — enforces password strength
+// SECURITY (V8): Schema for admin staff onboarding - enforces password strength
 export const createStaffSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
   email: z.string().email("Please provide a valid email address"),

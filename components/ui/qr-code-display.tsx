@@ -121,7 +121,7 @@ export function QRCodeDisplay({
 
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
-      {/* 100% Native Inline SVG — Instant render, zero broken image errors */}
+      {/* 100% Native Inline SVG - Instant render, zero broken image errors */}
       <div className="relative p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-md transition-transform hover:scale-[1.01]">
         <svg
           xmlns="http://www.w3.org/2000/svg"

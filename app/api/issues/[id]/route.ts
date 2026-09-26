@@ -5,6 +5,7 @@ import { updateIssueSchema } from "@/lib/validation/schemas";
 import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { createAuditLog } from "@/lib/services/audit";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { sanitizeText } from "@/lib/security/sanitize";
 
 interface RouteParams {
   params: { id: string };
@@ -94,7 +95,6 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return apiError("NOT_FOUND", "Issue not found", 404);
     }
 
-    // Privacy protection: mask student ID if viewer is not reporter, admin, or assigned staff
     const userRole = session.role as string;
     const isReporter = issue.reporterId === session.userId;
     const isStaffOrAdmin =
@@ -102,6 +102,11 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       userRole === "STAFF" ||
       userRole === "MAINTENANCE_STAFF" ||
       userRole === "DEPARTMENT_COORDINATOR";
+
+    // SECURITY: Non-authorized users cannot access sensitive issues (ragging, mental health, private reports)
+    if (issue.isSensitive && !isReporter && !isStaffOrAdmin) {
+      return apiError("NOT_FOUND", "Issue not found", 404);
+    }
 
     if (!isReporter && !isStaffOrAdmin && issue.reporter) {
       // Hide student ID from general viewers for privacy compliance
@@ -166,9 +171,9 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     }
 
     const updateData: any = {};
-    if (validatedData.title) updateData.title = validatedData.title;
-    if (validatedData.description) updateData.description = validatedData.description;
-    if (validatedData.room !== undefined) updateData.room = validatedData.room;
+    if (validatedData.title) updateData.title = sanitizeText(validatedData.title, 150);
+    if (validatedData.description) updateData.description = sanitizeText(validatedData.description, 3000);
+    if (validatedData.room !== undefined) updateData.room = validatedData.room ? sanitizeText(validatedData.room, 100) : null;
     if (validatedData.categoryId) updateData.categoryId = validatedData.categoryId;
     if (validatedData.locationId) updateData.locationId = validatedData.locationId;
     if (validatedData.departmentId !== undefined) updateData.departmentId = validatedData.departmentId;

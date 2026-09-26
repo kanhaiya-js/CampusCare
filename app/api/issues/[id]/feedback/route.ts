@@ -5,6 +5,7 @@ import { createFeedbackSchema } from "@/lib/validation/schemas";
 import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { sendNotification } from "@/lib/services/notification";
 import { createAuditLog } from "@/lib/services/audit";
+import { sanitizeText } from "@/lib/security/sanitize";
 
 interface RouteParams {
   params: { id: string };
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     const { rating, resolved, comment } = result.data;
+    const sanitizedComment = comment ? sanitizeText(comment, 1000) : null;
 
     const issue = await prisma.issue.findFirst({
       where: { OR: [{ id }, { publicIssueId: id }] },
@@ -52,12 +54,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           userId: session.userId,
           rating,
           resolved,
-          comment: comment || null,
+          comment: sanitizedComment,
         },
         update: {
           rating,
           resolved,
-          comment: comment || null,
+          comment: sanitizedComment,
         },
       });
 

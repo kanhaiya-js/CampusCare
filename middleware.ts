@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 
 const COOKIE_NAME = "campuscare_session";
 
-// SECURITY: Single secret key, no fallbacks
+// SECURITY: Single secret key, no fallbacks in production
 function getSecretKey(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
   if (!secret || secret.length < 32) {
@@ -19,8 +19,52 @@ function getSecretKey(): Uint8Array {
 export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
-    const token = request.cookies.get(COOKIE_NAME)?.value;
+    const method = request.method.toUpperCase();
 
+    // 1. CSRF DEFENSE: Verify Origin / Referer for all state-changing API endpoints
+    if (pathname.startsWith("/api/")) {
+      const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+      if (isMutating) {
+        const origin = request.headers.get("origin");
+        const host = request.headers.get("host");
+
+        if (origin && host) {
+          try {
+            const originHost = new URL(origin).host.toLowerCase();
+            const currentHost = host.toLowerCase();
+
+            // Allow matching host or subdomains
+            if (originHost !== currentHost && !originHost.endsWith(`.${currentHost}`)) {
+              return NextResponse.json(
+                {
+                  success: false,
+                  error: {
+                    code: "CSRF_FORBIDDEN",
+                    message: "Cross-site request blocked. Invalid origin.",
+                  },
+                },
+                { status: 403 }
+              );
+            }
+          } catch {
+            return NextResponse.json(
+              {
+                success: false,
+                error: {
+                  code: "CSRF_FORBIDDEN",
+                  message: "Malformed origin header.",
+                },
+              },
+              { status: 403 }
+            );
+          }
+        }
+      }
+      return NextResponse.next();
+    }
+
+    // 2. Authentication check for UI routes
+    const token = request.cookies.get(COOKIE_NAME)?.value;
     let session: any = null;
     if (token) {
       try {
@@ -29,7 +73,7 @@ export async function middleware(request: NextRequest) {
         });
         session = payload;
       } catch {
-        // Invalid/expired token — treat as unauthenticated
+        // Invalid/expired token - treat as unauthenticated
         session = null;
       }
     }
@@ -79,8 +123,6 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch (error) {
-    // STABILITY: If middleware throws (e.g., corrupted cookie, env issue),
-    // let the request through rather than crashing the entire app with 500.
     console.error("[Middleware Error]", error);
     return NextResponse.next();
   }
@@ -88,6 +130,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/api/:path*",
     "/dashboard/:path*",
     "/issues/report",
     "/staff/:path*",

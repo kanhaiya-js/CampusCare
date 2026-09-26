@@ -5,6 +5,7 @@ import { createCommentSchema } from "@/lib/validation/schemas";
 import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { sendNotification } from "@/lib/services/notification";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { sanitizeText } from "@/lib/security/sanitize";
 
 interface RouteParams {
   params: { id: string };
@@ -20,10 +21,17 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     const { id } = params;
     const issue = await prisma.issue.findFirst({
       where: { OR: [{ id }, { publicIssueId: id }] },
-      select: { id: true },
+      select: { id: true, isSensitive: true, reporterId: true },
     });
 
     if (!issue) {
+      return apiError("NOT_FOUND", "Issue not found", 404);
+    }
+
+    // Role check for sensitive issues
+    const isReporter = issue.reporterId === session.userId;
+    const isStaffOrAdmin = ["ADMIN", "STAFF", "MAINTENANCE_STAFF", "DEPARTMENT_COORDINATOR"].includes(session.role);
+    if (issue.isSensitive && !isReporter && !isStaffOrAdmin) {
       return apiError("NOT_FOUND", "Issue not found", 404);
     }
 
@@ -57,7 +65,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     const { id } = params;
-    const body = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return apiError("BAD_REQUEST", "Invalid request body", 400);
+    }
+
     const result = createCommentSchema.safeParse(body);
     if (!result.success) {
       return apiError("VALIDATION_ERROR", "Invalid comment content", 422, result.error.format());
@@ -72,11 +86,20 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return apiError("NOT_FOUND", "Issue not found", 404);
     }
 
+    // Role check for sensitive issues
+    const isReporter = issue.reporterId === session.userId;
+    const isStaffOrAdmin = ["ADMIN", "STAFF", "MAINTENANCE_STAFF", "DEPARTMENT_COORDINATOR"].includes(session.role);
+    if (issue.isSensitive && !isReporter && !isStaffOrAdmin) {
+      return apiError("FORBIDDEN", "You do not have permission to comment on this confidential issue", 403);
+    }
+
+    const cleanContent = sanitizeText(result.data.content, 2000);
+
     const comment = await prisma.issueComment.create({
       data: {
         issueId: issue.id,
         authorId: session.userId,
-        content: result.data.content,
+        content: cleanContent,
       },
       include: {
         author: {
@@ -86,22 +109,20 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     });
 
     // Notify the other party
-    // If reporter commented, notify assigned staff
     if (session.userId === issue.reporterId && issue.assignedStaffId) {
       await sendNotification({
         userId: issue.assignedStaffId,
         type: "COMMENT",
         title: `New Comment on Issue #${issue.publicIssueId}`,
-        message: `${session.name} commented: "${result.data.content.slice(0, 80)}..."`,
+        message: `${session.name} commented: "${cleanContent.slice(0, 80)}..."`,
         issueId: issue.id,
       });
     } else if (session.userId !== issue.reporterId) {
-      // If staff/admin commented, notify reporter
       await sendNotification({
         userId: issue.reporterId,
         type: "COMMENT",
         title: `Technician Update on Issue #${issue.publicIssueId}`,
-        message: `${session.name} commented: "${result.data.content.slice(0, 80)}..."`,
+        message: `${session.name} commented: "${cleanContent.slice(0, 80)}..."`,
         issueId: issue.id,
       });
     }

@@ -249,7 +249,7 @@ export function Navbar() {
               <span
                 className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                   pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/staff")
-                    ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                    ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                     : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
                 }`}
               />
@@ -268,7 +268,7 @@ export function Navbar() {
             <span
               className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/issues" || pathname.startsWith("/issues/")
-                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
@@ -287,7 +287,7 @@ export function Navbar() {
             <span
               className={`absolute bottom-0 left-3 right-3 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/map"
-                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
@@ -306,7 +306,7 @@ export function Navbar() {
             <span
               className={`absolute bottom-0 left-3 right-3 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/qr" || pathname === "/qr-generator"
-                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
@@ -324,7 +324,7 @@ export function Navbar() {
             <span
               className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/facilities"
-                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
@@ -342,7 +342,7 @@ export function Navbar() {
             <span
               className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/transport"
-                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
@@ -360,7 +360,7 @@ export function Navbar() {
             <span
               className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/clubs"
-                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
@@ -381,7 +381,7 @@ export function Navbar() {
               <span
                 className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                   pathname === "/team"
-                    ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+                    ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                     : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
                 }`}
               />
@@ -424,12 +424,12 @@ export function Navbar() {
                   </div>
 
                   <div className="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/60 transition-colors">
-                    <div className="w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center justify-center shrink-0 border border-purple-200 dark:border-purple-800">
+                    <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-200 dark:border-indigo-800">
                       B
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-foreground">Badri</p>
-                      <p className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">Supporter &amp; Presentation</p>
+                      <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold">Supporter &amp; Presentation</p>
                       <p className="text-[10px] text-muted-foreground leading-tight">PPT maker &amp; project pitch</p>
                     </div>
                   </div>
@@ -452,7 +452,7 @@ export function Navbar() {
           {/* Official Support Link */}
           <Link
             href="/support"
-            className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-500/25 hover:bg-rose-100 dark:hover:bg-rose-500/25 transition-colors"
+            className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-500/25 hover:bg-rose-100 dark:hover:bg-rose-500/25 transition-colors"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
             Support
@@ -528,7 +528,7 @@ export function Navbar() {
                     <div className="flex items-center gap-1.5">
                       <span className="font-semibold text-sm">Notifications</span>
                       {unreadCount > 0 && (
-                        <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300 text-[10px] font-bold rounded-full">
+                        <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300 text-[10px] font-bold rounded-md">
                           {unreadCount} new
                         </span>
                       )}
@@ -788,7 +788,7 @@ export function Navbar() {
                 </div>
                 <span>+ Report New Issue</span>
               </div>
-              <span className="text-[10px] font-bold bg-white/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <span className="text-[10px] font-bold bg-white/25 px-2 py-0.5 rounded-md uppercase tracking-wider">
                 Fast 30s
               </span>
             </Link>
@@ -805,7 +805,7 @@ export function Navbar() {
                 </div>
                 <span className="tracking-tight">Scan Location / Room QR Code</span>
               </div>
-              <span className="text-[10px] font-black bg-white/25 px-2 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs flex items-center gap-1">
+              <span className="text-[10px] font-black bg-white/25 px-2 py-0.5 rounded-md uppercase tracking-wider backdrop-blur-xs flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping"></span>
                 Instant
               </span>

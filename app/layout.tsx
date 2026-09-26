@@ -15,7 +15,7 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "CampusCare — Report. Track. Resolve. Improve.",
+  title: "CampusCare | Report. Track. Resolve. Improve.",
   description:
     "CampusCare: Centralized campus issue reporting, facility maintenance, and experience management platform for G.L. Bajaj Institute of Technology & Management.",
   icons: {

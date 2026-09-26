@@ -298,7 +298,7 @@ export default function AdminIssuesPage() {
               <option value="">-- Choose Staff Member --</option>
               {staffList.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name} ({s.specialization}) — Workload: {s.currentWorkload} active
+                  {s.name} ({s.specialization}) - Workload: {s.currentWorkload} active
                 </option>
               ))}
             </select>

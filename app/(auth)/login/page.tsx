@@ -87,7 +87,7 @@ function LoginForm() {
         <div className="mb-6 p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/70 dark:bg-indigo-950/40 text-xs">
           <div className="flex items-center gap-2 font-bold text-indigo-900 dark:text-indigo-200">
             <Shield className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
-            Location QR Scanned — Login Required
+            Location QR Scanned - Login Required
           </div>
           <p className="text-[11px] text-indigo-700 dark:text-indigo-300 mt-1 leading-relaxed">
             Please authenticate with your student or staff credentials before raising an issue for this campus room.
@@ -116,6 +116,12 @@ function LoginForm() {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="block text-sm font-medium text-foreground">Password</label>
+            <Link
+              href="/forgot-password"
+              className="text-xs text-primary-600 hover:text-primary-700 hover:underline font-medium"
+            >
+              Forgot password?
+            </Link>
           </div>
           <Input
             type="password"

@@ -5,7 +5,6 @@ import {
   Wrench,
   CheckCircle2,
   MapPin,
-  Sparkles,
   Zap,
   Building2,
   Bus,
@@ -105,36 +104,6 @@ export default async function HomePage() {
   ];
 
 
-  // Real campus testimonials with human warmth
-  const campusVoices = [
-    {
-      name: "Aarav Sharma",
-      role: "3rd Year, B.Tech CSE (Block A)",
-      quote:
-        "Last Thursday, the ceiling projector in our DBMS lab started flickering 20 minutes before our project demo. We logged it on CampusCare instead of running to the admin building. Rajesh Ji from IT arrived with a fresh cable and fixed it on spot. Our whole group gave him 5 stars.",
-      avatarBg: "bg-blue-600",
-      initials: "AS",
-      verifiedTag: "Hostel 1 Resident",
-    },
-    {
-      name: "Prof. S.K. Verma",
-      role: "ECE Department Faculty (Block B)",
-      quote:
-        "Earlier, getting a damaged oscilloscope power socket repaired meant writing a manual register note and waiting 3 days. Now, a 30-second ticket with a photo gets routed directly to the duty electrician. My lab sessions run without interruptions.",
-      avatarBg: "bg-teal-600",
-      initials: "SV",
-      verifiedTag: "Lab Coordinator",
-    },
-    {
-      name: "Rajesh Kumar",
-      role: "Lead Campus Electrician (8+ Yrs at GLBITM)",
-      quote:
-        "Before this app, students would say 'bhaiya second floor pe light kharab hai' and we had to check all 10 classrooms to find the switch. Now students attach the exact room number and photo. We carry the right spare MCB and finish the job in 15 minutes.",
-      avatarBg: "bg-amber-600",
-      initials: "RK",
-      verifiedTag: "Duty Staff",
-    },
-  ];
 
 
   // Humanized features
@@ -151,7 +120,7 @@ export default async function HomePage() {
       desc: "If your classmate already reported the broken AC in Room 302, don't duplicate it. Hit upvote to bump its priority with the supervisor.",
       icon: ThumbsUp,
       badge: "Teamwork",
-      color: "from-indigo-500/10 to-purple-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200/70 dark:border-indigo-800/40",
+      color: "from-indigo-500/10 to-blue-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200/70 dark:border-indigo-800/40",
     },
     {
       title: "Exam Rooms & Safety First",
@@ -188,14 +157,14 @@ export default async function HomePage() {
     {
       dept: "Campus Maintenance Control Room",
       location: "Basement, Block C",
-      timings: "8:00 AM – 8:00 PM Daily",
+      timings: "8:00 AM - 8:00 PM Daily",
       contact: "Ext. 104 / Intercom",
       badge: "General Repairs",
     },
     {
       dept: "Campus Health & Medical Dispensary",
       location: "Ground Floor (Next to Café)",
-      timings: "Dr. Sharma • 9:00 AM – 6:00 PM",
+      timings: "Dr. Sharma • 9:00 AM - 6:00 PM",
       contact: "Emergency Ambulance Linkage",
       badge: "First Aid & Clinic",
     },
@@ -209,7 +178,7 @@ export default async function HomePage() {
     {
       dept: "Institute Transport & Bus Incharge",
       location: "Gate 1 Main Office",
-      timings: "Mr. Chauhan • 8:30 AM – 5:00 PM",
+      timings: "Mr. Chauhan • 8:30 AM - 5:00 PM",
       contact: "Route passes & driver queries",
       badge: "Transport Fleet",
     },
@@ -254,23 +223,23 @@ export default async function HomePage() {
         {/* Hero Content - Directly over beautifully blurred campus backdrop */}
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-4">
           {/* Official Campus Crest / Logo */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto animate-float">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto">
             <img src="/logo.png" alt="CampusCare Logo" className="w-full h-full rounded-2xl object-contain drop-shadow-md" />
           </div>
 
           {/* Campus Inspiration Quote */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-medium bg-background/90 dark:bg-slate-900/90 backdrop-blur-md border border-border/80 shadow-xs max-w-xl mx-auto">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-md text-xs font-medium bg-background/90 dark:bg-slate-900/90 backdrop-blur-md border border-border/80 shadow-xs max-w-xl mx-auto">
+            <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             <span className="italic text-foreground/90 font-serif text-[12px] sm:text-[13px]">
               &ldquo;Dreams transform into thoughts, and thoughts result in action.&rdquo;
             </span>
             <span className="text-primary-600 dark:text-primary-400 font-bold font-sans text-[11px] shrink-0">
-              — Dr. A.P.J. Abdul Kalam
+              - Dr. A.P.J. Abdul Kalam
             </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-wide text-foreground max-w-3xl mx-auto leading-tight font-orbitron drop-shadow-xs">
-            Shaping Our Campus, Together.
+            Campus Facility Issue Reporting System
           </h1>
 
           <p className="text-base sm:text-lg font-bold text-foreground max-w-2xl mx-auto">
@@ -380,8 +349,8 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {recentResolvedIssues.length > 0
-              ? recentResolvedIssues.map((issue) => (
+            {recentResolvedIssues.length > 0 ? (
+              recentResolvedIssues.map((issue) => (
                 <Link
                   key={issue.id}
                   href={`/issues/${issue.id}`}
@@ -392,7 +361,7 @@ export default async function HomePage() {
                       <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-[11px]">
                         #{issue.publicIssueId}
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                         Resolved
                       </span>
                     </div>
@@ -409,64 +378,13 @@ export default async function HomePage() {
                   </div>
                 </Link>
               ))
-              : [
-                {
-                  title: "Classroom 204 Projector HDMI Cable",
-                  loc: "Block B, Room 204",
-                  time: "Fixed in 25 mins",
-                  tech: "Rakesh (IT Staff)",
-                  ver: "Sneha, 3rd Yr CSE",
-                },
-                {
-                  title: "Drinking Water Dispenser Cooling",
-                  loc: "Boys Hostel 1, Ground Floor",
-                  time: "Fixed in 40 mins",
-                  tech: "Amit (Plumber)",
-                  ver: "Harshit, 2nd Yr ME",
-                },
-                {
-                  title: "Reading Floor Wi-Fi AP Reboot",
-                  loc: "Central Library, 3rd Floor",
-                  time: "Fixed in 15 mins",
-                  tech: "Network Cell",
-                  ver: "Library Staff",
-                },
-                {
-                  title: "Mess Hall Light Fixtures",
-                  loc: "Girls Hostel Mess",
-                  time: "Fixed same day",
-                  tech: "Rajesh (Electrician)",
-                  ver: "Mess Committee",
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-2xl border border-border bg-card shadow-xs hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                        Verified Fixed
-                      </span>
-                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">{item.time}</span>
-                    </div>
-                    <h4 className="font-bold text-xs text-foreground">{item.title}</h4>
-                    <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-primary-500" />
-                      {item.loc}
-                    </p>
-                  </div>
-
-                  <div className="mt-3 pt-2.5 border-t border-border/80 text-[10px] text-muted-foreground space-y-0.5">
-                    <p>
-                      <strong className="text-foreground">Staff:</strong> {item.tech}
-                    </p>
-                    <p>
-                      <strong className="text-foreground">Verified by:</strong> {item.ver}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            ) : (
+              <div className="col-span-full text-center py-12 px-4 rounded-2xl border border-dashed border-border bg-card">
+                <CheckCircle2 className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-foreground">No resolved issues to display yet</p>
+                <p className="text-xs text-muted-foreground mt-1">Resolved campus facility tickets will appear here once verified.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -500,7 +418,7 @@ export default async function HomePage() {
                       <div className={`w-11 h-11 rounded-2xl border ${f.color} flex items-center justify-center group-hover:scale-105 transition-transform`}>
                         <Icon className="w-5 h-5" strokeWidth={1.75} />
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border">
                         {f.badge}
                       </span>
                     </div>
@@ -515,56 +433,6 @@ export default async function HomePage() {
       </section>
 
 
-      {/* Community Testimonials: Voices of GL Bajaj */}
-      <section className="py-14 md:py-20 border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">
-              <HeartHandshake className="w-4 h-4" />
-              Community Voices
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-wide text-foreground font-orbitron">
-              What People on Campus Say
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Real feedback from students, teachers, and maintenance heroes who keep GL Bajaj running every single day.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {campusVoices.map((v, i) => (
-              <div
-                key={i}
-                className="p-6 rounded-2xl border border-border bg-card shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-11 h-11 rounded-2xl ${v.avatarBg} text-white flex items-center justify-center font-bold text-sm shadow-xs`}>
-                      {v.initials}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">{v.name}</h4>
-                      <p className="text-xs text-muted-foreground">{v.role}</p>
-                    </div>
-                  </div>
-                  <p className="text-xs sm:text-[13px] text-foreground/90 leading-relaxed italic">
-                    "{v.quote}"
-                  </p>
-                </div>
-                <div className="mt-5 pt-3 border-t border-border flex items-center justify-between text-xs">
-                  <span className="font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 px-2.5 py-0.5 rounded-md text-[11px]">
-                    {v.verifiedTag}
-                  </span>
-                  <div className="flex items-center gap-1 text-amber-500 text-xs">
-                    <ThumbsUp className="w-3.5 h-3.5" />
-                    <span className="text-[11px] font-semibold text-muted-foreground">Verified Review</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
 
       {/* Real Campus Helplines & Duty Desks */}
@@ -654,7 +522,7 @@ export default async function HomePage() {
             <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-2xl mx-auto space-y-3.5">
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 px-3 py-1 rounded-full">
+              <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 px-3 py-1 rounded-md">
                 Built by GLBITM Students
               </div>
               <h2 className="text-2xl sm:text-3xl font-black tracking-wide font-orbitron text-foreground">

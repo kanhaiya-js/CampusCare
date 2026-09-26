@@ -71,11 +71,21 @@ ehthumbs.db
 Thumbs.db
 [Dd]esktop.ini
 
-# IDEs
+# IDEs & Agent Metadata
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea/
+.agent/
+.agents/
+.gemini/
+.gsd/
+GSD-STYLE.md
+PROJECT_RULES.md
+VERSION
+adapters/
+model_capabilities.yaml
+scripts/
 *.suo
 *.ntvs*
 *.njsproj

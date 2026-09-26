@@ -6,21 +6,25 @@ import { setSessionCookie } from "@/lib/auth/session";
 import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { createAuditLog } from "@/lib/services/audit";
+import { sanitizeText } from "@/lib/security/sanitize";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
     const rateLimit = checkRateLimit(`register_${ip}`, { limit: 5, windowMs: 60 * 1000 });
     if (!rateLimit.allowed) {
-      return apiError("TOO_MANY_REQUESTS", "Too many registration attempts. Please wait 1 minute.", 429);
+      return apiError(
+        "TOO_MANY_REQUESTS",
+        `Too many registration attempts. Please wait ${rateLimit.retryAfterSeconds} seconds.`,
+        429
+      );
     }
 
-    // STABILITY: Safe JSON parsing
     let body: any;
     try {
       body = await req.json();
     } catch {
-      return apiError("BAD_REQUEST", "Invalid request body", 400);
+      return apiError("BAD_REQUEST", "Invalid request format", 400);
     }
 
     const result = registerSchema.safeParse(body);
@@ -29,7 +33,7 @@ export async function POST(req: NextRequest) {
       return apiError("VALIDATION_ERROR", firstIssue, 422, result.error.format());
     }
 
-    const { name, email, password, studentOrEmployeeId, role, adminKey, departmentId } = result.data;
+    const { name, email, password, studentOrEmployeeId, role, departmentId } = result.data;
     const normalizedEmail = email.toLowerCase().trim();
 
     const existing = await prisma.user.findUnique({
@@ -40,7 +44,7 @@ export async function POST(req: NextRequest) {
       return apiError("EMAIL_EXISTS", "An account with this email already exists", 409);
     }
 
-    // Policy: Only students can self-register. Staff & Admin accounts must be created by an administrator.
+    // Role protection: Public self-registration is strictly for students
     if (
       role === "ADMIN" ||
       role === "STAFF" ||
@@ -54,24 +58,26 @@ export async function POST(req: NextRequest) {
     ) {
       return apiError(
         "FORBIDDEN",
-        "Public self-registration is restricted exclusively to students. If you need a Staff or Administrator account, please contact an administrator (Prabhat Sir at prabhat.sir@glbitm.edu).",
+        "Public self-registration is restricted exclusively to students. Staff or Administrator accounts must be onboarded by campus administration.",
         403
       );
     }
 
     const assignedRole: "USER" = "USER";
-
     const passwordHash = await hashPassword(password);
-    const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+    const sanitizedName = sanitizeText(name, 100);
+    const sanitizedId = studentOrEmployeeId ? sanitizeText(studentOrEmployeeId, 50) : null;
+    const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(sanitizedName)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
     const user = await prisma.user.create({
       data: {
-        name: name.trim(),
+        name: sanitizedName,
         email: normalizedEmail,
         passwordHash,
         role: assignedRole,
         status: "ACTIVE",
-        studentOrEmployeeId: studentOrEmployeeId && studentOrEmployeeId.trim().length > 0 ? studentOrEmployeeId.trim() : null,
+        tokenVersion: 0,
+        studentOrEmployeeId: sanitizedId,
         avatarUrl,
         departmentId: departmentId && departmentId.trim().length > 0 ? departmentId.trim() : null,
         lastLoginAt: new Date(),
@@ -83,6 +89,7 @@ export async function POST(req: NextRequest) {
       email: user.email,
       name: user.name,
       role: user.role as "USER" | "STAFF" | "ADMIN",
+      tokenVersion: 0,
       avatarUrl: user.avatarUrl,
       studentOrEmployeeId: user.studentOrEmployeeId,
     });
@@ -110,7 +117,6 @@ export async function POST(req: NextRequest) {
       201
     );
   } catch (error: any) {
-    // SECURITY (V4): Never leak internal error messages to the client
     console.error("Register API error:", error);
     return apiError("INTERNAL_ERROR", "Registration failed. Please try again later.", 500);
   }

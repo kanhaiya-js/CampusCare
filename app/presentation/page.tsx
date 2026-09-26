@@ -19,7 +19,7 @@ import {
   Users,
   Clock,
   BarChart3,
-  Sparkles,
+  Award,
   BookOpen,
   ArrowRight,
   Laptop,
@@ -29,6 +29,11 @@ import {
   Bus,
   FileText,
   HelpCircle,
+  QrCode,
+  Cpu,
+  Radio,
+  Smartphone,
+  Presentation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -51,14 +56,14 @@ export default function PresentationPage() {
     {
       id: 1,
       tag: "Title & Cover",
-      title: "CampusCare — GL Bajaj",
+      title: "CampusCare - GL Bajaj",
       subtitle: "Autonomous Campus Facility Maintenance & Problem Resolution Ecosystem",
       notes:
         "Welcome professors and evaluators. Today we are presenting CampusCare, an institutional digital platform designed specifically for GLBITM Greater Noida to modernize physical maintenance and issue resolution.",
       content: (
         <div className="space-y-6 text-center max-w-3xl mx-auto py-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-widest bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20">
+            <Award className="w-3.5 h-3.5" />
             Innovative Vocational Project (IVD 2026)
           </div>
 
@@ -93,9 +98,9 @@ export default function PresentationPage() {
                   <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Project Researcher</p>
                   <p className="text-[10px] text-muted-foreground">Field Study &amp; Operations SLA</p>
                 </div>
-                <div className="p-2.5 rounded-lg bg-purple-50/60 dark:bg-purple-950/40 border border-purple-200/60 dark:border-purple-800/60">
+                <div className="p-2.5 rounded-lg bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-800/60">
                   <p className="font-bold text-xs text-foreground">Badri</p>
-                  <p className="text-[11px] text-purple-600 dark:text-purple-400 font-semibold">Supporter &amp; Presentation</p>
+                  <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">Supporter &amp; Presentation</p>
                   <p className="text-[10px] text-muted-foreground">PPT Maker &amp; Pitch Specialist</p>
                 </div>
               </div>
@@ -135,8 +140,8 @@ export default function PresentationPage() {
             </p>
           </div>
 
-          <div className="p-5 rounded-xl border border-purple-200/80 dark:border-purple-900/60 bg-purple-50/40 dark:bg-purple-950/20 space-y-3">
-            <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-sm">
+          <div className="p-5 rounded-xl border border-indigo-200/80 dark:border-indigo-900/60 bg-indigo-50/40 dark:bg-indigo-950/20 space-y-3">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm">
               <MapPin className="w-4 h-4" />
               3. Spatial Ambiguity &amp; Large Campus Layout
             </div>
@@ -219,7 +224,7 @@ export default function PresentationPage() {
         <div className="space-y-4 max-w-4xl mx-auto py-2">
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
             <div className="p-3 rounded-lg border border-border bg-card text-center space-y-1.5">
-              <span className="w-6 h-6 rounded-full bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
+              <span className="w-6 h-6 rounded-md bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
                 1
               </span>
               <p className="font-bold text-foreground">Student Reports</p>
@@ -227,7 +232,7 @@ export default function PresentationPage() {
             </div>
 
             <div className="p-3 rounded-lg border border-border bg-card text-center space-y-1.5">
-              <span className="w-6 h-6 rounded-full bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
+              <span className="w-6 h-6 rounded-md bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
                 2
               </span>
               <p className="font-bold text-foreground">Safety Screening</p>
@@ -235,7 +240,7 @@ export default function PresentationPage() {
             </div>
 
             <div className="p-3 rounded-lg border border-border bg-card text-center space-y-1.5">
-              <span className="w-6 h-6 rounded-full bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
+              <span className="w-6 h-6 rounded-md bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
                 3
               </span>
               <p className="font-bold text-foreground">Auto Dispatch</p>
@@ -243,7 +248,7 @@ export default function PresentationPage() {
             </div>
 
             <div className="p-3 rounded-lg border border-border bg-card text-center space-y-1.5">
-              <span className="w-6 h-6 rounded-full bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
+              <span className="w-6 h-6 rounded-md bg-primary-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
                 4
               </span>
               <p className="font-bold text-foreground">Staff Action</p>
@@ -251,7 +256,7 @@ export default function PresentationPage() {
             </div>
 
             <div className="p-3 rounded-lg border border-border bg-card text-center space-y-1.5">
-              <span className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
+              <span className="w-6 h-6 rounded-md bg-emerald-600 text-white font-bold inline-flex items-center justify-center text-[10px]">
                 5
               </span>
               <p className="font-bold text-foreground">Resolved &amp; Logged</p>
@@ -261,14 +266,14 @@ export default function PresentationPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-2">
             <div className="p-3.5 rounded-lg border border-border/70 bg-card/60 space-y-1.5">
-              <p className="font-bold text-primary-600 dark:text-primary-400">⚡ Automated SLA Clock Engine</p>
+              <p className="font-bold text-primary-600 dark:text-primary-400">Automated SLA Clock Engine</p>
               <p className="text-muted-foreground">
                 Urgent tickets trigger a 2-hour countdown. Medium tasks receive 6-12 hours. If unserviced, tickets automatically escalate to the Maintenance Supervisor with alert notifications.
               </p>
             </div>
 
             <div className="p-3.5 rounded-lg border border-border/70 bg-card/60 space-y-1.5">
-              <p className="font-bold text-primary-600 dark:text-primary-400">🔐 Multi-Role JWT Session Security</p>
+              <p className="font-bold text-primary-600 dark:text-primary-400">Multi-Role JWT Session Security</p>
               <p className="text-muted-foreground">
                 Zero credential leaks. Custom middleware verifies RBAC claims (Student, Maintenance Staff, Institutional Admin) with multi-cookie backwards-compatible failovers.
               </p>
@@ -304,7 +309,7 @@ export default function PresentationPage() {
             </div>
             <h4 className="font-bold text-xs text-foreground">Smart Report Wizard</h4>
             <p className="text-[11px] text-muted-foreground leading-tight">
-              4-step frictionless submission: Category Selection ➔ Location Specifier ➔ Photo/Description Evidence ➔ Instant Confirmation.
+              4-step frictionless submission: Category Selection → Location Specifier → Photo/Description Evidence → Instant Confirmation.
             </p>
           </div>
 
@@ -319,7 +324,7 @@ export default function PresentationPage() {
           </div>
 
           <div className="p-4 rounded-xl border border-border bg-card space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950 text-purple-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
             <h4 className="font-bold text-xs text-foreground">Student Clubs Logistics</h4>
@@ -525,13 +530,13 @@ export default function PresentationPage() {
             </ul>
           </div>
 
-          <div className="p-5 rounded-2xl border border-purple-200/80 dark:border-purple-900/60 bg-card/80 space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 text-white font-bold font-orbitron flex items-center justify-center text-base">
+          <div className="p-5 rounded-2xl border border-indigo-200/80 dark:border-indigo-900/60 bg-card/80 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white font-bold font-orbitron flex items-center justify-center text-base">
               B
             </div>
             <div>
               <h4 className="font-bold text-sm text-foreground">Badri</h4>
-              <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">Supporter &amp; Presentation</p>
+              <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Supporter &amp; Presentation</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">PPT Maker &amp; Pitch Specialist</p>
             </div>
             <ul className="space-y-1.5 text-xs text-muted-foreground border-t border-border/60 pt-3">
@@ -557,7 +562,7 @@ export default function PresentationPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto py-2">
           <div className="p-4 rounded-xl border border-border bg-card space-y-2">
             <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-bold text-xs">
-              <Sparkles className="w-4 h-4" />
+              <QrCode className="w-4 h-4" />
               1. QR-Code Desk &amp; Room Integration
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -567,17 +572,17 @@ export default function PresentationPage() {
 
           <div className="p-4 rounded-xl border border-border bg-card space-y-2">
             <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-bold text-xs">
-              <Sparkles className="w-4 h-4" />
-              2. AI Computer Vision Damage Assessment
+              <Cpu className="w-4 h-4" />
+              2. Automated Diagnostics &amp; Damage Categorization
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Integrating an AI image recognition model to automatically inspect uploaded photos (e.g. cracked plaster vs minor paint chip), automatically predicting urgency and necessary replacement parts.
+              Integrating an automated heuristic inspection model to parse submitted details (e.g. electrical hazard vs cosmetic defect), automatically predicting urgency and necessary replacement parts.
             </p>
           </div>
 
           <div className="p-4 rounded-xl border border-border bg-card space-y-2">
             <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-bold text-xs">
-              <Sparkles className="w-4 h-4" />
+              <Radio className="w-4 h-4" />
               3. IoT Hardware Sensor Integration
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -587,7 +592,7 @@ export default function PresentationPage() {
 
           <div className="p-4 rounded-xl border border-border bg-card space-y-2">
             <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-bold text-xs">
-              <Sparkles className="w-4 h-4" />
+              <Smartphone className="w-4 h-4" />
               4. Mobile Native App (PWA &amp; Push)
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -608,7 +613,7 @@ export default function PresentationPage() {
         "Conclude with confidence. Invite questions from the jury. All team members are ready to answer technical, architectural, and operational questions.",
       content: (
         <div className="space-y-6 text-center max-w-3xl mx-auto py-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <CheckCircle2 className="w-3.5 h-3.5" />
             Project Live &amp; Fully Functional
           </div>
@@ -695,7 +700,7 @@ export default function PresentationPage() {
           </Link>
           <span className="text-border">|</span>
           <div className="flex items-center gap-1.5 text-xs font-bold font-orbitron text-primary-600 dark:text-primary-400">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Presentation className="w-3.5 h-3.5" />
             CampusCare Presentation Deck
           </div>
         </div>
@@ -728,13 +733,13 @@ export default function PresentationPage() {
       <div className="max-w-7xl mx-auto w-full pt-3 pb-4">
         <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5 font-medium">
           <span className="uppercase tracking-wider text-[11px] font-bold text-primary-600 dark:text-primary-400">
-            Slide {currentSlide + 1} of {slides.length} — {activeSlide.tag}
+            Slide {currentSlide + 1} of {slides.length} - {activeSlide.tag}
           </span>
           <span className="text-[11px]">Use ← / → keys to navigate</span>
         </div>
         <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-primary-600 via-indigo-500 to-purple-600 transition-all duration-300"
+            className="h-full bg-gradient-to-r from-primary-600 via-indigo-500 to-indigo-600 transition-all duration-300"
             style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
           />
         </div>
@@ -744,7 +749,7 @@ export default function PresentationPage() {
       <main className="flex-1 flex flex-col justify-center max-w-7xl mx-auto w-full my-auto py-4">
         <div className="rounded-3xl border border-border/80 bg-card/80 backdrop-blur-md shadow-2xl p-6 sm:p-10 flex flex-col justify-between min-h-[520px] relative overflow-hidden transition-all duration-300">
           {/* Subtle Top Accent */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-500" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-indigo-500" />
 
           {/* Slide Header */}
           <div className="space-y-1 mb-4 text-center sm:text-left">

@@ -12,7 +12,7 @@ export function generatePublicIssueId(count: number): string {
 }
 
 export function formatDateTime(date: Date | string | null | undefined): string {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString("en-US", {
     month: "short",
@@ -24,7 +24,7 @@ export function formatDateTime(date: Date | string | null | undefined): string {
 }
 
 export function formatRelativeTime(date: Date | string | null | undefined): string {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
@@ -63,9 +63,9 @@ export const STATUS_CONFIG: Record<
   },
   ASSIGNED: {
     label: "Assigned",
-    color: "#a855f7",
-    dotColor: "bg-purple-600 dark:bg-purple-400",
-    badgeClass: "bg-purple-50 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-200 dark:border-purple-700 font-semibold",
+    color: "#4f46e5",
+    dotColor: "bg-indigo-600 dark:bg-indigo-400",
+    badgeClass: "bg-indigo-50 text-indigo-900 border-indigo-300 dark:bg-indigo-950 dark:text-indigo-200 dark:border-indigo-700 font-semibold",
     description: "Assigned to maintenance team technician",
   },
   IN_PROGRESS: {

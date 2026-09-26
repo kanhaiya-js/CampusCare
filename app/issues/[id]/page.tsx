@@ -19,6 +19,7 @@ import {
   Upload,
   Send,
   Camera,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
@@ -361,7 +362,8 @@ export default function IssueDetailsPage() {
                         <img src={att.url} alt={att.fileName} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-xs font-medium text-muted-foreground p-2 text-center">
-                          📹 {att.fileName}
+                          <FileText className="w-5 h-5 mb-1 text-primary-500" />
+                          <span>{att.fileName}</span>
                         </div>
                       )}
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
@@ -565,7 +567,7 @@ export default function IssueDetailsPage() {
               <div>
                 <span className="text-muted-foreground block text-[11px]">Campus Facility</span>
                 <span className="font-semibold text-foreground block mt-0.5">
-                  📍 {issue.location.building} — {issue.location.name}
+                  {issue.location.building} - {issue.location.name}
                 </span>
                 {issue.room && <span className="text-[11px] text-muted-foreground block">Room: {issue.room}</span>}
               </div>

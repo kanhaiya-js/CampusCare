@@ -83,6 +83,7 @@ model User {
   departmentId        String?
   department          Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   lastLoginAt         DateTime?
+  tokenVersion        Int            @default(0)
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
 
@@ -246,4 +247,15 @@ model AuditLog {
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  email     String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
 }

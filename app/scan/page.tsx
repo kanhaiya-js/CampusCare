@@ -451,7 +451,7 @@ function ScanPageContent() {
           </div>
 
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 mb-2">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
               Verified Campus Location
             </div>
@@ -463,7 +463,7 @@ function ScanPageContent() {
             </p>
             {displayRoom && (
               <div className="mt-2.5 inline-block px-3.5 py-1.5 rounded-xl bg-muted text-xs font-black text-foreground border border-border tracking-wide font-mono">
-                📍 ROOM / LAB: {displayRoom}
+                ROOM / LAB: {displayRoom}
               </div>
             )}
           </div>
@@ -488,7 +488,7 @@ function ScanPageContent() {
                     <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">{currentUser.studentOrEmployeeId || currentUser.email}</p>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
                   Signed In
                 </span>
               </div>
@@ -541,7 +541,7 @@ function ScanPageContent() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full space-y-8">
       {/* Header */}
       <div className="text-center max-w-xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#00baf2]/10 text-[#00baf2] border border-[#00baf2]/30 shadow-2xs">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-bold bg-[#00baf2]/10 text-[#00baf2] border border-[#00baf2]/30 shadow-2xs">
           <QrCode className="w-4 h-4 text-[#00baf2]" />
           Instant Campus QR Scanner
         </div>
@@ -562,7 +562,7 @@ function ScanPageContent() {
               Camera Scanner
             </span>
             {isCameraActive && (
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 animate-pulse">
+              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 animate-pulse">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 {targetLocked ? "DECODED" : "SCANNING"}
               </span>
@@ -643,7 +643,7 @@ function ScanPageContent() {
 
                 {/* 4. Top & Bottom HUD Controls */}
                 <div className="absolute top-4 inset-x-6 flex items-center justify-between text-[11px] font-mono font-bold text-slate-200 z-30 pointer-events-auto">
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-800 text-[10px]">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/80 backdrop-blur-md border border-slate-800 text-[10px]">
                     <span className="w-2 h-2 rounded-full bg-[#00baf2] animate-pulse" />
                     ALIGN QR CODE
                   </span>
@@ -652,7 +652,7 @@ function ScanPageContent() {
                   <button
                     type="button"
                     onClick={toggleTorch}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold backdrop-blur-md transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-xs font-semibold backdrop-blur-md transition-colors ${
                       torchOn
                         ? "bg-amber-400 text-slate-950 border-amber-300 shadow-md shadow-amber-400/30"
                         : "bg-slate-900/80 text-slate-300 border-slate-700 hover:text-white"
@@ -735,7 +735,7 @@ function ScanPageContent() {
                   <option value="">-- Choose Campus Facility --</option>
                   {allLocations.map((loc) => (
                     <option key={loc.id} value={loc.id}>
-                      {loc.building} — {loc.name}
+                      {loc.building} - {loc.name}
                     </option>
                   ))}
                 </select>

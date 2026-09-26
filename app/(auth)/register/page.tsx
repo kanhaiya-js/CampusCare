@@ -84,7 +84,7 @@ export default function RegisterPage() {
               className="w-full h-full rounded-xl object-contain drop-shadow-md"
             />
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 mb-2">
             <GraduationCap className="w-3.5 h-3.5 text-primary-600" />
             Student Registration Portal
           </div>

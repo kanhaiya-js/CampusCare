@@ -10,7 +10,6 @@ import {
   Phone,
   Shield,
   ArrowRight,
-  Sparkles,
   Info,
   CheckCircle,
 } from "lucide-react";
@@ -67,7 +66,7 @@ export default function TransportPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1">
             <Bus className="w-3.5 h-3.5" />
-            GLBITM Greater Noida • Academic Session 2026–27
+            GLBITM Greater Noida • Academic Session 2026-27
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold font-orbitron text-foreground tracking-tight">
             Campus Transport & Bus Fleet
@@ -134,14 +133,14 @@ export default function TransportPage() {
                         {route.routeNumber}
                       </span>
                       <span className="text-[10px] text-muted-foreground font-medium">
-                        2026–27
+                        2026-27
                       </span>
                     </div>
 
                     <div className="mt-2">
                       <p className="text-xs font-bold text-foreground">{route.routeName}</p>
                       <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                        {route.startPoint} ➔ {route.endPoint}
+                        {route.startPoint} → {route.endPoint}
                       </p>
                     </div>
 

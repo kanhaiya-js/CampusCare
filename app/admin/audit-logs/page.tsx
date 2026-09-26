@@ -100,7 +100,7 @@ export default function AdminAuditLogsPage() {
                       {log.entityType} {log.entityId ? `#${log.entityId.slice(0, 8)}...` : ""}
                     </td>
                     <td className="p-3.5 text-muted-foreground max-w-xs truncate font-sans text-[11px]">
-                      {log.metadata || "—"}
+                      {log.metadata || "-"}
                     </td>
                   </tr>
                 ))

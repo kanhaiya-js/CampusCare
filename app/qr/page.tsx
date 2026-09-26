@@ -12,7 +12,6 @@ import {
   Filter,
   Building,
   MapPin,
-  Sparkles,
   ExternalLink,
   Layers,
   ArrowRight,
@@ -75,13 +74,13 @@ export default function QRGeneratorPage() {
   const origin = useMemo(() => {
     if (typeof window !== "undefined") {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-      if (isLocal && useLiveDomain) {
-        return "https://campuscare.onrender.com";
+      if (isLocal && process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL;
       }
       return window.location.origin;
     }
-    return "https://campuscare.onrender.com";
-  }, [useLiveDomain]);
+    return process.env.NEXT_PUBLIC_APP_URL || "https://campuscare.glbitm.ac.in";
+  }, []);
 
   useEffect(() => {
     fetchLocations();
@@ -257,7 +256,7 @@ export default function QRGeneratorPage() {
       <div className="print:hidden space-y-8">
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-primary-50 dark:bg-primary-950/70 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold bg-primary-50 dark:bg-primary-950/70 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 shadow-2xs">
             <QrCode className="w-3.5 h-3.5 text-primary-600 animate-pulse" />
             GLBITM Official QR Location System
           </div>
@@ -273,25 +272,23 @@ export default function QRGeneratorPage() {
           <div className="inline-flex p-1 rounded-xl bg-muted/80 border border-border shadow-inner mt-4">
             <button
               onClick={() => setActiveTab("generate")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold transition-all ${
-                activeTab === "generate"
-                  ? "bg-card text-foreground shadow-sm border border-border"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "generate"
+                ? "bg-card text-foreground shadow-sm border border-border"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              ⚡ Generate QR Code (Recommended)
+              <QrCode className="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
+              Generate QR Code (Recommended)
             </button>
             <button
               onClick={() => setActiveTab("directory")}
-              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold transition-all ${
-                activeTab === "directory"
-                  ? "bg-card text-foreground shadow-sm border border-border"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "directory"
+                ? "bg-card text-foreground shadow-sm border border-border"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               <Layers className="w-3.5 h-3.5 text-primary-500" />
-              📋 Campus Locations Directory ({locations.length})
+              Campus Locations Directory ({locations.length})
             </button>
           </div>
         </div>
@@ -311,7 +308,7 @@ export default function QRGeneratorPage() {
                     <p className="text-xs text-muted-foreground">Select a campus building or enter custom room details</p>
                   </div>
                 </div>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
                   Live Sync
                 </span>
               </div>
@@ -336,7 +333,7 @@ export default function QRGeneratorPage() {
                 >
                   {locations.map((loc) => (
                     <option key={loc.id} value={loc.id}>
-                      {loc.building} — {loc.name}
+                      {loc.building} - {loc.name}
                     </option>
                   ))}
                 </select>
@@ -413,7 +410,7 @@ export default function QRGeneratorPage() {
               {/* Quick Presets */}
               <div className="pt-2">
                 <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                  ⚡ Quick GLBITM Room Presets
+                  Quick GLBITM Room Presets
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {[
@@ -443,7 +440,7 @@ export default function QRGeneratorPage() {
             {/* Right Live Preview Column (5 cols) */}
             <div className="lg:col-span-5 bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 sticky top-20 text-center">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 mb-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 mb-2">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   Universal Scannable Placard
                 </div>
@@ -451,7 +448,7 @@ export default function QRGeneratorPage() {
                 <p className="text-xs text-muted-foreground mt-0.5">{displayBuilding}</p>
                 {roomNumber && (
                   <span className="inline-block mt-2 px-2.5 py-0.5 rounded-md text-xs font-mono font-bold bg-muted text-foreground border border-border">
-                    📍 {roomNumber}
+                    {roomNumber}
                   </span>
                 )}
               </div>
@@ -469,7 +466,7 @@ export default function QRGeneratorPage() {
                   fileName={`campuscare-${displayBuilding.toLowerCase().replace(/\s+/g, "-")}-${roomNumber.toLowerCase().replace(/\s+/g, "-")}`}
                 />
                 <p className="text-[11px] text-muted-foreground font-medium">
-                  📷 Scannable with any camera (iPhone, Google Lens, Paytm, WhatsApp)
+                  Scannable with any device camera or scanning application
                 </p>
               </div>
 
@@ -505,7 +502,7 @@ export default function QRGeneratorPage() {
               {/* How it works info */}
               <div className="p-3.5 rounded-2xl bg-muted/40 border border-border text-left text-xs space-y-1.5 text-muted-foreground">
                 <p className="font-bold text-foreground text-[11px] uppercase tracking-wide">
-                  📱 What happens when scanned?
+                  What happens when scanned?
                 </p>
                 <p className="text-[11px] leading-relaxed">
                   Smartphones open the CampusCare fast-ticket screen with <strong>{displayBuilding}</strong> and <strong>{roomNumber || "assigned room"}</strong> automatically locked into the ticket dispatch form.
@@ -535,11 +532,10 @@ export default function QRGeneratorPage() {
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                 <button
                   onClick={() => setFilterBuilding("ALL")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
-                    filterBuilding === "ALL"
-                      ? "bg-primary-600 text-white"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${filterBuilding === "ALL"
+                    ? "bg-primary-600 text-white"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   All Buildings
                 </button>
@@ -547,11 +543,10 @@ export default function QRGeneratorPage() {
                   <button
                     key={b}
                     onClick={() => setFilterBuilding(b)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
-                      filterBuilding === b
-                        ? "bg-primary-600 text-white"
-                        : "bg-muted text-muted-foreground hover:text-foreground"
-                    }`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${filterBuilding === b
+                      ? "bg-primary-600 text-white"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                      }`}
                   >
                     {b}
                   </button>
@@ -589,7 +584,7 @@ export default function QRGeneratorPage() {
                             </h3>
                             {loc.room && (
                               <span className="inline-block mt-1 px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-muted text-foreground border border-border">
-                                📍 {loc.room}
+                                {loc.room}
                               </span>
                             )}
                           </div>

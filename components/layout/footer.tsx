@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="hidden md:block border-t border-border bg-card text-card-foreground mt-auto relative overflow-hidden print:hidden">
       {/* Radiant Top Border Accent */}
-      <div className="h-[2px] w-full bg-gradient-to-r from-blue-600/60 via-purple-600/60 to-amber-500/60" />
+      <div className="h-[2px] w-full bg-gradient-to-r from-blue-600/60 via-indigo-600/60 to-amber-500/60" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
@@ -32,12 +32,12 @@ export function Footer() {
             </p>
             <div className="flex items-start gap-1.5 text-xs text-muted-foreground pt-1">
               <MapPin className="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5" />
-              <span>Plot No. 2, APJ Abdul Kalam Road, Knowledge Park 3, Greater Noida, UP — 201306</span>
+              <span>Plot No. 2, APJ Abdul Kalam Road, Knowledge Park 3, Greater Noida, UP - 201306</span>
             </div>
 
             {/* Human Touch Community Note */}
             <div className="pt-2 text-xs text-muted-foreground/90 flex items-center gap-1.5">
-              <span>Made with pride & care by GLBITM engineering students for our 10,000+ campus community.</span>
+              <span>Built by GLBITM engineering students for the campus community.</span>
             </div>
           </div>
 
@@ -146,10 +146,16 @@ export function Footer() {
         <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} G.L. Bajaj Institute of Technology & Management. CampusCare Platform.</p>
           <div className="flex items-center gap-2">
-            <span>Report. Track. Resolve. Improve.</span>
-            <span>•</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            <span>|</span>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms of Use
+            </Link>
+            <span>|</span>
             <Link href="/support" className="text-primary-600 dark:text-primary-400 hover:underline">
-              Official Institutional Redressal
+              Institutional Redressal
             </Link>
           </div>
         </div>

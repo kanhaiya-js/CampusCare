@@ -5,7 +5,7 @@ import {
   Search,
   Presentation,
   Users,
-  Sparkles,
+  Target,
   ArrowLeft,
   CheckCircle2,
   Layers,
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Project Team | CampusCare — GL Bajaj",
+  title: "Project Team | CampusCare - GL Bajaj",
   description:
     "Meet the development and research team behind CampusCare at G.L. Bajaj Institute of Technology & Management: Kanhaiya (Lead Developer), Rishav (Project Researcher), and Badri (Supporter & Presentation Specialist).",
 };
@@ -69,10 +69,10 @@ export default function TeamPage() {
       role: "Supporter & Presentation Specialist",
       tagline: "Pitch Decks, PPT Maker & Documentation",
       highlight: "Supporter & Presentation, PPT Maker",
-      color: "purple",
+      color: "indigo",
       avatarInitials: "B",
-      badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-      avatarBg: "from-purple-600 to-pink-600",
+      badgeColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+      avatarBg: "from-indigo-600 to-blue-600",
       icon: Presentation,
       summary:
         "Crafted the project pitch materials, slide presentations, and academic demonstration assets, providing core support throughout development and reviews.",
@@ -104,7 +104,7 @@ export default function TeamPage() {
               Launch Project PPT Deck
             </Button>
           </Link>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-200/80 dark:border-primary-800/80">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-200/80 dark:border-primary-800/80">
             <GraduationCap className="w-3.5 h-3.5" />
             GL Bajaj Institute of Technology &amp; Management
           </div>
@@ -113,7 +113,7 @@ export default function TeamPage() {
 
       {/* Hero Header */}
       <div className="relative text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-bold tracking-wider uppercase bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20">
           <Users className="w-3.5 h-3.5" />
           Meet the Innovators
         </div>
@@ -148,7 +148,7 @@ export default function TeamPage() {
                     {member.avatarInitials}
                   </div>
                   <span
-                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border ${member.badgeColor}`}
+                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-md border ${member.badgeColor}`}
                   >
                     <Icon className="w-3 h-3" />
                     {member.highlight}
@@ -215,11 +215,11 @@ export default function TeamPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
           <div className="lg:col-span-2 space-y-3">
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider">
-              <Sparkles className="w-4 h-4" />
+              <Target className="w-4 h-4" />
               Project Mission &amp; Institutional Vision
             </div>
             <h2 className="text-xl sm:text-2xl font-bold font-orbitron text-foreground">
-              Empowering 10,000+ Students &amp; Faculty at GL Bajaj
+              Empowering Students &amp; Faculty at GL Bajaj
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               CampusCare was created to replace outdated manual complaints and delayed maintenance logs with an automated, transparent, digital problem resolution ecosystem. Engineered with modern full-stack web standards, the system features instant issue dispatch, SLA escalations, campus interactive map navigation, and student privacy safeguards.
@@ -228,7 +228,7 @@ export default function TeamPage() {
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 justify-center items-stretch sm:items-center lg:items-end">
             <Link href="/presentation" className="w-full sm:w-auto">
-              <Button variant="primary" className="w-full sm:w-auto gap-2 shadow-md bg-gradient-to-r from-primary-600 via-indigo-600 to-purple-600 text-white border-0 hover:opacity-95">
+              <Button variant="primary" className="w-full sm:w-auto gap-2 shadow-md bg-gradient-to-r from-primary-600 via-indigo-600 to-indigo-600 text-white border-0 hover:opacity-95">
                 <Presentation className="w-4 h-4" />
                 Launch Project Presentation PPT
               </Button>

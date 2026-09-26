@@ -163,7 +163,7 @@ export default function CampusMapPage() {
               <div className="space-y-2 text-xs pt-2 border-t border-border">
                 <div>
                   <span className="text-muted-foreground block text-[11px]">Facility Location</span>
-                  <span className="font-semibold text-foreground">📍 {selectedIssue.locationName}</span>
+                  <span className="font-semibold text-foreground">{selectedIssue.locationName}</span>
                   {selectedIssue.room && (
                     <span className="block text-muted-foreground text-[11px]">Room: {selectedIssue.room}</span>
                   )}

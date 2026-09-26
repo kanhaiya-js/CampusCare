@@ -13,6 +13,7 @@ import {
   FileText,
   Clock,
   Layers,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -346,7 +347,7 @@ function IssuesListContent() {
                     </span>
                   )}
                   {issue.club && (
-                    <span className="px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 text-[10px] font-bold border border-purple-200/50 dark:border-purple-800/60">
+                    <span className="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold border border-indigo-200/50 dark:border-indigo-800/60">
                       Club: {issue.club.name}
                     </span>
                   )}
@@ -375,8 +376,9 @@ function IssuesListContent() {
 
                 <div className="flex items-center gap-4">
                   {issue.assignedStaff ? (
-                    <span className="text-[11px] font-medium text-foreground/80">
-                      🔧 {issue.assignedStaff.name}
+                    <span className="text-[11px] font-medium text-foreground/80 flex items-center gap-1">
+                      <Wrench className="w-3 h-3 text-muted-foreground" />
+                      {issue.assignedStaff.name}
                     </span>
                   ) : (
                     <span className="text-[11px] text-amber-600 font-medium">Unassigned</span>

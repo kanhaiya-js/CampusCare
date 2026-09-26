@@ -10,6 +10,7 @@ import { findBestStaffForIssue } from "@/lib/services/assignment-engine";
 import { sendNotification } from "@/lib/services/notification";
 import { createAuditLog } from "@/lib/services/audit";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { sanitizeText } from "@/lib/security/sanitize";
 
 export const dynamic = "force-dynamic";
 
@@ -79,6 +80,14 @@ export async function GET(req: NextRequest) {
       userRole === "USER" || userRole === "STUDENT" || userRole === "FACULTY";
     if (isStudentOrFaculty && scope !== "all") {
       where.reporterId = session.userId;
+    } else if (isStudentOrFaculty && scope === "all") {
+      // SECURITY: General users cannot see sensitive issues reported by others
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [{ isSensitive: false }, { reporterId: session.userId }],
+        },
+      ];
     } else if (
       (userRole === "STAFF" || userRole === "MAINTENANCE_STAFF") &&
       scope === "assigned"
@@ -212,14 +221,14 @@ export async function POST(req: NextRequest) {
       const issue = await tx.issue.create({
         data: {
           publicIssueId,
-          title: data.title,
-          description: data.description,
+          title: sanitizeText(data.title, 150),
+          description: sanitizeText(data.description, 3000),
           categoryId: data.categoryId,
           locationId: data.locationId,
           departmentId: data.departmentId || null,
           clubId: data.clubId || null,
           isSensitive: data.isSensitive || false,
-          room: data.room || location.room || null,
+          room: data.room ? sanitizeText(data.room, 100) : (location.room || null),
           latitude: data.latitude || location.latitude || null,
           longitude: data.longitude || location.longitude || null,
           priority: determinedPriority,

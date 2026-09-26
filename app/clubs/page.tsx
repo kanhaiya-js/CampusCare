@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Users,
   Calendar,
-  Sparkles,
+  Compass,
   MapPin,
   Mic,
   Code,
@@ -75,7 +75,7 @@ export default function ClubsPage() {
     if (lower.includes("social") || lower.includes("welfare")) return Heart;
     if (lower.includes("art") || lower.includes("creativ")) return Palette;
     if (lower.includes("sport")) return Trophy;
-    return Sparkles;
+    return Compass;
   };
 
   return (
@@ -98,7 +98,7 @@ export default function ClubsPage() {
         <div className="flex items-center gap-2">
           <Link href="/issues/report">
             <Button size="sm" variant="primary" className="gap-1.5 shadow-sm">
-              <Sparkles className="w-4 h-4" />
+              <Calendar className="w-4 h-4" />
               Event / Venue Infrastructure Request
             </Button>
           </Link>
@@ -116,7 +116,7 @@ export default function ClubsPage() {
           </p>
         </div>
         <div className="text-[11px] font-semibold text-primary-700 dark:text-primary-300 px-2.5 py-1 rounded bg-white dark:bg-slate-900 border border-border shadow-xs">
-          Club ➔ Venue ➔ Logistics Request ➔ Facilities Team
+          Club → Venue → Logistics Request → Facilities Team
         </div>
       </div>
 
@@ -176,7 +176,7 @@ export default function ClubsPage() {
                     <div className="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-950/60 border border-primary-100 dark:border-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       {club.category}
                     </span>
                   </div>

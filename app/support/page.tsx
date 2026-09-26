@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Official College Support | CampusCare — GL Bajaj",
+  title: "Official College Support | CampusCare - GL Bajaj",
   description:
     "Official institutional support channels, Anti-Ragging, ICC, YourDOST mental health support, medical care, and student welfare at GLBITM Greater Noida.",
 };
@@ -42,9 +42,9 @@ export default function SupportPage() {
     {
       title: "Internal Complaints Committee (ICC)",
       badge: "Gender Safety & POSH",
-      badgeColor: "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border-purple-300",
+      badgeColor: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-300",
       icon: Lock,
-      iconColor: "text-purple-600 dark:text-purple-400",
+      iconColor: "text-indigo-600 dark:text-indigo-400",
       description:
         "Prevention, prohibition, and redressal of sexual harassment of women employees and students. Provides completely confidential and formal inquiry processes.",
       contacts: [
@@ -55,7 +55,7 @@ export default function SupportPage() {
       actionLabel: "ICC Guidelines & Contact",
     },
     {
-      title: "YourDOST — Psychological & Emotional Wellbeing",
+      title: "YourDOST - Psychological & Emotional Wellbeing",
       badge: "Confidential Counselling",
       badgeColor: "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border-teal-300",
       icon: HeartHandshake,
@@ -121,7 +121,7 @@ export default function SupportPage() {
       {/* Header Banner */}
       <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-primary-950 to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-primary-900/50">
         <div className="max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold">
             <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
             Institutional Safeguard Notice
           </div>
@@ -209,7 +209,7 @@ export default function SupportPage() {
                       <div>
                         <h3 className="text-sm font-bold text-foreground leading-snug">{channel.title}</h3>
                         <span
-                          className={`inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${channel.badgeColor}`}
+                          className={`inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-md border ${channel.badgeColor}`}
                         >
                           {channel.badge}
                         </span>
@@ -251,7 +251,7 @@ export default function SupportPage() {
         <p className="font-semibold text-foreground">
           G.L. Bajaj Institute of Technology & Management (GLBITM)
         </p>
-        <p>Plot No. 2, APJ Abdul Kalam Road, Knowledge Park 3, Greater Noida, Uttar Pradesh — 201306</p>
+        <p>Plot No. 2, APJ Abdul Kalam Road, Knowledge Park 3, Greater Noida, Uttar Pradesh - 201306</p>
         <p className="text-[11px] pt-1">
           For emergency campus dispatch, reach out to security personnel at Campus Gate 1 & Gate 2.
         </p>

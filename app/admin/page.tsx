@@ -192,8 +192,8 @@ export default async function AdminOverviewPage() {
                 </div>
 
                 <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                  <span>📍 {issue.location.building} {issue.room ? `(${issue.room})` : ""}</span>
-                  <span>🔧 {issue.assignedStaff?.name || "Unassigned"}</span>
+                  <span>{issue.location.building} {issue.room ? `(${issue.room})` : ""}</span>
+                  <span className="flex items-center gap-1"><Wrench className="w-3.5 h-3.5" /> {issue.assignedStaff?.name || "Unassigned"}</span>
                 </div>
               </Link>
             ))}

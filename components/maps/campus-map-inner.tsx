@@ -120,7 +120,7 @@ export default function CampusMapInner({
                 </span>
               </div>
               <h4 style="font-weight: 600; font-size: 13px; margin: 4px 0 6px 0; color: #0f172a;">${issue.title}</h4>
-              <p style="font-size: 11px; color: #64748b; margin: 0 0 4px 0;">📍 ${issue.locationName} ${issue.room ? `(${issue.room})` : ""}</p>
+              <p style="font-size: 11px; color: #64748b; margin: 0 0 4px 0;">${issue.locationName} ${issue.room ? `(${issue.room})` : ""}</p>
               <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; border-top: 1px solid #e2e8f0; padding-top: 6px;">
                 <span style="font-size: 11px; font-weight: 500; color: #334155;">${statusInfo.label}</span>
                 <a href="/issues/${issue.id}" style="color: #4f46e5; font-size: 11px; font-weight: 600; text-decoration: none;">View details →</a>

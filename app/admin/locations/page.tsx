@@ -120,7 +120,7 @@ export default function AdminLocationsPage() {
                 {loc.room && <div>Designated Room: {loc.room}</div>}
                 {loc.latitude && loc.longitude && (
                   <div className="font-mono text-[10px]">
-                    📍 {loc.latitude.toFixed(4)}°N, {loc.longitude.toFixed(4)}°E
+                    {loc.latitude.toFixed(4)}°N, {loc.longitude.toFixed(4)}°E
                   </div>
                 )}
               </div>

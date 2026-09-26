@@ -253,9 +253,9 @@ export default async function UserDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-xs text-muted-foreground">
-              <p>⚡ <strong>Emergencies:</strong> For exposed wires or active flooding, report immediately and alert block security.</p>
-              <p>📷 <strong>Clear Evidence:</strong> Attaching a photo expedites technician assignment by 40%.</p>
-              <p>⭐ <strong>Feedback:</strong> Verify fixes when notified to ensure campus accountability.</p>
+              <p><strong>Emergencies:</strong> For exposed wires or active flooding, report immediately and alert block security.</p>
+              <p><strong>Clear Evidence:</strong> Attaching a photo expedites technician assignment by 40%.</p>
+              <p><strong>Feedback:</strong> Verify fixes when notified to ensure campus accountability.</p>
             </CardContent>
           </Card>
         </div>

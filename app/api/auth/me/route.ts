@@ -21,6 +21,7 @@ export async function GET() {
       studentOrEmployeeId: true,
       avatarUrl: true,
       createdAt: true,
+      tokenVersion: true,
       staffProfile: {
         select: {
           specialization: true,
@@ -33,6 +34,15 @@ export async function GET() {
 
   if (!user || user.status !== "ACTIVE") {
     return apiError("UNAUTHORIZED", "User session is no longer active", 401);
+  }
+
+  // Session revocation check
+  if (
+    session.tokenVersion !== undefined &&
+    user.tokenVersion !== undefined &&
+    session.tokenVersion !== user.tokenVersion
+  ) {
+    return apiError("UNAUTHORIZED", "Your session has been revoked. Please log in again.", 401);
   }
 
   return apiSuccess({ user });

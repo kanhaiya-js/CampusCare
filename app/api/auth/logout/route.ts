@@ -2,7 +2,7 @@ import { clearSessionCookie, getSession } from "@/lib/auth/session";
 import { apiSuccess, apiError } from "@/lib/utils/api-response";
 import { createAuditLog } from "@/lib/services/audit";
 
-// SECURITY (V10): Only POST for logout — GET logout is a CSRF vulnerability
+// SECURITY (V10): Only POST for logout - GET logout is a CSRF vulnerability
 // (an attacker could embed <img src="/api/auth/logout"> to force-logout users)
 export async function POST() {
   const session = await getSession();

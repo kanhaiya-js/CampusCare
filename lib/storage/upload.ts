@@ -13,18 +13,16 @@ const ALLOWED_MIME_TYPES: Record<string, string> = {
   "application/pdf": "pdf",
 };
 
-// SECURITY (V5): Magic byte signatures for file type validation
-// Prevents MIME spoofing attacks where a malicious file claims to be an image
+// Disallow dangerous extensions and scripting payloads
+const DANGEROUS_EXTENSIONS = /\.(exe|bat|cmd|sh|php|phtml|phar|js|jsp|asp|aspx|py|pl|cgi|svg|html|htm|shtml|vbs|wsf)\b/i;
+
+// Magic byte signatures for file type validation
 const MAGIC_BYTES: Record<string, number[][]> = {
   "image/jpeg": [[0xff, 0xd8, 0xff]],
   "image/png": [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]],
-  "image/webp": [[0x52, 0x49, 0x46, 0x46]], // RIFF header (WebP starts with RIFF....WEBP)
-  "video/mp4": [
-    [0x00, 0x00, 0x00], // MP4 ftyp box (variable 4th byte)
-  ],
-  "video/quicktime": [
-    [0x00, 0x00, 0x00], // MOV also uses ftyp boxes
-  ],
+  "image/webp": [[0x52, 0x49, 0x46, 0x46]], // RIFF header
+  "video/mp4": [[0x00, 0x00, 0x00]], // MP4 ftyp box
+  "video/quicktime": [[0x00, 0x00, 0x00]], // MOV ftyp box
   "application/pdf": [[0x25, 0x50, 0x44, 0x46]], // %PDF
 };
 
@@ -46,13 +44,14 @@ function validateMagicBytes(buffer: Buffer, mimeType: string): boolean {
   return false;
 }
 
-// SECURITY (V6): Sanitize original filename to prevent XSS and path traversal
+// Sanitize original filename to prevent XSS and path traversal
 function sanitizeFileName(name: string): string {
   return name
-    .replace(/[^a-zA-Z0-9._\-\s]/g, "_") // Remove special chars
-    .replace(/\.\./g, "_")                // Prevent path traversal
-    .replace(/\s+/g, "_")                 // Replace spaces
-    .slice(0, 200);                        // Limit length
+    .replace(/\0/g, "")
+    .replace(/\.\./g, "_")
+    .replace(/[^a-zA-Z0-9._\-\s]/g, "_")
+    .replace(/\s+/g, "_")
+    .slice(0, 150);
 }
 
 export interface SaveFileResult {
@@ -71,7 +70,12 @@ export async function saveUploadedFile(file: File): Promise<SaveFileResult> {
     throw new Error("Empty file upload is not allowed");
   }
 
-  const mimeType = file.type.toLowerCase();
+  // Reject dangerous extensions in original filename (prevents double extension bypasses)
+  if (DANGEROUS_EXTENSIONS.test(file.name)) {
+    throw new Error("Dangerous or executable file extensions are strictly prohibited.");
+  }
+
+  const mimeType = file.type.toLowerCase().trim();
   const ext = ALLOWED_MIME_TYPES[mimeType];
 
   if (!ext) {
@@ -80,10 +84,10 @@ export async function saveUploadedFile(file: File): Promise<SaveFileResult> {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  // SECURITY (V5): Validate file content matches claimed MIME type
+  // Deep verification: Validate file magic bytes match claimed MIME type
   if (!validateMagicBytes(buffer, mimeType)) {
     throw new Error(
-      "File content does not match the declared file type. The file may be corrupted or incorrectly labeled."
+      "File content does not match the declared file type. The file may be corrupted, spoofed, or incorrectly formatted."
     );
   }
 
@@ -91,9 +95,10 @@ export async function saveUploadedFile(file: File): Promise<SaveFileResult> {
   if (mimeType.startsWith("image/")) fileCategory = "IMAGE";
   else if (mimeType.startsWith("video/")) fileCategory = "VIDEO";
 
-  const randomName = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}.${ext}`;
+  // Cryptographically secure random filename
+  const randomName = `${Date.now()}-${crypto.randomBytes(16).toString("hex")}.${ext}`;
 
-  // Ensure public/uploads exists
+  // Ensure public/uploads directory exists
   const uploadDir = path.join(process.cwd(), "public", "uploads");
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -104,7 +109,7 @@ export async function saveUploadedFile(file: File): Promise<SaveFileResult> {
 
   return {
     url: `/uploads/${randomName}`,
-    fileName: sanitizeFileName(file.name), // V6: Sanitized filename
+    fileName: sanitizeFileName(file.name),
     fileSize: file.size,
     type: fileCategory,
   };

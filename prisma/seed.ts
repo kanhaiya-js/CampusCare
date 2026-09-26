@@ -4,17 +4,17 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting SmartCampus — GL Bajaj Institute of Technology & Management seed...");
+  console.log("[Seed] Starting SmartCampus - GL Bajaj Institute of Technology & Management seed...");
 
   // Check if database is already seeded (unless FORCE_SEED=true)
   try {
     const userCount = await prisma.user.count();
     if (userCount > 0 && !process.env.FORCE_SEED) {
-      console.log(`ℹ️ Database already contains data (${userCount} users). Skipping seed.`);
+      console.log(`[Seed] Database already contains data (${userCount} users). Skipping seed.`);
       return { skipped: true, userCount };
     }
   } catch {
-    // Tables might not exist yet or empty — proceed
+    // Tables might not exist yet or empty - proceed
   }
 
   // Clean existing tables in reverse dependency order
@@ -127,7 +127,7 @@ async function main() {
     },
   });
 
-  console.log("✅ Seeded GLBITM Academic Departments & Programs");
+  console.log("[Seed] Seeded GLBITM Academic Departments & Programs");
 
   // 2. Create Student Clubs
   const clubs = [
@@ -148,7 +148,7 @@ async function main() {
   for (const c of clubs) {
     await prisma.club.create({ data: c });
   }
-  console.log("✅ Seeded GLBITM Student Societies & Clubs");
+  console.log("[Seed] Seeded GLBITM Student Societies & Clubs");
 
   // 3. Create Official Transport Routes
   const routes = [
@@ -157,7 +157,7 @@ async function main() {
       routeName: "Dilshad Garden to GLBITM",
       startPoint: "Dilshad Garden Metro",
       stops: "Dilshad Garden, GTB Hospital, Seemapuri, Anand Vihar, Pari Chowk, GLBITM",
-      timings: "07:00 AM Departure — 08:35 AM Arrival",
+      timings: "07:00 AM Departure - 08:35 AM Arrival",
       busNumber: "UP-16-BT-4101",
       driverName: "Sukhvinder Singh",
     },
@@ -166,7 +166,7 @@ async function main() {
       routeName: "Anand Vihar to GLBITM",
       startPoint: "Anand Vihar ISBT",
       stops: "Anand Vihar ISBT, Kaushambi, Gazipur, Mayur Vihar Ph-3, Knowledge Park 3",
-      timings: "07:15 AM Departure — 08:40 AM Arrival",
+      timings: "07:15 AM Departure - 08:40 AM Arrival",
       busNumber: "UP-16-BT-4102",
       driverName: "Ram Kumar",
     },
@@ -175,7 +175,7 @@ async function main() {
       routeName: "Mayur Vihar to GLBITM",
       startPoint: "Mayur Vihar Ph-1",
       stops: "Mayur Vihar Ph-1, Akshardham, Noida Sector 15, Sector 16, Sector 18, GLBITM",
-      timings: "07:10 AM Departure — 08:35 AM Arrival",
+      timings: "07:10 AM Departure - 08:35 AM Arrival",
       busNumber: "UP-16-BT-4103",
       driverName: "Satish Chand",
     },
@@ -184,7 +184,7 @@ async function main() {
       routeName: "Botanical Garden to GLBITM",
       startPoint: "Botanical Garden Metro",
       stops: "Botanical Garden, Golf Course, Sector 37, Mahamaya Flyover, Pari Chowk, GLBITM",
-      timings: "07:25 AM Departure — 08:35 AM Arrival",
+      timings: "07:25 AM Departure - 08:35 AM Arrival",
       busNumber: "UP-16-BT-4104",
       driverName: "Harish Sharma",
     },
@@ -193,7 +193,7 @@ async function main() {
       routeName: "Noida Sector 19 & 27 to GLBITM",
       startPoint: "Sector 19 Telephone Exchange",
       stops: "Sector 19, Sector 27 DM Chowk, Sector 29, Sector 39, Advant Navis, GLBITM",
-      timings: "07:20 AM Departure — 08:40 AM Arrival",
+      timings: "07:20 AM Departure - 08:40 AM Arrival",
       busNumber: "UP-16-BT-4105",
       driverName: "Kuldeep Tyagi",
     },
@@ -211,7 +211,7 @@ async function main() {
   for (const r of routes) {
     await prisma.transportRoute.create({ data: r });
   }
-  console.log("✅ Seeded GLBITM Transport Fleet & Routes");
+  console.log("[Seed] Seeded GLBITM Transport Fleet & Routes");
 
   // 4. Create GLBITM Seed Users (Only 2 Users: Kanhaiya Kumar & Prabhat Sir)
   const admin = await prisma.user.create({
@@ -239,7 +239,7 @@ async function main() {
     },
   });
 
-  console.log("✅ Seeded GLBITM Users: Kanhaiya Kumar (Student) & Prabhat Sir (Admin)");
+  console.log("[Seed] Seeded GLBITM Users: Kanhaiya Kumar (Student) & Prabhat Sir (Admin)");
 
   // 5. Create GLBITM Campus Facilities & Categories
   const catElectrical = await prisma.category.create({
@@ -300,7 +300,7 @@ async function main() {
     data: {
       name: "Sanitation & Cleanliness",
       description: "Corridor cleaning, washroom hygiene, cafeteria waste disposal",
-      icon: "Sparkles",
+      icon: "ShieldCheck",
       defaultPriority: "MEDIUM",
     },
   });
@@ -323,7 +323,7 @@ async function main() {
     },
   });
 
-  console.log("✅ Seeded GLBITM Issue Categories");
+  console.log("[Seed] Seeded GLBITM Issue Categories");
 
   // 6. Create Verified GLBITM Campus Locations (Knowledge Park 3, Greater Noida: 28.4728° N, 77.4895° E)
   const locCampus = await prisma.location.create({
@@ -432,7 +432,7 @@ async function main() {
     },
   });
 
-  console.log("✅ Seeded GLBITM Campus Locations");
+  console.log("[Seed] Seeded GLBITM Campus Locations");
 
   // 7. Create Realistic GLBITM Campus Issues (Referencing Kanhaiya Kumar and Prabhat Sir)
   // Ticket 1: Central Library AC
@@ -707,8 +707,8 @@ async function main() {
     ],
   });
 
-  console.log("✅ Seeded GLBITM Issues, Histories, Comments, and Notifications");
-  console.log("🚀 SmartCampus — GLBITM seed completed successfully!");
+  console.log("[Seed] Seeded GLBITM Issues, Histories, Comments, and Notifications");
+  console.log("[Seed] SmartCampus - GLBITM seed completed successfully.");
   return { success: true };
 }
 
@@ -720,7 +720,7 @@ export async function seedDatabase(force = false) {
 // Auto-run when executed directly via CLI
 main()
   .catch((e) => {
-    console.error("❌ Seeding failed:", e);
+    console.error("[Seed] Seeding failed:", e);
     process.exit(1);
   })
   .finally(async () => {

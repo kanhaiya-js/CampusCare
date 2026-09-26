@@ -10,7 +10,6 @@ import {
   Filter,
   Building,
   MapPin,
-  Sparkles,
   ArrowLeft,
   Plus,
   Check,
@@ -47,12 +46,12 @@ export default function AdminQRCodesPage() {
   const origin = useMemo(() => {
     if (typeof window !== "undefined") {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-      if (isLocal) {
-        return "https://campuscare.onrender.com";
+      if (isLocal && process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL;
       }
       return window.location.origin;
     }
-    return "https://campuscare.onrender.com";
+    return process.env.NEXT_PUBLIC_APP_URL || "https://campuscare.glbitm.ac.in";
   }, []);
 
   useEffect(() => {
@@ -227,7 +226,7 @@ export default function AdminQRCodesPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-primary-600 text-white flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4" />
+                <QrCode className="w-4 h-4" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-foreground">

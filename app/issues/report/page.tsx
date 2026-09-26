@@ -13,7 +13,7 @@ import {
   ArrowLeft,
   Upload,
   X,
-  Sparkles,
+  ShieldCheck,
   HelpCircle,
   Eye,
   QrCode,
@@ -368,8 +368,8 @@ function ReportIssueForm() {
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
         </Link>
         <div className="flex items-center gap-2 text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-1">
-          <Sparkles className="w-3.5 h-3.5" />
-          CampusCare — GL Bajaj
+          <ShieldCheck className="w-3.5 h-3.5" />
+          CampusCare - GL Bajaj
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold font-orbitron text-foreground tracking-tight">
           What problem are you facing on campus?
@@ -405,7 +405,7 @@ function ReportIssueForm() {
         {/* Human Touch Reassurance Guidance */}
         <div className="mt-4 p-3 rounded-xl border border-indigo-200/60 dark:border-indigo-800/40 bg-indigo-50/40 dark:bg-indigo-950/20 text-xs text-foreground/90 flex items-center gap-2.5 shadow-xs">
           <div className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4" />
+            <ShieldCheck className="w-4 h-4" />
           </div>
           <span className="text-[12px] leading-relaxed">
             <strong>Campus Care Promise:</strong> Including your exact room number or lab name helps GLBITM maintenance specialists arrive with the right replacement parts in under 30 minutes.
@@ -428,7 +428,7 @@ function ReportIssueForm() {
                   </span>
                 </div>
                 <p className="text-xs font-bold text-foreground">
-                  📍 {qrLocation.building} — {qrLocation.name} {room ? `• Room: ${room}` : ""}
+                  {qrLocation.building} - {qrLocation.name} {room ? `• Room: ${room}` : ""}
                 </p>
               </div>
             </div>
@@ -520,7 +520,7 @@ function ReportIssueForm() {
             <div className="p-3.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-xs text-foreground flex items-center gap-2.5">
               <QrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>
-                <strong>Scanned Room Auto-Selected:</strong> {qrLocation.building} — {qrLocation.name} {room ? `(${room})` : ""}.
+                <strong>Scanned Room Auto-Selected:</strong> {qrLocation.building} - {qrLocation.name} {room ? `(${room})` : ""}.
                 Maintenance dispatch is targeted to this specific room.
               </span>
             </div>
@@ -538,7 +538,7 @@ function ReportIssueForm() {
               <option value="">-- Choose Campus Building / Block --</option>
               {locations.map((loc) => (
                 <option key={loc.id} value={loc.id} className="dark:bg-slate-900">
-                  {loc.building} — {loc.name}
+                  {loc.building} - {loc.name}
                 </option>
               ))}
             </select>
@@ -564,7 +564,7 @@ function ReportIssueForm() {
                 <option value="">-- Optional: Select Department --</option>
                 {departments.map((dept) => (
                   <option key={dept.id} value={dept.id} className="dark:bg-slate-900">
-                    {dept.code} — {dept.name}
+                    {dept.code} - {dept.name}
                   </option>
                 ))}
               </select>
@@ -674,7 +674,7 @@ function ReportIssueForm() {
             <div>
               <span className="text-muted-foreground block text-[11px]">Campus Location</span>
               <span className="font-semibold text-foreground">
-                {locations.find((l) => l.id === locationId)?.building} — {locations.find((l) => l.id === locationId)?.name}
+                {locations.find((l) => l.id === locationId)?.building} - {locations.find((l) => l.id === locationId)?.name}
                 {room ? ` (Room: ${room})` : ""}
               </span>
             </div>
@@ -717,7 +717,7 @@ function ReportIssueForm() {
       <Modal
         isOpen={sensitiveModalOpen}
         onClose={() => setSensitiveModalOpen(false)}
-        title="Immediate Support Required — Official College Channels"
+        title="Immediate Support Required - Official College Channels"
         description="This issue may require immediate support through official college channels"
         maxWidth="lg"
       >
@@ -801,7 +801,7 @@ function ReportIssueForm() {
                 <h4 className="font-bold text-foreground text-sm">{dup.title}</h4>
                 <p className="text-muted-foreground line-clamp-1">{dup.description}</p>
                 <p className="text-[11px] text-muted-foreground">
-                  📍 {dup.locationName} {dup.room ? `(${dup.room})` : ""} · Status: {dup.status}
+                  {dup.locationName} {dup.room ? `(${dup.room})` : ""} · Status: {dup.status}
                 </p>
 
                 {dup.explanation && dup.explanation.length > 0 && (
