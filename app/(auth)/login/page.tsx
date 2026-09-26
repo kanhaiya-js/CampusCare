@@ -45,7 +45,12 @@ function LoginForm() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, turnstileToken }),
+        body: JSON.stringify({
+          email,
+          password,
+          "cf-turnstile-response": turnstileToken,
+          turnstileToken,
+        }),
       });
 
       const data = await res.json();
@@ -173,6 +178,7 @@ function LoginForm() {
 
         {/* Cloudflare Turnstile Bot Verification */}
         <Turnstile
+          action="login"
           ref={turnstileRef}
           onVerify={(token) => setTurnstileToken(token)}
           onExpire={() => setTurnstileToken("")}

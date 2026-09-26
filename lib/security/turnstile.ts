@@ -1,6 +1,7 @@
 /**
  * Cloudflare Turnstile Server-Side Verification
- * Validates Turnstile challenge response tokens against Cloudflare's verification endpoint.
+ * Follows Cloudflare's canonical siteverify specification:
+ * https://developers.cloudflare.com/turnstile/spin/prompt.md
  */
 
 interface TurnstileVerifyResponse {
@@ -14,7 +15,8 @@ interface TurnstileVerifyResponse {
 
 export async function verifyTurnstileToken(
   token: string | null | undefined,
-  remoteIp?: string
+  remoteIp?: string,
+  expectedAction?: string
 ): Promise<{ success: boolean; error?: string }> {
   // 1. Bypass during unit / integration tests to prevent network dependencies
   if (process.env.NODE_ENV === "test") {
@@ -22,15 +24,30 @@ export async function verifyTurnstileToken(
   }
 
   const DEFAULT_SECRET_KEY = "0x4AAAAAAFEikJH4W1uMwP0F2ZwG2cXDxNU";
-  const secretKey = process.env.TURNSTILE_SECRET_KEY || DEFAULT_SECRET_KEY;
+  const secretKey =
+    process.env.TURNSTILE_SECRET ||
+    process.env.TURNSTILE_SECRET_KEY ||
+    DEFAULT_SECRET_KEY;
 
-  // 3. Ensure a token was provided
-  if (!token || typeof token !== "string" || token.trim().length === 0) {
+  // 2. Token length and type validation per canonical Cloudflare contract
+  if (
+    typeof token !== "string" ||
+    token.trim().length === 0 ||
+    token.length > 2048
+  ) {
     return {
       success: false,
       error: "Please complete the Cloudflare security verification challenge.",
     };
   }
+
+  // 3. Expected hostnames filter (if configured in environment)
+  const expectedHostnames = new Set(
+    (process.env.TURNSTILE_HOSTNAMES ?? "")
+      .split(",")
+      .map((h) => h.trim())
+      .filter(Boolean)
+  );
 
   try {
     const formData = new URLSearchParams();
@@ -40,6 +57,9 @@ export async function verifyTurnstileToken(
       formData.append("remoteip", remoteIp);
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: {
@@ -47,7 +67,10 @@ export async function verifyTurnstileToken(
       },
       body: formData.toString(),
       cache: "no-store",
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error("[Turnstile] Cloudflare siteverify HTTP error:", response.status, response.statusText);
@@ -68,8 +91,33 @@ export async function verifyTurnstileToken(
       };
     }
 
+    // 4. Validate action if expected
+    if (expectedAction && data.action && data.action !== expectedAction) {
+      console.warn("[Turnstile] Action mismatch:", { received: data.action, expected: expectedAction });
+      return {
+        success: false,
+        error: "Security verification action mismatch.",
+      };
+    }
+
+    // 5. Validate hostname if hostnames allowlist is configured
+    if (expectedHostnames.size > 0 && data.hostname && !expectedHostnames.has(data.hostname)) {
+      console.warn("[Turnstile] Hostname mismatch:", { received: data.hostname, expected: Array.from(expectedHostnames) });
+      return {
+        success: false,
+        error: "Security verification hostname mismatch.",
+      };
+    }
+
     return { success: true };
   } catch (err: any) {
+    if (err.name === "AbortError") {
+      console.error("[Turnstile] Request timed out after 10s");
+      return {
+        success: false,
+        error: "Security verification timed out. Please try again.",
+      };
+    }
     console.error("[Turnstile] Unexpected verification exception:", err);
     return {
       success: false,

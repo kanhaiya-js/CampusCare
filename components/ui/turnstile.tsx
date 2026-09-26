@@ -9,6 +9,7 @@ export interface TurnstileRef {
 
 interface TurnstileProps {
   siteKey?: string;
+  action?: string;
   onVerify: (token: string) => void;
   onExpire?: () => void;
   onError?: (errorCode?: string) => void;
@@ -23,6 +24,7 @@ declare global {
         container: string | HTMLElement,
         params: {
           sitekey: string;
+          action?: string;
           callback?: (token: string) => void;
           "error-callback"?: (errorCode?: string) => void;
           "expired-callback"?: () => void;
@@ -45,6 +47,7 @@ const DEFAULT_SITE_KEY = "0x4AAAAAAFEikFbvGEYrhhB-";
 export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turnstile(
   {
     siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || DEFAULT_SITE_KEY,
+    action,
     onVerify,
     onExpire,
     onError,
@@ -137,6 +140,7 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
     try {
       const widgetId = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
+        action,
         theme,
         size: "normal",
         callback: (token: string) => {
@@ -170,7 +174,7 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
         }
       }
     };
-  }, [isScriptReady, siteKey, theme, onVerify, onExpire, onError]);
+  }, [isScriptReady, siteKey, action, theme, onVerify, onExpire, onError]);
 
   if (!siteKey) {
     return null;

@@ -4,6 +4,7 @@ export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email("Please provide a valid email address"),
   password: z.string().min(1, "Password is required").max(128, "Password is too long"),
   turnstileToken: z.string().optional().nullable(),
+  "cf-turnstile-response": z.string().optional().nullable(),
 });
 
 export const registerSchema = z
@@ -33,6 +34,7 @@ export const registerSchema = z
     adminKey: z.string().optional().nullable().or(z.literal("")),
     departmentId: z.string().optional().nullable().or(z.literal("")),
     turnstileToken: z.string().optional().nullable(),
+    "cf-turnstile-response": z.string().optional().nullable(),
   })
   .refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
     message: "Passwords do not match",

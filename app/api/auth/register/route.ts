@@ -34,10 +34,11 @@ export async function POST(req: NextRequest) {
       return apiError("VALIDATION_ERROR", firstIssue, 422, result.error.format());
     }
 
-    const { name, email, password, studentOrEmployeeId, role, departmentId, turnstileToken } = result.data;
+    const { name, email, password, studentOrEmployeeId, role, departmentId } = result.data;
+    const token = result.data["cf-turnstile-response"] || result.data.turnstileToken;
 
-    // Cloudflare Turnstile CAPTCHA verification
-    const turnstileCheck = await verifyTurnstileToken(turnstileToken, ip);
+    // Cloudflare Turnstile CAPTCHA verification (canonical siteverify with action signup)
+    const turnstileCheck = await verifyTurnstileToken(token, ip, "signup");
     if (!turnstileCheck.success) {
       return apiError(
         "CAPTCHA_FAILED",

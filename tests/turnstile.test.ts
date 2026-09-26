@@ -73,4 +73,35 @@ describe("Cloudflare Turnstile Verification", () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain("network error");
   });
+
+  it("should reject tokens that exceed the maximum length of 2048 chars", async () => {
+    process.env.NODE_ENV = "production";
+    const longToken = "a".repeat(2049);
+    const result = await verifyTurnstileToken(longToken);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Please complete");
+  });
+
+  it("should validate and enforce expected action matching", async () => {
+    process.env.NODE_ENV = "production";
+    process.env.TURNSTILE_SECRET_KEY = "test-turnstile-secret-mock";
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        action: "login",
+        hostname: "example.com",
+      }),
+    } as any);
+
+    // Matching action passes
+    const match = await verifyTurnstileToken("valid-token", undefined, "login");
+    expect(match.success).toBe(true);
+
+    // Mismatched action fails
+    const mismatch = await verifyTurnstileToken("valid-token", undefined, "signup");
+    expect(mismatch.success).toBe(false);
+    expect(mismatch.error).toContain("action mismatch");
+  });
 });

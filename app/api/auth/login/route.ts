@@ -43,11 +43,12 @@ export async function POST(req: NextRequest) {
       return apiError("VALIDATION_ERROR", "Please provide a valid email and password", 422);
     }
 
-    const { email, password, turnstileToken } = result.data;
+    const { email, password } = result.data;
+    const token = result.data["cf-turnstile-response"] || result.data.turnstileToken;
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 3. Cloudflare Turnstile CAPTCHA verification
-    const turnstileCheck = await verifyTurnstileToken(turnstileToken, ip);
+    // 3. Cloudflare Turnstile CAPTCHA verification (canonical siteverify)
+    const turnstileCheck = await verifyTurnstileToken(token, ip, "login");
     if (!turnstileCheck.success) {
       return apiError(
         "CAPTCHA_FAILED",

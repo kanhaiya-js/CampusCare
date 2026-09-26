@@ -64,6 +64,7 @@ export default function RegisterPage() {
           confirmPassword: formData.confirmPassword,
           studentOrEmployeeId: formData.studentOrEmployeeId,
           role: "STUDENT",
+          "cf-turnstile-response": turnstileToken,
           turnstileToken,
         }),
       });
@@ -210,6 +211,7 @@ export default function RegisterPage() {
 
           {/* Cloudflare Turnstile Bot Verification */}
           <Turnstile
+            action="signup"
             ref={turnstileRef}
             onVerify={(token) => setTurnstileToken(token)}
             onExpire={() => setTurnstileToken("")}
