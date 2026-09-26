@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, GraduationCap, ShieldAlert, CheckCircle2, User } from "lucide-react";
@@ -26,6 +26,14 @@ export default function RegisterPage() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const turnstileRef = useRef<TurnstileRef>(null);
+
+  const handleVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+
+  const handleExpire = useCallback(() => {
+    setTurnstileToken("");
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,9 +221,9 @@ export default function RegisterPage() {
           <Turnstile
             action="signup"
             ref={turnstileRef}
-            onVerify={(token) => setTurnstileToken(token)}
-            onExpire={() => setTurnstileToken("")}
-            onError={() => setTurnstileToken("")}
+            onVerify={handleVerify}
+            onExpire={handleExpire}
+            onError={handleExpire}
           />
 
           <Button

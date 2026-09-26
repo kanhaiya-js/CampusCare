@@ -61,6 +61,18 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
   const [isScriptReady, setIsScriptReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // CRITICAL: Stable callback refs prevent infinite widget teardown / reload loops
+  // when parent components re-render on user typing or state updates.
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  const onErrorRef = useRef(onError);
+
+  useEffect(() => {
+    onVerifyRef.current = onVerify;
+    onExpireRef.current = onExpire;
+    onErrorRef.current = onError;
+  });
+
   // Expose imperative methods to parent form
   useImperativeHandle(ref, () => ({
     reset: () => {
@@ -101,7 +113,14 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
       script.src = TURNSTILE_SCRIPT_URL;
       script.async = true;
       script.defer = true;
+      script.onload = () => {
+        setIsScriptReady(true);
+      };
       document.head.appendChild(script);
+    } else {
+      script.addEventListener("load", () => {
+        setIsScriptReady(true);
+      });
     }
 
     const checkInterval = setInterval(() => {
@@ -121,13 +140,13 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
     };
   }, []);
 
-  // 2. Render widget when script is ready and container is mounted
+  // 2. Render widget once script is ready and container is mounted
   useEffect(() => {
     if (!isScriptReady || !containerRef.current || !window.turnstile || !siteKey) {
       return;
     }
 
-    // Cleanup existing widget if any before re-rendering
+    // Cleanup existing widget if any before re-rendering on siteKey/action/theme change
     if (widgetIdRef.current) {
       try {
         window.turnstile.remove(widgetIdRef.current);
@@ -145,17 +164,17 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
         size: "normal",
         callback: (token: string) => {
           setErrorMessage(null);
-          onVerify(token);
+          onVerifyRef.current?.(token);
         },
         "expired-callback": () => {
-          onExpire?.();
+          onExpireRef.current?.();
         },
         "error-callback": (errorCode?: string) => {
           console.warn("[Turnstile] Challenge error code:", errorCode);
           if (errorCode === "110200") {
             setErrorMessage("Cloudflare: Current domain is not in the allowed domains for this Turnstile site key.");
           }
-          onError?.(errorCode);
+          onErrorRef.current?.(errorCode);
         },
       });
 
@@ -174,7 +193,7 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
         }
       }
     };
-  }, [isScriptReady, siteKey, action, theme, onVerify, onExpire, onError]);
+  }, [isScriptReady, siteKey, action, theme]); // NOTICE: Stable deps prevent infinite re-render loop
 
   if (!siteKey) {
     return null;

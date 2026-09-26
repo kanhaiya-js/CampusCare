@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, Suspense } from "react";
+import React, { useState, useRef, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, Lock, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
@@ -24,6 +24,14 @@ function LoginForm() {
   const turnstileRef = useRef<TurnstileRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const handleVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+
+  const handleExpire = useCallback(() => {
+    setTurnstileToken("");
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,9 +188,9 @@ function LoginForm() {
         <Turnstile
           action="login"
           ref={turnstileRef}
-          onVerify={(token) => setTurnstileToken(token)}
-          onExpire={() => setTurnstileToken("")}
-          onError={() => setTurnstileToken("")}
+          onVerify={handleVerify}
+          onExpire={handleExpire}
+          onError={handleExpire}
         />
 
         <Button
