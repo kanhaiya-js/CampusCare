@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, GraduationCap, ShieldAlert, CheckCircle2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { Turnstile, TurnstileRef } from "@/components/ui/turnstile";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -22,10 +23,23 @@ export default function RegisterPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef<TurnstileRef>(null);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (!agreeToTerms) {
+      setErrorMessage("Please agree to the Terms of Use and Privacy Policy to create your account.");
+      return;
+    }
+
+    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+      setErrorMessage("Please complete the Cloudflare security verification.");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Passwords do not match");
@@ -50,6 +64,7 @@ export default function RegisterPage() {
           confirmPassword: formData.confirmPassword,
           studentOrEmployeeId: formData.studentOrEmployeeId,
           role: "STUDENT",
+          turnstileToken,
         }),
       });
 
@@ -59,6 +74,8 @@ export default function RegisterPage() {
         const errorMsg = data.error?.message || "Registration failed";
         setErrorMessage(errorMsg);
         toastError(errorMsg);
+        turnstileRef.current?.reset();
+        setTurnstileToken("");
         return;
       }
 
@@ -168,7 +185,46 @@ export default function RegisterPage() {
             />
           </div>
 
-          <Button type="submit" size="lg" className="w-full mt-3 font-bold" isLoading={isLoading}>
+          {/* Terms & Conditions Agreement */}
+          <div className="flex items-start gap-2.5 pt-1.5 pb-0.5">
+            <input
+              id="agree-terms-register"
+              type="checkbox"
+              checked={agreeToTerms}
+              onChange={(e) => setAgreeToTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-border text-primary-600 focus:ring-primary-500 cursor-pointer accent-primary-600 shrink-0"
+              required
+            />
+            <label htmlFor="agree-terms-register" className="text-xs text-muted-foreground leading-normal select-none cursor-pointer">
+              I agree to the{" "}
+              <Link href="/terms" target="_blank" className="font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+                Terms of Use
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" target="_blank" className="font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </label>
+          </div>
+
+          {/* Cloudflare Turnstile Bot Verification */}
+          {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+            <Turnstile
+              ref={turnstileRef}
+              onVerify={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken("")}
+              onError={() => setTurnstileToken("")}
+            />
+          )}
+
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full mt-3 font-bold"
+            isLoading={isLoading}
+            disabled={!agreeToTerms || (Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) && !turnstileToken) || isLoading}
+          >
             Create Student Account <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </form>

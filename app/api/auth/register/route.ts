@@ -7,6 +7,7 @@ import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeText } from "@/lib/security/sanitize";
+import { verifyTurnstileToken } from "@/lib/security/turnstile";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,7 +34,18 @@ export async function POST(req: NextRequest) {
       return apiError("VALIDATION_ERROR", firstIssue, 422, result.error.format());
     }
 
-    const { name, email, password, studentOrEmployeeId, role, departmentId } = result.data;
+    const { name, email, password, studentOrEmployeeId, role, departmentId, turnstileToken } = result.data;
+
+    // Cloudflare Turnstile CAPTCHA verification
+    const turnstileCheck = await verifyTurnstileToken(turnstileToken, ip);
+    if (!turnstileCheck.success) {
+      return apiError(
+        "CAPTCHA_FAILED",
+        turnstileCheck.error || "Security verification failed. Please complete the challenge.",
+        403
+      );
+    }
+
     const normalizedEmail = email.toLowerCase().trim();
 
     const existing = await prisma.user.findUnique({

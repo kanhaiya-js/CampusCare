@@ -11,6 +11,7 @@ import {
   resetFailedAttempts,
 } from "@/lib/security/rate-limit";
 import { createAuditLog } from "@/lib/services/audit";
+import { verifyTurnstileToken } from "@/lib/security/turnstile";
 
 // Dummy hash for constant-time comparison when email is not found (mitigates timing attacks)
 const DUMMY_HASH = "$2a$12$e8YkZ7kR8/JqX7V9Q6/gTuGqXWb8L5Bf4L0d9i3f7c2a1b5c8d0e1";
@@ -42,10 +43,20 @@ export async function POST(req: NextRequest) {
       return apiError("VALIDATION_ERROR", "Please provide a valid email and password", 422);
     }
 
-    const { email, password } = result.data;
+    const { email, password, turnstileToken } = result.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 3. Account-specific lockout check (5 failures -> 15 min lock)
+    // 3. Cloudflare Turnstile CAPTCHA verification
+    const turnstileCheck = await verifyTurnstileToken(turnstileToken, ip);
+    if (!turnstileCheck.success) {
+      return apiError(
+        "CAPTCHA_FAILED",
+        turnstileCheck.error || "Security verification failed. Please complete the challenge.",
+        403
+      );
+    }
+
+    // 4. Account-specific lockout check (5 failures -> 15 min lock)
     const lockout = isAccountLocked(normalizedEmail);
     if (lockout.locked) {
       const mins = Math.ceil(lockout.remainingSeconds / 60);

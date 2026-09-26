@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, Lock, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { Turnstile, TurnstileRef } from "@/components/ui/turnstile";
 
 function LoginForm() {
   const router = useRouter();
@@ -18,19 +19,33 @@ function LoginForm() {
 
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef<TurnstileRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (!agreeToTerms) {
+      setErrorMessage("Please agree to the Terms of Use and Privacy Policy to continue.");
+      return;
+    }
+
+    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+      setErrorMessage("Please complete the Cloudflare security verification.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, turnstileToken }),
       });
 
       const data = await res.json();
@@ -38,6 +53,8 @@ function LoginForm() {
       if (!res.ok || !data.success) {
         setErrorMessage(data.error?.message || "Invalid credentials. Please try again.");
         toastError(data.error?.message || "Login failed");
+        turnstileRef.current?.reset();
+        setTurnstileToken("");
         return;
       }
 
@@ -131,7 +148,46 @@ function LoginForm() {
           />
         </div>
 
-        <Button type="submit" size="lg" className="w-full mt-2" isLoading={isLoading}>
+        {/* Terms & Privacy Agreement */}
+        <div className="flex items-start gap-2.5 pt-1 pb-1">
+          <input
+            id="agree-terms-login"
+            type="checkbox"
+            checked={agreeToTerms}
+            onChange={(e) => setAgreeToTerms(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-border text-primary-600 focus:ring-primary-500 cursor-pointer accent-primary-600 shrink-0"
+            required
+          />
+          <label htmlFor="agree-terms-login" className="text-xs text-muted-foreground leading-normal select-none cursor-pointer">
+            I agree to the{" "}
+            <Link href="/terms" target="_blank" className="font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+              Terms of Use
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" target="_blank" className="font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </label>
+        </div>
+
+        {/* Cloudflare Turnstile Bot Verification */}
+        {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+          <Turnstile
+            ref={turnstileRef}
+            onVerify={(token) => setTurnstileToken(token)}
+            onExpire={() => setTurnstileToken("")}
+            onError={() => setTurnstileToken("")}
+          />
+        )}
+
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full mt-2 font-bold"
+          isLoading={isLoading}
+          disabled={!agreeToTerms || (Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) && !turnstileToken) || isLoading}
+        >
           Sign In <ArrowRight className="w-4 h-4 ml-1.5" />
         </Button>
       </form>
