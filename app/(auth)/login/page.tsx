@@ -34,7 +34,7 @@ function LoginForm() {
       return;
     }
 
-    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+    if (!turnstileToken) {
       setErrorMessage("Please complete the Cloudflare security verification.");
       return;
     }
@@ -172,21 +172,19 @@ function LoginForm() {
         </div>
 
         {/* Cloudflare Turnstile Bot Verification */}
-        {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
-          <Turnstile
-            ref={turnstileRef}
-            onVerify={(token) => setTurnstileToken(token)}
-            onExpire={() => setTurnstileToken("")}
-            onError={() => setTurnstileToken("")}
-          />
-        )}
+        <Turnstile
+          ref={turnstileRef}
+          onVerify={(token) => setTurnstileToken(token)}
+          onExpire={() => setTurnstileToken("")}
+          onError={() => setTurnstileToken("")}
+        />
 
         <Button
           type="submit"
           size="lg"
           className="w-full mt-2 font-bold"
           isLoading={isLoading}
-          disabled={!agreeToTerms || (Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) && !turnstileToken) || isLoading}
+          disabled={!agreeToTerms || !turnstileToken || isLoading}
         >
           Sign In <ArrowRight className="w-4 h-4 ml-1.5" />
         </Button>

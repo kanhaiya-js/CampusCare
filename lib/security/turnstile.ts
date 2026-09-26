@@ -21,19 +21,8 @@ export async function verifyTurnstileToken(
     return { success: true };
   }
 
-  const secretKey = process.env.TURNSTILE_SECRET_KEY;
-
-  // 2. Guard for unconfigured secret key
-  if (!secretKey) {
-    if (process.env.NODE_ENV === "development") {
-      console.warn("[Turnstile] TURNSTILE_SECRET_KEY is not configured. Bypassing in development.");
-      return { success: true };
-    }
-    return {
-      success: false,
-      error: "Turnstile secret key is not configured on the server.",
-    };
-  }
+  const DEFAULT_SECRET_KEY = "0x4AAAAAAFEikJH4W1uMwP0F2ZwG2cXDxNU";
+  const secretKey = process.env.TURNSTILE_SECRET_KEY || DEFAULT_SECRET_KEY;
 
   // 3. Ensure a token was provided
   if (!token || typeof token !== "string" || token.trim().length === 0) {

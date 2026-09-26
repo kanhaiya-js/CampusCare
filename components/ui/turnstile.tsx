@@ -40,10 +40,11 @@ declare global {
 
 const TURNSTILE_SCRIPT_ID = "cf-turnstile-script";
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+const DEFAULT_SITE_KEY = "0x4AAAAAAFEikFbvGEYrhhB-";
 
 export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turnstile(
   {
-    siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+    siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || DEFAULT_SITE_KEY,
     onVerify,
     onExpire,
     onError,
@@ -147,10 +148,8 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(function Turns
         },
         "error-callback": (errorCode?: string) => {
           console.warn("[Turnstile] Challenge error code:", errorCode);
-          // If domain is not yet configured for localhost in Cloudflare dashboard,
-          // inform the developer clearly.
           if (errorCode === "110200") {
-            setErrorMessage("Cloudflare: localhost domain is not added to this Turnstile site key.");
+            setErrorMessage("Cloudflare: Current domain is not in the allowed domains for this Turnstile site key.");
           }
           onError?.(errorCode);
         },

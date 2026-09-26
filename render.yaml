@@ -22,3 +22,7 @@ services:
         sync: false
       - key: STORAGE_DRIVER
         value: local
+      - key: NEXT_PUBLIC_TURNSTILE_SITE_KEY
+        value: "0x4AAAAAAFEikFbvGEYrhhB-"
+      - key: TURNSTILE_SECRET_KEY
+        value: "0x4AAAAAAFEikJH4W1uMwP0F2ZwG2cXDxNU"
