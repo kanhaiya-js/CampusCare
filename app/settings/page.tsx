@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { User, Sun, Moon, Bell, Shield, LogOut, CheckCircle2 } from "lucide-react";
+import { User, Sun, Moon, Bell, Shield, LogOut, CheckCircle2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -30,13 +30,34 @@ export default function SettingsPage() {
       .catch(console.error);
   }, []);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      const payload: any = { name };
+      if (user?.role === "ADMIN") {
+        payload.studentOrEmployeeId = studentOrEmployeeId;
+      }
+      const res = await fetch("/api/auth/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUser((prev: any) => ({ ...prev, ...data.data.user }));
+        setName(data.data.user.name);
+        setStudentOrEmployeeId(data.data.user.studentOrEmployeeId || "");
+        success("Profile settings updated successfully!");
+      } else {
+        toastError(data.error?.message || "Failed to update profile settings");
+      }
+    } catch (err) {
+      console.error("Save profile error:", err);
+      toastError("Failed to communicate with server");
+    } finally {
       setIsSaving(false);
-      success("Profile settings updated successfully!");
-    }, 500);
+    }
   };
 
   return (
@@ -92,12 +113,51 @@ export default function SettingsPage() {
                 className="opacity-75 cursor-not-allowed bg-muted"
               />
 
-              <Input
-                label="Student / Employee ID"
-                value={studentOrEmployeeId}
-                onChange={(e) => setStudentOrEmployeeId(e.target.value)}
-                placeholder="e.g. STU-2024-8842"
-              />
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-foreground flex items-center gap-1.5">
+                    <span>Student Admission Number / Employee ID</span>
+                    {user?.role !== "ADMIN" && (
+                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                    )}
+                  </label>
+                  {user?.role !== "ADMIN" ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                      <Lock className="w-2.5 h-2.5" /> Locked by Institution
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                      Admin Editable
+                    </span>
+                  )}
+                </div>
+                <Input
+                  value={studentOrEmployeeId}
+                  onChange={(e) => setStudentOrEmployeeId(e.target.value)}
+                  disabled={user?.role !== "ADMIN"}
+                  className={
+                    user?.role !== "ADMIN"
+                      ? "opacity-80 cursor-not-allowed bg-muted font-mono"
+                      : "font-mono"
+                  }
+                  placeholder={
+                    user?.role === "ADMIN"
+                      ? "e.g. GLB-ADMIN-01"
+                      : "No ID recorded on registration"
+                  }
+                />
+                {user?.role !== "ADMIN" ? (
+                  <p className="text-[11px] text-muted-foreground flex items-start gap-1">
+                    <span>
+                      For institutional security, your college admission or employee number cannot be modified after registration. If you need to correct your ID, please contact the campus administrator.
+                    </span>
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
+                    Administrator authority: You have permission to update your admission / employee ID.
+                  </p>
+                )}
+              </div>
 
               <div className="flex justify-end pt-2">
                 <Button size="sm" type="submit" isLoading={isSaving}>

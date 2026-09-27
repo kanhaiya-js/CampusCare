@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users, Search, ShieldCheck, UserX, UserCheck, AlertCircle } from "lucide-react";
+import { Users, Search, ShieldCheck, UserX, UserCheck, AlertCircle, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import { formatDateTime } from "@/lib/utils/format";
 import { sanitizeAvatarUrl } from "@/lib/utils/avatar";
@@ -15,6 +17,12 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
+
+  // Edit Student/Employee ID State
+  const [isEditIdModalOpen, setIsEditIdModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editStudentId, setEditStudentId] = useState("");
+  const [isSavingId, setIsSavingId] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -75,6 +83,35 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleSaveId = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setIsSavingId(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: editingUser.id,
+          studentOrEmployeeId: editStudentId.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        success(`Campus ID updated for ${editingUser.name}`);
+        setIsEditIdModalOpen(false);
+        setEditingUser(null);
+        fetchUsers();
+      } else {
+        toastError(data.error?.message || "Failed to update ID");
+      }
+    } catch (err) {
+      toastError("Error updating ID");
+    } finally {
+      setIsSavingId(false);
+    }
+  };
+
   return (
     <div className="space-y-6 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
@@ -130,7 +167,7 @@ export default function AdminUsersPage() {
         <div className="flex-1">
           <span className="font-bold text-primary-900 dark:text-primary-200">Staff & Admin Management: </span>
           <span className="text-muted-foreground">
-            Promote or demote any campus account in 1 click using the <strong className="text-foreground">System Role</strong> dropdown in the directory table below. New staff automatically receive maintenance dispatch profiles.
+            Promote or demote any campus account in 1 click using the <strong className="text-foreground">System Role</strong> dropdown. You can also modify student admission numbers or staff employee IDs using the edit pencil button.
           </span>
         </div>
       </div>
@@ -179,8 +216,23 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="p-3.5 font-mono text-muted-foreground">
-                      {u.studentOrEmployeeId || "-"}
+                    <td className="p-3.5 font-mono">
+                      <div className="flex items-center gap-2">
+                        <span className={u.studentOrEmployeeId ? "text-foreground font-medium" : "text-muted-foreground"}>
+                          {u.studentOrEmployeeId || "—"}
+                        </span>
+                        <button
+                          onClick={() => {
+                            setEditingUser(u);
+                            setEditStudentId(u.studentOrEmployeeId || "");
+                            setIsEditIdModalOpen(true);
+                          }}
+                          title="Edit Admission Number / Employee ID (Admin Only)"
+                          className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary-600 transition-colors"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                      </div>
                     </td>
                     <td className="p-3.5">
                       <select
@@ -239,6 +291,63 @@ export default function AdminUsersPage() {
           </table>
         </div>
       </div>
+
+      {/* Edit Admission Number / Employee ID Modal */}
+      <Modal
+        isOpen={isEditIdModalOpen}
+        onClose={() => {
+          setIsEditIdModalOpen(false);
+          setEditingUser(null);
+        }}
+        title="Edit Admission No / Employee ID"
+        description="Update official institutional identifier. This field is locked on the student's personal settings."
+      >
+        <form onSubmit={handleSaveId} className="space-y-4 text-xs">
+          <div className="p-3 rounded-lg bg-muted/60 border border-border space-y-1">
+            <p className="font-semibold text-foreground text-sm">{editingUser?.name}</p>
+            <p className="text-muted-foreground font-mono text-[11px]">{editingUser?.email}</p>
+            <div className="pt-1">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300">
+                ROLE: {editingUser?.role}
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-foreground">
+              Official Campus ID (Admission No / Staff ID)
+            </label>
+            <Input
+              value={editStudentId}
+              onChange={(e) => setEditStudentId(e.target.value)}
+              placeholder="e.g. GLB-2023-CS1042 or GLB-STAFF-01"
+              className="font-mono text-xs"
+              autoFocus
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Institutional security rule: Non-admin users cannot alter their ID in account settings. Only administrators have privilege to update this ID.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-border">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setIsEditIdModalOpen(false);
+                setEditingUser(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" size="sm" isLoading={isSavingId}>
+              Save Campus ID
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
+

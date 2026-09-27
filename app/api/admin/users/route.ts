@@ -97,7 +97,7 @@ export async function PATCH(req: NextRequest) {
       return apiError("BAD_REQUEST", "Invalid request body", 400);
     }
 
-    const { userId, status, role } = body;
+    const { userId, status, role, studentOrEmployeeId } = body;
 
     if (!userId) {
       return apiError("BAD_REQUEST", "User ID is required", 400);
@@ -110,11 +110,14 @@ export async function PATCH(req: NextRequest) {
     const updateData: any = {};
     if (status) updateData.status = status;
     if (role) updateData.role = role;
+    if (studentOrEmployeeId !== undefined) {
+      updateData.studentOrEmployeeId = studentOrEmployeeId ? studentOrEmployeeId.trim().slice(0, 50) : null;
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updateData,
-      select: { id: true, name: true, email: true, role: true, status: true },
+      select: { id: true, name: true, email: true, role: true, status: true, studentOrEmployeeId: true },
     });
 
     if (role === "STAFF" || role === "MAINTENANCE_STAFF") {
