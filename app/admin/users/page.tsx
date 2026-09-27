@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users, Search, ShieldCheck, UserX, UserCheck, AlertCircle, Pencil } from "lucide-react";
+import { Users, Search, ShieldCheck, UserX, UserCheck, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
@@ -23,6 +23,11 @@ export default function AdminUsersPage() {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editStudentId, setEditStudentId] = useState("");
   const [isSavingId, setIsSavingId] = useState(false);
+
+  // Delete User Account State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -109,6 +114,29 @@ export default function AdminUsersPage() {
       toastError("Error updating ID");
     } finally {
       setIsSavingId(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/users?userId=${userToDelete.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        success(`Account for ${userToDelete.name} has been permanently deleted.`);
+        setDeleteModalOpen(false);
+        setUserToDelete(null);
+        fetchUsers();
+      } else {
+        toastError(data.error?.message || "Failed to delete user account.");
+      }
+    } catch (err) {
+      toastError("Network error while deleting user account.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -271,18 +299,30 @@ export default function AdminUsersPage() {
                       {formatDateTime(u.lastLoginAt || u.createdAt)}
                     </td>
                     <td className="p-3.5 text-right">
-                      {u.role !== "ADMIN" && (
+                      <div className="flex items-center justify-end gap-1.5">
+                        {u.role !== "ADMIN" && (
+                          <button
+                            onClick={() => handleToggleStatus(u)}
+                            className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-colors ${
+                              u.status === "ACTIVE"
+                                ? "bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-300"
+                                : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300"
+                            }`}
+                          >
+                            {u.status === "ACTIVE" ? "Suspend" : "Reactivate"}
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleToggleStatus(u)}
-                          className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-colors ${
-                            u.status === "ACTIVE"
-                              ? "bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-300"
-                              : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300"
-                          }`}
+                          onClick={() => {
+                            setUserToDelete(u);
+                            setDeleteModalOpen(true);
+                          }}
+                          title={`Permanently delete ${u.name}'s account`}
+                          className="p-1.5 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/60 border border-transparent hover:border-rose-200 dark:hover:border-rose-800 transition-colors"
                         >
-                          {u.status === "ACTIVE" ? "Suspend" : "Reactivate"}
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -346,6 +386,79 @@ export default function AdminUsersPage() {
             </Button>
           </div>
         </form>
+      </Modal>
+      {/* Permanent Account Deletion Confirmation Modal */}
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          if (!isDeleting) {
+            setDeleteModalOpen(false);
+            setUserToDelete(null);
+          }
+        }}
+        title="Delete User Account"
+        description="Permanently remove user credentials, reported issues, and campus access."
+      >
+        <div className="space-y-4 text-xs">
+          <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-start gap-3 text-rose-800 dark:text-rose-200">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold text-sm">Destructive Action Warning</p>
+              <p className="text-[11px] leading-relaxed text-rose-700 dark:text-rose-300">
+                This action is irreversible. Deleting this account will permanently erase their personal profile, notifications, feedback, and unassign any ongoing service tickets.
+              </p>
+            </div>
+          </div>
+
+          {userToDelete && (
+            <div className="p-3 rounded-lg bg-muted/60 border border-border space-y-2">
+              <div className="flex items-center gap-3">
+                <img
+                  src={sanitizeAvatarUrl(userToDelete.avatarUrl, userToDelete.name)}
+                  alt={userToDelete.name}
+                  className="w-10 h-10 rounded-full border border-border object-cover"
+                />
+                <div>
+                  <p className="font-bold text-foreground text-sm">{userToDelete.name}</p>
+                  <p className="text-muted-foreground font-mono text-[11px]">{userToDelete.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-1 font-mono text-[11px]">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300">
+                  {userToDelete.role}
+                </span>
+                <span className="text-muted-foreground">
+                  ID: {userToDelete.studentOrEmployeeId || "Not assigned"}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-border">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isDeleting}
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setUserToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              isLoading={isDeleting}
+              onClick={handleDeleteUser}
+              className="bg-rose-600 hover:bg-rose-700 text-white"
+            >
+              Delete Account Permanently
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
