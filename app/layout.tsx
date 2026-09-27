@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { PermissionConsentModal } from "@/components/layout/permission-consent-modal";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 const orbitron = Orbitron({
@@ -37,6 +38,7 @@ export default function RootLayout({
             <Navbar />
             <main className="flex-1 flex flex-col">{children}</main>
             <Footer />
+            <PermissionConsentModal />
           </ToastProvider>
         </ThemeProvider>
       </body>
