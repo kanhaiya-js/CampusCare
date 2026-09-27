@@ -155,52 +155,73 @@
   transition-delay: 0ms !important;
 }
 
-/* Paytm-Style Cinematic Animated QR Scanner ("Lights. Scan. Pay.") */
-@keyframes paytm-laser-sweep {
+/* High-Performance GPU-Accelerated QR Scanner Animations (Silky 60fps / 120fps)
+   Executes strictly on compositor thread with translate3d and opacity, zero reflow */
+@keyframes cyber-laser-sweep {
   0% {
-    top: 6%;
+    transform: translate3d(0, -100%, 0);
     opacity: 0.85;
   }
+  48% {
+    opacity: 1;
+  }
   50% {
-    top: 88%;
+    transform: translate3d(0, 0%, 0);
+    opacity: 0.95;
+  }
+  52% {
     opacity: 1;
   }
   100% {
-    top: 6%;
+    transform: translate3d(0, -100%, 0);
     opacity: 0.85;
   }
 }
 
-@keyframes paytm-pulse-glow {
+@keyframes cyber-reticle-breathe {
   0%, 100% {
-    opacity: 0.7;
-    filter: drop-shadow(0 0 8px rgba(0, 186, 242, 0.6));
+    opacity: 0.65;
+    transform: scale3d(0.995, 0.995, 1);
   }
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 18px rgba(0, 186, 242, 0.95));
+    transform: scale3d(1.008, 1.008, 1);
   }
 }
 
-.animate-paytm-laser {
-  animation: paytm-laser-sweep 2s ease-in-out infinite;
+@keyframes cyber-target-ping {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }
 
-.animate-paytm-glow {
-  animation: paytm-pulse-glow 2.2s ease-in-out infinite;
+.animate-cyber-laser {
+  will-change: transform, opacity;
+  animation: cyber-laser-sweep 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.animate-cyber-reticle {
+  will-change: opacity, transform;
+  animation: cyber-reticle-breathe 2.5s ease-in-out infinite;
+  backface-visibility: hidden;
+}
+
+.animate-target-ping {
+  animation: cyber-target-ping 0.6s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 .scanline-grid {
-  background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.25) 50%
-  ), linear-gradient(
-    90deg,
-    rgba(0, 186, 242, 0.03),
-    rgba(37, 99, 235, 0.02),
-    rgba(0, 186, 242, 0.03)
-  );
-  background-size: 100% 4px, 6px 100%;
+  background: 
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Professional Print Stylesheet - Zero header/tab overlay on placards */

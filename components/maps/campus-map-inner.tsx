@@ -47,6 +47,11 @@ export default function CampusMapInner({
 
       markersLayerRef.current = L.layerGroup().addTo(map);
       mapInstanceRef.current = map;
+
+      // Force recalculation of container dimensions so map tiles immediately populate
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 150);
     }
 
     const map = mapInstanceRef.current;
