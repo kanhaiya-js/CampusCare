@@ -39,8 +39,13 @@ async function main() {
     console.log("Note: Database was clean or empty.", (e as Error).message);
   }
 
-  const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
-  const kamalPasswordHash = await bcrypt.hash("kamal.rai@3917", 10);
+  const prabhatPassword = process.env.SEED_PRABHAT_PASSWORD || "CampusCareDev2026!";
+  const kamalPassword = process.env.SEED_KAMAL_PASSWORD || "CampusCareDev2026!";
+  const studentPassword = process.env.SEED_STUDENT_PASSWORD || "CampusCareDev2026!";
+
+  const prabhatAdminPasswordHash = await bcrypt.hash(prabhatPassword, 10);
+  const kamalPasswordHash = await bcrypt.hash(kamalPassword, 10);
+  const defaultPasswordHash = await bcrypt.hash(studentPassword, 10);
 
   // 1. Create Departments & Academic Programs
   const deptCSE = await prisma.department.create({
@@ -219,7 +224,7 @@ async function main() {
     data: {
       name: "Prabhat Sir",
       email: "prabhat.sir@glbitm.edu",
-      passwordHash: defaultPasswordHash,
+      passwordHash: prabhatAdminPasswordHash,
       role: "ADMIN",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-FAC-PRABHAT01",
@@ -229,7 +234,7 @@ async function main() {
 
   const adminKamal = await prisma.user.create({
     data: {
-      name: "Kamal Rai",
+      name: "Kanhaiya Rai",
       email: "kamal.rai@admin",
       passwordHash: kamalPasswordHash,
       role: "ADMIN",

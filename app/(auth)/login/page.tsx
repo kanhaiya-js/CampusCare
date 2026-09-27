@@ -141,7 +141,7 @@ function LoginForm() {
             autoCorrect="off"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="e.g. kamal.rai@admin or kanhaiya.rai@glbitm.edu"
+            placeholder="kanhaiya.rai@glbitm.edu"
             required
           />
         </div>
