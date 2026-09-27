@@ -20,6 +20,7 @@ import {
   Users,
   QrCode,
   LifeBuoy,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
@@ -233,21 +234,20 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Full-Width Desktop Navigation Tabs with Gray Hover State and Underground Line Effect */}
-        <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2.5 flex-1 px-2 h-full">
+        {/* Full-Width Desktop Navigation Tabs with Sleek Hover State and Underground Line Effect */}
+        <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2 flex-1 px-2 h-full">
           {user && (
             <Link
               href={getDashboardUrl()}
-              className={`group relative flex items-center px-3.5 py-2 text-[13px] font-medium transition-all rounded-lg ${
+              className={`group relative flex items-center px-3 py-1.5 text-[13px] font-medium transition-all rounded-lg whitespace-nowrap shrink-0 ${
                 pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/staff")
                   ? "text-primary-600 dark:text-primary-400 font-semibold bg-primary-500/10 dark:bg-primary-500/15"
-                  : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
               }`}
             >
               <span>Dashboard</span>
-              {/* Underground Line Hover & Active Indicator */}
               <span
-                className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+                className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                   pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/staff")
                     ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                     : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
@@ -255,191 +255,159 @@ export function Navbar() {
               />
             </Link>
           )}
+
           <Link
             href="/issues"
-            className={`group relative flex items-center px-3.5 py-2 text-[13px] font-medium transition-all rounded-lg ${
+            className={`group relative flex items-center px-3 py-1.5 text-[13px] font-medium transition-all rounded-lg whitespace-nowrap shrink-0 ${
               pathname === "/issues" || pathname.startsWith("/issues/")
                 ? "text-primary-600 dark:text-primary-400 font-semibold bg-primary-500/10 dark:bg-primary-500/15"
-                : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
             }`}
           >
             <span>Issues</span>
-            {/* Underground Line Hover & Active Indicator */}
             <span
-              className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+              className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/issues" || pathname.startsWith("/issues/")
                   ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
           </Link>
+
           <Link
             href="/map"
-            className={`group relative flex items-center gap-2 px-3.5 py-2 text-[13px] font-semibold transition-all rounded-lg ${
+            className={`group relative flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-all rounded-lg whitespace-nowrap shrink-0 ${
               pathname === "/map"
-                ? "text-primary-600 dark:text-primary-300 bg-primary-50/80 dark:bg-primary-950/50 border border-primary-200/80 dark:border-primary-800/70 shadow-2xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80 border border-transparent"
+                ? "text-primary-600 dark:text-primary-400 font-semibold bg-primary-500/10 dark:bg-primary-500/15"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
             }`}
           >
-            <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0 group-hover:scale-110 transition-transform" />
-            <span>Interactive Campus Map</span>
-            {/* Underground Line Hover & Active Indicator */}
+            <MapPin className="w-3.5 h-3.5 text-primary-500/80 shrink-0" />
+            <span>Campus Map</span>
             <span
-              className={`absolute bottom-0 left-3 right-3 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+              className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/map"
                   ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
           </Link>
-          <Link
-            href="/qr"
-            className={`group relative flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold transition-all rounded-lg ${
-              pathname === "/qr" || pathname === "/qr-generator"
-                ? "text-primary-600 dark:text-primary-300 bg-primary-50/80 dark:bg-primary-950/50 border border-primary-200/80 dark:border-primary-800/70 shadow-2xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80 border border-transparent"
-            }`}
-          >
-            <QrCode className="w-3.5 h-3.5 text-indigo-500 shrink-0 group-hover:scale-110 transition-transform" />
-            <span>QR Generator</span>
-            {/* Underground Line Hover & Active Indicator */}
-            <span
-              className={`absolute bottom-0 left-3 right-3 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
-                pathname === "/qr" || pathname === "/qr-generator"
-                  ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
-                  : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
-              }`}
-            />
-          </Link>
+
           <Link
             href="/facilities"
-            className={`group relative flex items-center px-3.5 py-2 text-[13px] font-medium transition-all rounded-lg ${
+            className={`group relative flex items-center px-3 py-1.5 text-[13px] font-medium transition-all rounded-lg whitespace-nowrap shrink-0 ${
               pathname === "/facilities"
                 ? "text-primary-600 dark:text-primary-400 font-semibold bg-primary-500/10 dark:bg-primary-500/15"
-                : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
             }`}
           >
             <span>Facilities</span>
-            {/* Underground Line Hover & Active Indicator */}
             <span
-              className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+              className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/facilities"
                   ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
           </Link>
+
           <Link
             href="/transport"
-            className={`group relative flex items-center px-3.5 py-2 text-[13px] font-medium transition-all rounded-lg ${
+            className={`group relative flex items-center px-3 py-1.5 text-[13px] font-medium transition-all rounded-lg whitespace-nowrap shrink-0 ${
               pathname === "/transport"
                 ? "text-primary-600 dark:text-primary-400 font-semibold bg-primary-500/10 dark:bg-primary-500/15"
-                : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
             }`}
           >
             <span>Transport</span>
-            {/* Underground Line Hover & Active Indicator */}
             <span
-              className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+              className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/transport"
                   ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
           </Link>
+
           <Link
             href="/clubs"
-            className={`group relative flex items-center px-3.5 py-2 text-[13px] font-medium transition-all rounded-lg ${
+            className={`group relative flex items-center px-3 py-1.5 text-[13px] font-medium transition-all rounded-lg whitespace-nowrap shrink-0 ${
               pathname === "/clubs"
                 ? "text-primary-600 dark:text-primary-400 font-semibold bg-primary-500/10 dark:bg-primary-500/15"
-                : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
             }`}
           >
             <span>Clubs</span>
-            {/* Underground Line Hover & Active Indicator */}
             <span
-              className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+              className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
                 pathname === "/clubs"
                   ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                   : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
               }`}
             />
           </Link>
-          {/* Team Tab with Hover Preview */}
-          <div className="relative group/team">
-            <Link
-              href="/team"
-              className={`group relative flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-medium transition-all rounded-lg ${
-                pathname === "/team"
+
+          {/* More Dropdown (QR Generator, Team, Support) */}
+          <div className="relative group/more">
+            <button
+              type="button"
+              className={`group relative flex items-center gap-1 px-3 py-1.5 text-[13px] font-medium transition-all rounded-lg whitespace-nowrap shrink-0 ${
+                pathname === "/qr" || pathname === "/qr-generator" || pathname === "/team"
                   ? "text-primary-600 dark:text-primary-400 font-semibold bg-primary-500/10 dark:bg-primary-500/15"
-                  : "text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-gray-800/80"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
               }`}
             >
-              <Users className="w-3.5 h-3.5 text-primary-500/80 group-hover:text-primary-500 transition-colors" />
-              <span>Team</span>
-              {/* Underground Line Hover & Active Indicator */}
+              <span>More</span>
+              <ChevronDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-transform duration-200 group-hover/more:rotate-180" />
               <span
-                className={`absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
-                  pathname === "/team"
+                className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ease-out origin-center pointer-events-none ${
+                  pathname === "/qr" || pathname === "/qr-generator" || pathname === "/team"
                     ? "bg-gradient-to-r from-primary-500 via-indigo-500 to-blue-500 opacity-100 scale-x-100 shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
                     : "bg-gray-400 dark:bg-gray-500 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100 shadow-[0_1px_6px_rgba(156,163,175,0.4)]"
                 }`}
               />
-            </Link>
+            </button>
 
-            {/* Hover / Dropdown Preview Menu for Quick Overview */}
-            <div className="invisible opacity-0 group-hover/team:visible group-hover/team:opacity-100 transition-all duration-200 absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50 w-72 pointer-events-none group-hover/team:pointer-events-auto">
-              <div className="p-3 rounded-xl bg-card/95 backdrop-blur-md border border-border shadow-xl space-y-2.5">
-                <div className="flex items-center justify-between border-b border-border/70 pb-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Users className="w-3 h-3 text-primary-500" />
-                    Project Team
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 font-semibold border border-primary-200/50 dark:border-primary-800/50">
-                    GL Bajaj
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/60 transition-colors">
-                    <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-200 dark:border-indigo-800">
-                      K
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-foreground">Kanhaiya</p>
-                      <p className="text-[10px] text-primary-600 dark:text-primary-400 font-semibold">Lead Developer</p>
-                      <p className="text-[10px] text-muted-foreground leading-tight">Built frontend &amp; backend</p>
-                    </div>
+            {/* Dropdown Menu */}
+            <div className="invisible opacity-0 group-hover/more:visible group-hover/more:opacity-100 transition-all duration-200 absolute top-full left-0 pt-2 z-50 w-64 pointer-events-none group-hover/more:pointer-events-auto">
+              <div className="p-2 rounded-xl bg-card/95 backdrop-blur-md border border-border shadow-xl space-y-1">
+                <Link
+                  href="/qr"
+                  className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-muted transition-colors group/item"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/50 dark:border-indigo-800/50">
+                    <QrCode className="w-4 h-4" />
                   </div>
-
-                  <div className="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/60 transition-colors">
-                    <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-800">
-                      R
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-foreground">Rishav</p>
-                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Project Researcher</p>
-                      <p className="text-[10px] text-muted-foreground leading-tight">Campus research &amp; problem analysis</p>
-                    </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground group-hover/item:text-primary-600 transition-colors">QR Generator</p>
+                    <p className="text-[11px] text-muted-foreground leading-tight">Create &amp; print location QR codes</p>
                   </div>
-
-                  <div className="flex items-start gap-2.5 p-1.5 rounded-lg hover:bg-muted/60 transition-colors">
-                    <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0 border border-indigo-200 dark:border-indigo-800">
-                      B
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-foreground">Badri</p>
-                      <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold">Supporter &amp; Presentation</p>
-                      <p className="text-[10px] text-muted-foreground leading-tight">PPT maker &amp; project pitch</p>
-                    </div>
-                  </div>
-                </div>
+                </Link>
 
                 <Link
                   href="/team"
-                  className="block text-center text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:underline pt-1.5 border-t border-border/50"
+                  className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-muted transition-colors group/item"
                 >
-                  View Full Team Profile →
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/50 dark:border-emerald-800/50">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground group-hover/item:text-primary-600 transition-colors">Project Team</p>
+                    <p className="text-[11px] text-muted-foreground leading-tight">Kanhaiya, Rishav &amp; Badri</p>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/support"
+                  className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-colors group/item"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-200/50 dark:border-rose-800/50">
+                    <LifeBuoy className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-foreground group-hover/item:text-rose-600 transition-colors">Official Support</p>
+                    <p className="text-[11px] text-muted-foreground leading-tight">Ragging, harassment &amp; safety</p>
+                  </div>
                 </Link>
               </div>
             </div>
@@ -447,36 +415,40 @@ export function Navbar() {
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
 
           {/* Official Support Link */}
           <Link
             href="/support"
-            className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-500/25 hover:bg-rose-100 dark:hover:bg-rose-500/25 transition-colors"
+            className="hidden 2xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+            title="Official College Support & Grievance Directory"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-            Support
+            <LifeBuoy className="w-3.5 h-3.5 text-rose-500" />
+            <span>Support</span>
           </Link>
 
-          {/* Highlighted Scan QR Button */}
+          {/* Harmonized Scan QR Button */}
           <Link
             href="/scan"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 via-[#00baf2] to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-md shadow-cyan-500/25 border border-cyan-300/30 hover:shadow-cyan-500/40 hover:scale-105 active:scale-95 transition-all"
-            title="Scan Campus Room QR Code"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border bg-background hover:bg-muted text-foreground transition-all shadow-2xs hover:border-primary-500/40"
+            title="Scan Room / Location QR Code"
           >
-            <QrCode className="w-3.5 h-3.5 animate-pulse text-white" />
+            <QrCode className="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
             <span>Scan QR</span>
           </Link>
 
           {/* Quick Report Button */}
           {user ? (
             <Link href="/issues/report" className="hidden sm:inline-flex">
-              <Button size="sm" variant="primary" className="gap-1.5 shadow-sm">
-                <PlusCircle className="w-4 h-4" />
-                Report Issue
+              <Button size="sm" variant="primary" className="gap-1.5 shadow-sm text-xs font-semibold px-3 py-1.5 h-8">
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Report Issue</span>
               </Button>
             </Link>
           ) : null}
+
+          {/* Subtle separator */}
+          <div className="hidden sm:block w-[1px] h-5 bg-border/70 mx-0.5" />
 
           {/* Theme Toggle with smooth rotation and ripple animation */}
           <button
@@ -589,19 +561,20 @@ export function Navbar() {
                   setShowUserMenu((prev) => !prev);
                   setShowNotifications(false);
                 }}
-                className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors"
+                className="flex items-center gap-2 p-1 rounded-lg hover:bg-muted/80 transition-colors"
               >
                 <img
                   src={user.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
                   alt={user.name}
-                  className="w-7 h-7 rounded-full bg-slate-200 border border-border"
+                  className="w-7 h-7 rounded-full bg-slate-200 border border-border shrink-0"
                 />
-                <div className="hidden lg:flex flex-col text-left leading-none">
-                  <span className="text-xs font-semibold">{user.name}</span>
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                <div className="hidden xl:flex flex-col text-left leading-tight max-w-[120px]">
+                  <span className="text-xs font-semibold text-foreground truncate">{user.name}</span>
+                  <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">
                     {user.role}
                   </span>
                 </div>
+                <ChevronDown className="w-3 h-3 text-muted-foreground hidden xl:block shrink-0" />
               </button>
 
               {showUserMenu && (
