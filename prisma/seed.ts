@@ -234,7 +234,7 @@ async function main() {
       role: "ADMIN",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-FAC-PRABHAT01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=PrabhatSir&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Prabhat%20Sir&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
     },
   });
 
@@ -246,7 +246,7 @@ async function main() {
       role: "ADMIN",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-ADMIN-KAMAL01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=KamalRai&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Kanhaiya%20Rai&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
     },
   });
 
@@ -259,7 +259,7 @@ async function main() {
       status: "ACTIVE",
       departmentId: deptCSE.id,
       studentOrEmployeeId: "GLB-2023-CS1042",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=KanhaiyaKumar&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Kanhaiya%20Kumar&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
     },
   });
 
@@ -272,7 +272,7 @@ async function main() {
       role: "STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STAFF-ELEC01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=RameshSharma&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Ramesh%20Sharma&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
       staffProfile: {
         create: {
           specialization: "ELECTRICAL",
@@ -291,7 +291,7 @@ async function main() {
       role: "STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STAFF-PLUMB01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=ManojKumar&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Manoj%20Kumar&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
       staffProfile: {
         create: {
           specialization: "PLUMBING",
@@ -310,7 +310,7 @@ async function main() {
       role: "STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STAFF-HVAC01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=SureshVerma&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Suresh%20Verma&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
       staffProfile: {
         create: {
           specialization: "HVAC",
@@ -329,7 +329,7 @@ async function main() {
       role: "STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STAFF-IT01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=AmitSingh&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Amit%20Singh&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
       staffProfile: {
         create: {
           specialization: "NETWORK",
@@ -348,7 +348,7 @@ async function main() {
       role: "STAFF",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-STAFF-CIVIL01",
-      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=DineshYadav&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Dinesh%20Yadav&radius=50&backgroundColor=1e3a8a,0f766e,312e81,1e293b,115e59,0369a1,4338ca,15803d&textColor=ffffff&fontWeight=600&fontSize=42",
       staffProfile: {
         create: {
           specialization: "CARPENTRY",
