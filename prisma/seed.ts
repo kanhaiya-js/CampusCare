@@ -41,7 +41,6 @@ async function main() {
 
   const prabhatPassword = process.env.SEED_PRABHAT_PASSWORD;
   const kamalPassword = process.env.SEED_KAMAL_PASSWORD;
-  const studentPassword = process.env.SEED_STUDENT_PASSWORD;
 
   if (!kamalPassword || !prabhatPassword || !studentPassword) {
     throw new Error(
@@ -51,7 +50,6 @@ async function main() {
 
   const prabhatAdminPasswordHash = await bcrypt.hash(prabhatPassword, 10);
   const kamalPasswordHash = await bcrypt.hash(kamalPassword, 10);
-  const defaultPasswordHash = await bcrypt.hash(studentPassword, 10);
 
   // 1. Create Departments & Academic Programs
   const deptCSE = await prisma.department.create({
@@ -247,19 +245,6 @@ async function main() {
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-ADMIN-KAMAL01",
       avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=KamalRai&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
-    },
-  });
-
-  const student1 = await prisma.user.create({
-    data: {
-      name: "Kanhaiya Kumar",
-      email: "kanhaiya.rai@glbitm.edu",
-      passwordHash: defaultPasswordHash,
-      role: "STUDENT",
-      status: "ACTIVE",
-      departmentId: deptCSE.id,
-      studentOrEmployeeId: "GLB-2023-CS1042",
-      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=KanhaiyaKumar&backgroundColor=b6e3f4,c0aede,d1d4f9",
     },
   });
 
