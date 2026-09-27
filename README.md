@@ -27,18 +27,25 @@ For sensitive matters involving ragging, sexual harassment, acute mental health 
   - **WHERE & EVIDENCE?**: Building/block selection (Block A, B, C, Library, SHD Auditorium, Hostels), department tagging (CSE, ECE, IT, ME, EE, ASH, MCA, MBA), club requests, and photo/video upload.
   - **SUBMIT**: Review, automated duplicate checking, priority heuristics, and ticket generation (e.g. `SC-2026-000101`).
 
-### 2. Intelligent Duplicate Issue Detection
+### 2. High-Performance Instant QR Scanner & Placards (`/scan` & `/qr`)
+- **60fps GPU-Composited Viewfinder**: Hardware-accelerated scanning laser (`transform: translate3d`) executing strictly on the compositor thread with zero CPU reflow or frame lag.
+- **Universal Browser Scanning**: Prioritizes native C++ `BarcodeDetector` when available, with optimized client-side `jsQR` frame processing.
+- **Full-Viewport Framing**: Corner reticles and full-width laser sweeping seamlessly across the camera viewport with instant haptic and audio lock feedback.
+- **Dynamic Printable Room Placards (`/admin/qr-codes`)**: High-resolution, vector-crisp QR placards with print stylesheets ready for immediate campus door placement.
+
+### 3. Intelligent Duplicate Issue Detection
 - Semantic token overlap and location cross-referencing against unresolved campus tickets.
 - Warns users when a similar problem (e.g., "AC not cooling in A-204") is already under review, preventing ticket flood.
 
-### 3. Rule-Based Smart Priority Engine
-- Evaluates life-safety hazards, location criticality (exam halls, Central Library, server rooms), and multiple affected users.
+### 4. Rule-Based Smart Priority Engine
+- Evaluates life-safety hazards, location criticality (exam halls, Central Library, server rooms), and multiple affected users to calculate priority (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`).
 
-### 4. Interactive Campus Map (`/map`)
+### 5. Interactive Campus Facility Map (`/map`)
 - Centered on GLBITM Knowledge Park 3 coordinates (`28.4728, 77.4895`).
-- Displays issue hotspots with severity pins and filtering across campus blocks.
+- Displays issue hotspots with severity pins, layer filters, and immediate ticket navigation.
+- OpenStreetMap + Leaflet integration with strict CSP-compliant tile delivery.
 
-### 5. Campus Facilities Directory (`/facilities`)
+### 6. Campus Facilities Directory (`/facilities`)
 - Directory of verified GLBITM infrastructure:
   - **Central Library (3rd Floor, Block A)**: 1,280 sq.m AC area, 305+ capacity, 20 digital terminals.
   - **SHD Auditorium**: 30m × 40m, 900+ seating capacity, acoustic engineering.
@@ -46,7 +53,7 @@ For sensitive matters involving ragging, sexual harassment, acute mental health 
   - **Residential Hostels**: Boys & Girls Hostels with geysers, Wi-Fi, 24x7 security, mess.
   - **Cafeteria, Sports Grounds, Gymnasium, and Incubation Center**.
 
-### 6. Campus Transport & Bus Fleet (`/transport`)
+### 7. Campus Transport & Bus Fleet (`/transport`)
 - Verified routes for Academic Session 2026–27:
   - **Route 01**: GTB Hospital / Dilshad Garden / Preet Vihar / Pari Chowk / GLBITM
   - **Route 02**: Anand Vihar ISBT / Ghazipur / Akshardham / Sector 15 / GLBITM
@@ -56,7 +63,7 @@ For sensitive matters involving ragging, sexual harassment, acute mental health 
   - **Route 06**: Greater Noida Local Feeder (Surajpur, Gamma 1, Delta 1, Alpha 1, Pari Chowk)
 - Direct maintenance issue reporting for bus cleanliness and stop infrastructure.
 
-### 7. Student Clubs & Societies (`/clubs`)
+### 8. Student Clubs & Societies (`/clubs`)
 - Configurable entities for 15 verified student societies:
   - **Technical**: Google Developer Groups (GDG), CodeSpace Club, Enigma Club, BIS Club, SAEINDIA Club
   - **Cultural & Drama**: Abhinaya Club, Navrang Club, Abhyudaya Club, Yuktikula Club
@@ -64,7 +71,7 @@ For sensitive matters involving ragging, sexual harassment, acute mental health 
   - **Creative & Sports**: Anvitha Club, DreamSpark Aura Club, Sports Club
 - Integrated event venue & infrastructure request workflow (`/issues/report?clubId=...`).
 
-### 8. Academic Design Thinking Journey (`/design-thinking`)
+### 9. Academic Design Thinking Journey (`/design-thinking`)
 - Documented 5-stage UX research framework:
   - **01 Empathize**: 124 student interviews, 18 faculty discussions, 12 technician interviews, 318 survey responses.
   - **02 Define**: Visibility vacuum, duplicate ticket flood, misrouted complaints, uneven workloads.
@@ -74,34 +81,21 @@ For sensitive matters involving ragging, sexual harassment, acute mental health 
 
 ---
 
-## 3. Technology Stack
+## 3. Technology Stack & Security Architecture
 
 - **Framework**: Next.js 14+ (App Router, Server Actions, TypeScript, React 18)
 - **Styling**: Tailwind CSS with CSS Variables design tokens (Dark and Light modes via `next-themes`)
 - **Database & ORM**: Prisma ORM with SQLite for zero-dependency local development and PostgreSQL schema for production
-- **Authentication**: HTTP-only secure cookie sessions with bcryptjs password hashing and RBAC (`STUDENT`, `FACULTY`, `STAFF`, `MAINTENANCE_STAFF`, `DEPARTMENT_COORDINATOR`, `ADMIN`)
-- **Interactive Map**: Leaflet + OpenStreetMap (SSR-safe dynamic loading)
-- **Validation**: Zod schema validation on client forms and backend route handlers
-- **Testing**: Vitest automated test suite
+- **Bot Defense**: Cloudflare Turnstile integration on authentication forms with server-side siteverify challenge tokens
+- **Authentication**: HTTP-only secure cookie sessions with bcryptjs password hashing (cost factor 12) and RBAC (`STUDENT`, `FACULTY`, `STAFF`, `MAINTENANCE_STAFF`, `DEPARTMENT_COORDINATOR`, `ADMIN`)
+- **Credential Safety**: Zero hardcoded passwords in version control. All seed and admin credentials load strictly from environment variables
+- **Interactive Map**: Leaflet + OpenStreetMap (SSR-safe dynamic loading with Content-Security-Policy compliant tile endpoints)
+- **Validation**: Zod schema validation supporting standard campus emails and intranet admin usernames
+- **Testing**: Automated Vitest test suite with 100% pass rate (36/36 tests covering security, priority engine, duplicate detection, Turnstile, and formatting)
 
 ---
 
-## 4. Fictional Realistic Demo Accounts
-
-All seed demo accounts use password: `Password123!`
-
-| Role | Name | Email | Details |
-|---|---|---|---|
-| **Student** | Aarav Sharma | `aarav.sharma@glbitm.ac.in` | B.Tech CSE, Student ID `GLB-2023-CS1042` |
-| **Faculty** | Prof. S.K. Verma | `prof.skverma@glbitm.ac.in` | ECE Department, Employee ID `GLB-FAC-EC201` |
-| **Maintenance Staff** | Rajesh Kumar | `rajesh.electrician@glbitm.ac.in` | Electrical Team Technician |
-| **Facility Admin** | Campus Ops Lead | `admin@glbitm.ac.in` | Complete campus facilities administration |
-
-*(Note: The login screen includes 1-click credential fillers for instant demo access).*
-
----
-
-## 5. Local Setup & Execution
+## 4. Local Setup & Execution
 
 ### Prerequisites
 - Node.js 18.x or higher
@@ -112,23 +106,38 @@ All seed demo accounts use password: `Password123!`
 npm install
 ```
 
-### 2. Configure Environment
-```bash
-# Verify .env configuration
+### 2. Configure Environment (`.env`)
+Create a `.env` file in the root directory:
+```env
 DATABASE_URL="file:./dev.db"
-JWT_SECRET="smartcampus-super-secret-key-at-least-32-chars-long"
+AUTH_SECRET="your-secure-secret-key-at-least-32-chars-long"
+ADMIN_REGISTER_KEY="CampusCare2026"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Cloudflare Turnstile (Bot Challenge Protection)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY="0x4AAAAAAFEikFbvGEYrhhB-"
+TURNSTILE_SECRET_KEY="0x4AAAAAAFEikJH4W1uMwP0F2ZwG2cXDxNU"
+
+# Admin & Student Seed Passwords (required for prisma/seed.ts)
+SEED_KAMAL_PASSWORD="your_admin_password_here"
+SEED_PRABHAT_PASSWORD="your_admin_password_here"
+SEED_STUDENT_PASSWORD="your_student_password_here"
 ```
 
 ### 3. Initialize & Seed Database
 ```bash
-npx prisma db push --schema=prisma/schema.sqlite.prisma
+# Push Prisma schema to local SQLite database
+npx prisma db push
+
+# Seed campus departments, facilities, routes, clubs, and initial users
 npx tsx prisma/seed.ts
 ```
 
-### 4. Run Test Suite
+### 4. Run Automated Test Suite
 ```bash
 npm test
 ```
+Executes all 36 unit and integration test assertions across security, duplicate detection, Turnstile, and priority engines.
 
 ### 5. Start Development Server
 ```bash
@@ -138,16 +147,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 6. Project Presentation Flow
+## 5. Project Presentation Flow
 
 ```
 GLBITM Campus Infrastructure
           ↓
 Students & Faculty Interact with Facilities
           ↓
-Problem Occurs (AC, Lab PC, Water, Wi-Fi, Bus, Club Venue)
+Problem Occurs (AC, Lab PC, Water, Wi-Fi, Bus, Club Venue, Door QR)
           ↓
-SmartCampus Wizard (What? Where? Evidence? Submit)
+SmartCampus Wizard or Room QR Scanner
+    ├── Instant Camera QR Code Identification
     ├── Heuristic Priority Engine
     ├── Duplicate Detection Warning
     └── Sensitive Interceptor (Directs Harassment/Ragging to Official Support)
@@ -163,5 +173,5 @@ Administration Tracks Hotspots, MTTR & Workloads
 
 ---
 
-## 7. License & Compliance
+## 6. License & Compliance
 Designed and developed for **G.L. Bajaj Institute of Technology & Management (GLBITM)**. All rights reserved.
