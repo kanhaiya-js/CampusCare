@@ -639,15 +639,6 @@ function ScanPageContent() {
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-2.5 w-[2px] bg-cyan-400/60" />
                   </div>
 
-                  {/* Optical Center Crosshair */}
-                  {!targetLocked && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
-                      <div className="w-10 h-[1.5px] bg-cyan-400 rounded-full" />
-                      <div className="h-10 w-[1.5px] bg-cyan-400 rounded-full absolute" />
-                      <div className="w-3.5 h-3.5 rounded-full border border-cyan-300 absolute" />
-                    </div>
-                  )}
-
                   {/* GPU-COMPOSITED SILKY 60FPS SCANNING LASER BEAM (FULL FRAME) */}
                   {!targetLocked && (
                     <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl">
@@ -661,9 +652,6 @@ function ScanPageContent() {
                         
                         {/* Leading soft light wash (subtle wash below line for upward return) */}
                         <div className="absolute top-full inset-x-0 h-10 bg-gradient-to-b from-cyan-400/15 via-cyan-400/3 to-transparent pointer-events-none" />
-
-                        {/* Central focal photon beacon */}
-                        <div className="absolute bottom-[-3px] left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_10px_#fff,0_0_18px_#22d3ee]" />
                       </div>
                     </div>
                   )}
