@@ -39,9 +39,15 @@ async function main() {
     console.log("Note: Database was clean or empty.", (e as Error).message);
   }
 
-  const prabhatPassword = process.env.SEED_PRABHAT_PASSWORD || "CampusCareDev2026!";
-  const kamalPassword = process.env.SEED_KAMAL_PASSWORD || "CampusCareDev2026!";
-  const studentPassword = process.env.SEED_STUDENT_PASSWORD || "CampusCareDev2026!";
+  const prabhatPassword = process.env.SEED_PRABHAT_PASSWORD;
+  const kamalPassword = process.env.SEED_KAMAL_PASSWORD;
+  const studentPassword = process.env.SEED_STUDENT_PASSWORD;
+
+  if (!kamalPassword || !prabhatPassword || !studentPassword) {
+    throw new Error(
+      "Missing required credentials."
+    );
+  }
 
   const prabhatAdminPasswordHash = await bcrypt.hash(prabhatPassword, 10);
   const kamalPasswordHash = await bcrypt.hash(kamalPassword, 10);
