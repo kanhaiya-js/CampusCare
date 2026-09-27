@@ -118,46 +118,46 @@ export default function AdminQRCodesPage() {
     <div className="space-y-6 w-full">
       {/* Print-Only Placard Template */}
       {activePlacard && (
-        <div id="print-placard-area" className="hidden print:block print:p-8 bg-white text-slate-900 min-h-screen">
-          <div className="max-w-xl mx-auto border-4 border-slate-900 rounded-3xl p-8 text-center space-y-6 bg-white shadow-none">
+        <div id="print-placard-area" className="hidden print:block bg-white text-slate-900">
+          <div className="max-w-lg mx-auto border-4 border-slate-900 rounded-2xl p-5 text-center space-y-4 bg-white shadow-none">
             {/* Header */}
-            <div className="border-b-2 border-slate-900 pb-5">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <img src="/logo.png" alt="GLBITM" className="w-12 h-12 object-contain" />
+            <div className="border-b-2 border-slate-900 pb-3">
+              <div className="flex items-center justify-center gap-3 mb-1.5">
+                <img src="/logo.png" alt="GLBITM" className="w-10 h-10 object-contain" />
                 <div className="text-left">
-                  <h2 className="text-xs font-black tracking-widest uppercase text-slate-700">
-                    GL Bajaj Institute of Technology & Management
+                  <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-700">
+                    GL Bajaj Institute of Technology &amp; Management
                   </h2>
-                  <h1 className="text-xl font-black font-orbitron text-slate-950">
+                  <h1 className="text-lg font-black font-orbitron text-slate-950">
                     CampusCare Facility Dispatch
                   </h1>
                 </div>
               </div>
-              <p className="text-[11px] font-bold text-slate-600 tracking-wide uppercase">
-                Official Campus Maintenance & Classroom Service Station
+              <p className="text-[10px] font-bold text-slate-600 tracking-wide uppercase">
+                Official Campus Maintenance &amp; Classroom Service Station
               </p>
             </div>
 
             {/* Room Banner */}
-            <div className="bg-slate-100 border-2 border-slate-900 rounded-2xl p-4">
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-widest block">
+            <div className="bg-slate-100 border-2 border-slate-900 rounded-xl p-3">
+              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest block">
                 {activePlacard.building}
               </span>
-              <h2 className="text-2xl font-black text-slate-950 mt-0.5">
+              <h2 className="text-xl font-black text-slate-950 mt-0.5">
                 {activePlacard.name}
               </h2>
               {activePlacard.room && (
-                <div className="text-lg font-black text-indigo-700 mt-1">
+                <div className="text-base font-black text-indigo-700 mt-0.5">
                   ROOM / LAB: {activePlacard.room}
                 </div>
               )}
             </div>
 
             {/* Large Scannable QR Code */}
-            <div className="flex justify-center py-2">
+            <div className="flex justify-center py-1">
               <QRCodeDisplay
                 value={getQRUrl(activePlacard)}
-                size={260}
+                size={200}
                 fgColor="#000000"
                 bgColor="#ffffff"
                 title={`${activePlacard.building} ${activePlacard.room || ""}`}
@@ -165,11 +165,11 @@ export default function AdminQRCodesPage() {
             </div>
 
             {/* Instructions */}
-            <div className="text-left bg-slate-50 border border-slate-300 rounded-xl p-4 space-y-2 text-xs">
-              <p className="font-extrabold text-slate-900 uppercase tracking-wide text-[11px]">
+            <div className="text-left bg-slate-50 border border-slate-300 rounded-lg p-3 space-y-1 text-xs">
+              <p className="font-extrabold text-slate-900 uppercase tracking-wide text-[10px]">
                 How to report a broken facility in this room:
               </p>
-              <ol className="list-decimal pl-5 space-y-1 text-slate-700 font-medium text-[11px]">
+              <ol className="list-decimal pl-4 space-y-0.5 text-slate-700 font-medium text-[10px]">
                 <li>Open your smartphone camera or any QR scanner and scan the code above.</li>
                 <li>Sign in with your student or faculty GLBITM email.</li>
                 <li>Select the problem (AC leak, fan, projector, lights, chair, whiteboard).</li>
@@ -178,7 +178,7 @@ export default function AdminQRCodesPage() {
             </div>
 
             {/* Placard Footer */}
-            <div className="pt-3 border-t border-slate-300 flex justify-between items-center text-[10px] text-slate-500 font-mono">
+            <div className="pt-2 border-t border-slate-300 flex justify-between items-center text-[9px] text-slate-500 font-mono">
               <span>Official CampusCare Room Placard (ID: {activePlacard.id.slice(0, 8)})</span>
               <span>G.L. Bajaj Institute of Technology &amp; Management</span>
             </div>

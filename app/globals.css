@@ -224,62 +224,87 @@
   background-size: 24px 24px;
 }
 
-/* Professional Print Stylesheet - Zero header/tab overlay on placards */
+/* Professional Print Stylesheet - Guaranteed Single-Page Clean Print */
 @media print {
   @page {
-    size: auto;
-    margin: 12mm 15mm;
+    size: portrait;
+    margin: 8mm 10mm;
   }
 
-  /* Force hide all top bars, navbars, footers, toasts, and UI chrome */
+  html,
+  body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Force hide all top bars, navbars, footers, sidebars, buttons, and screen UI */
   header,
   nav,
   footer,
   aside,
   button,
-  .print\\:hidden,
+  .print\:hidden,
   [data-radix-portal],
   [role="region"],
   [aria-live="polite"] {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
+    max-height: 0 !important;
     overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
     position: absolute !important;
     top: -9999px !important;
-  }
-
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
 
   main {
     padding: 0 !important;
     margin: 0 !important;
+    background: transparent !important;
   }
 
-  /* Target Print Placard Container */
+  /* Reset all background colors on parent containers to pure white/transparent */
+  main,
+  div,
+  section {
+    box-shadow: none !important;
+  }
+
+  /* Target Print Placard Container - Strictly Single Page */
   #print-placard-area {
     display: block !important;
     visibility: visible !important;
     position: relative !important;
     width: 100% !important;
-    max-width: 650px !important;
+    max-width: 580px !important;
     margin: 0 auto !important;
-    padding: 1rem !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
     page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    break-inside: avoid !important;
+    break-after: avoid !important;
+    break-before: avoid !important;
   }
 
   #print-placard-area * {
     visibility: visible !important;
-    color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 }
+
 
