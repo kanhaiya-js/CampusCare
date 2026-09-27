@@ -134,11 +134,14 @@ function LoginForm() {
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
           <Input
-            label="Campus Email Address"
-            type="email"
+            label="Campus Email or Username"
+            type="text"
+            inputMode="email"
+            autoCapitalize="none"
+            autoCorrect="off"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="e.g. kanhaiya.rai@glbitm.edu"
+            placeholder="e.g. kamal.rai@admin or kanhaiya.rai@glbitm.edu"
             required
           />
         </div>

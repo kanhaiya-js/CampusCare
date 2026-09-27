@@ -1,7 +1,15 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email("Please provide a valid email address"),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3, "Username or email is required")
+    .refine(
+      (val) => /^[^\s@]+@[^\s@]+$/.test(val),
+      { message: "Please provide a valid email address or username" }
+    ),
   password: z.string().min(1, "Password is required").max(128, "Password is too long"),
   turnstileToken: z.string().optional().nullable(),
   "cf-turnstile-response": z.string().optional().nullable(),

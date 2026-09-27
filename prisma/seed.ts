@@ -40,6 +40,7 @@ async function main() {
   }
 
   const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
+  const kamalPasswordHash = await bcrypt.hash("kamal.rai@3917", 10);
 
   // 1. Create Departments & Academic Programs
   const deptCSE = await prisma.department.create({
@@ -226,6 +227,18 @@ async function main() {
     },
   });
 
+  const adminKamal = await prisma.user.create({
+    data: {
+      name: "Kamal Rai",
+      email: "kamal.rai@admin",
+      passwordHash: kamalPasswordHash,
+      role: "ADMIN",
+      status: "ACTIVE",
+      studentOrEmployeeId: "GLB-ADMIN-KAMAL01",
+      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=KamalRai&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
+    },
+  });
+
   const student1 = await prisma.user.create({
     data: {
       name: "Kanhaiya Kumar",
@@ -239,7 +252,7 @@ async function main() {
     },
   });
 
-  console.log("[Seed] Seeded GLBITM Users: Kanhaiya Kumar (Student) & Prabhat Sir (Admin)");
+  console.log("[Seed] Seeded GLBITM Users: Kanhaiya Kumar (Student), Prabhat Sir (Admin) & Kamal Rai (Admin)");
 
   // 5. Create GLBITM Campus Facilities & Categories
   const catElectrical = await prisma.category.create({
