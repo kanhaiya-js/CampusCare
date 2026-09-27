@@ -234,7 +234,7 @@ async function main() {
       role: "ADMIN",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-FAC-PRABHAT01",
-      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=PrabhatSir&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=PrabhatSir&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
     },
   });
 
@@ -246,7 +246,7 @@ async function main() {
       role: "ADMIN",
       status: "ACTIVE",
       studentOrEmployeeId: "GLB-ADMIN-KAMAL01",
-      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=KamalRai&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=KamalRai&backgroundColor=ffd5dc,ffdfbf,d1d4f9",
     },
   });
 
@@ -259,7 +259,7 @@ async function main() {
       status: "ACTIVE",
       departmentId: deptCSE.id,
       studentOrEmployeeId: "GLB-2023-CS1042",
-      avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=KanhaiyaKumar&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=KanhaiyaKumar&backgroundColor=b6e3f4,c0aede,d1d4f9",
     },
   });
 

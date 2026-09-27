@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
+import { sanitizeAvatarUrl } from "@/lib/utils/avatar";
 
 export default function AdminStaffPage() {
   const { success, error: toastError } = useToast();
@@ -110,7 +111,7 @@ export default function AdminStaffPage() {
               <div className="flex items-center justify-between pb-3 border-b border-border">
                 <div className="flex items-center gap-2.5">
                   <img
-                    src={staff.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(staff.name)}&backgroundColor=ffd5dc,ffdfbf,d1d4f9`}
+                    src={sanitizeAvatarUrl(staff.avatarUrl, staff.name)}
                     alt={staff.name}
                     className="w-8 h-8 rounded-full bg-slate-200"
                   />

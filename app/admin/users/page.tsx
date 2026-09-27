@@ -5,6 +5,7 @@ import { Users, Search, ShieldCheck, UserX, UserCheck, AlertCircle } from "lucid
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { formatDateTime } from "@/lib/utils/format";
+import { sanitizeAvatarUrl } from "@/lib/utils/avatar";
 
 export default function AdminUsersPage() {
   const { success, error: toastError } = useToast();
@@ -168,7 +169,7 @@ export default function AdminUsersPage() {
                     <td className="p-3.5">
                       <div className="flex items-center gap-2.5">
                         <img
-                          src={u.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(u.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                          src={sanitizeAvatarUrl(u.avatarUrl, u.name)}
                           alt={u.name}
                           className="w-7 h-7 rounded-full bg-slate-200"
                         />

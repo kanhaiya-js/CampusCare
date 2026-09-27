@@ -17,6 +17,7 @@ import {
   HelpCircle,
   Eye,
   QrCode,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -111,7 +112,7 @@ function ReportIssueForm() {
   const [sensitiveModalOpen, setSensitiveModalOpen] = useState(false);
   const [detectedSensitiveTerm, setDetectedSensitiveTerm] = useState("");
   const [attachments, setAttachments] = useState<
-    { url: string; fileName: string; fileSize: number; type: "IMAGE" | "VIDEO" | "DOCUMENT" }[]
+    { url: string; fileName: string; fileSize: number; type: "IMAGE" | "VIDEO" | "DOCUMENT"; previewUrl?: string }[]
   >([]);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -163,6 +164,7 @@ function ReportIssueForm() {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
         const formData = new FormData();
         formData.append("file", file);
 
@@ -173,7 +175,7 @@ function ReportIssueForm() {
         const data = await res.json();
 
         if (data.success) {
-          setAttachments((prev) => [...prev, data.data]);
+          setAttachments((prev) => [...prev, { ...data.data, previewUrl }]);
         } else {
           toastError(data.error?.message || "Failed to upload file");
         }
@@ -182,6 +184,7 @@ function ReportIssueForm() {
       toastError("Error uploading file");
     } finally {
       setIsUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -611,20 +614,35 @@ function ReportIssueForm() {
 
             {/* Thumbnail previews */}
             {attachments.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {attachments.map((att, idx) => (
                   <div
                     key={idx}
-                    className="relative group rounded-lg overflow-hidden border border-border dark:border-slate-800 bg-muted dark:bg-slate-800 aspect-video"
+                    className="relative group rounded-xl overflow-hidden border border-border dark:border-slate-800 bg-muted dark:bg-slate-900 aspect-video shadow-sm"
                   >
-                    <img src={att.url} alt={att.fileName} className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeAttachment(idx)}
-                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center opacity-90 hover:opacity-100"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+                    {att.type === "IMAGE" ? (
+                      <img
+                        src={att.previewUrl || att.url}
+                        alt={att.fileName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-2 text-xs text-muted-foreground">
+                        <FileText className="w-6 h-6 mb-1 text-primary-500" />
+                        <span className="truncate max-w-full px-2">{att.fileName}</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between p-2">
+                      <span className="text-[10px] text-white font-medium truncate max-w-[70%]">{att.fileName}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(idx)}
+                        className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow hover:bg-red-700"
+                        title="Remove attachment"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

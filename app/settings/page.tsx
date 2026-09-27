@@ -6,6 +6,7 @@ import { User, Sun, Moon, Bell, Shield, LogOut, CheckCircle2 } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { sanitizeAvatarUrl } from "@/lib/utils/avatar";
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -54,7 +55,7 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div className="p-5 rounded-2xl border border-border bg-card text-center space-y-3">
             <img
-              src={user?.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user?.name || "User")}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+              src={sanitizeAvatarUrl(user?.avatarUrl, user?.name)}
               alt="Avatar"
               className="w-20 h-20 rounded-full mx-auto bg-slate-200 border-2 border-primary-500 shadow-sm"
             />

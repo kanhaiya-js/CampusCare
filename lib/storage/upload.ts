@@ -6,7 +6,10 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const ALLOWED_MIME_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/pjpeg": "jpg",
   "image/png": "png",
+  "image/x-png": "png",
   "image/webp": "webp",
   "video/mp4": "mp4",
   "video/quicktime": "mov",
@@ -19,7 +22,10 @@ const DANGEROUS_EXTENSIONS = /\.(exe|bat|cmd|sh|php|phtml|phar|js|jsp|asp|aspx|p
 // Magic byte signatures for file type validation
 const MAGIC_BYTES: Record<string, number[][]> = {
   "image/jpeg": [[0xff, 0xd8, 0xff]],
+  "image/jpg": [[0xff, 0xd8, 0xff]],
+  "image/pjpeg": [[0xff, 0xd8, 0xff]],
   "image/png": [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]],
+  "image/x-png": [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]],
   "image/webp": [[0x52, 0x49, 0x46, 0x46]], // RIFF header
   "video/mp4": [[0x00, 0x00, 0x00]], // MP4 ftyp box
   "video/quicktime": [[0x00, 0x00, 0x00]], // MOV ftyp box
@@ -75,11 +81,27 @@ export async function saveUploadedFile(file: File): Promise<SaveFileResult> {
     throw new Error("Dangerous or executable file extensions are strictly prohibited.");
   }
 
-  const mimeType = file.type.toLowerCase().trim();
+  let mimeType = file.type?.toLowerCase().trim() || "";
+  if (!mimeType || mimeType === "application/octet-stream") {
+    const extFromFilename = path.extname(file.name).toLowerCase();
+    const EXT_TO_MIME: Record<string, string> = {
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".webp": "image/webp",
+      ".mp4": "video/mp4",
+      ".mov": "video/quicktime",
+      ".pdf": "application/pdf",
+    };
+    if (EXT_TO_MIME[extFromFilename]) {
+      mimeType = EXT_TO_MIME[extFromFilename];
+    }
+  }
+
   const ext = ALLOWED_MIME_TYPES[mimeType];
 
   if (!ext) {
-    throw new Error(`Unsupported file type: ${mimeType}. Allowed formats: JPG, PNG, WEBP, MP4, PDF.`);
+    throw new Error(`Unsupported file type: ${mimeType || "unknown"}. Allowed formats: JPG, PNG, WEBP, MP4, PDF.`);
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());

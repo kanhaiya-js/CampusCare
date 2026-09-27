@@ -20,6 +20,8 @@ import {
   Send,
   Camera,
   FileText,
+  ExternalLink,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
@@ -27,6 +29,7 @@ import { StatusBadge, PriorityBadge } from "@/components/issues/status-badge";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import { formatDateTime, formatRelativeTime } from "@/lib/utils/format";
+import { sanitizeAvatarUrl } from "@/lib/utils/avatar";
 
 export default function IssueDetailsPage() {
   const params = useParams();
@@ -55,6 +58,10 @@ export default function IssueDetailsPage() {
   const [statusComment, setStatusComment] = useState("");
   const [resolutionPhotoUrl, setResolutionPhotoUrl] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
+  // Evidence attachment preview & fallback
+  const [selectedAttachment, setSelectedAttachment] = useState<any | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchIssueAndUser();
@@ -351,25 +358,36 @@ export default function IssueDetailsPage() {
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {issue.attachments.map((att: any) => (
-                    <a
+                    <div
                       key={att.id}
-                      href={att.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative rounded-xl overflow-hidden border border-border aspect-video bg-muted block hover:ring-2 hover:ring-primary-500"
+                      onClick={() => setSelectedAttachment(att)}
+                      className="group relative rounded-xl overflow-hidden border border-border aspect-video bg-muted/60 dark:bg-slate-900 block hover:ring-2 hover:ring-primary-500 cursor-pointer shadow-sm transition-all"
                     >
-                      {att.type === "IMAGE" ? (
-                        <img src={att.url} alt={att.fileName} className="w-full h-full object-cover" />
+                      {att.type === "IMAGE" && !brokenImages[att.id] ? (
+                        <img
+                          src={att.url}
+                          alt={att.fileName}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={() => {
+                            setBrokenImages((prev) => ({ ...prev, [att.id]: true }));
+                          }}
+                        />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-xs font-medium text-muted-foreground p-2 text-center">
-                          <FileText className="w-5 h-5 mb-1 text-primary-500" />
-                          <span>{att.fileName}</span>
+                        <div className="w-full h-full flex flex-col items-center justify-center text-xs font-medium text-muted-foreground p-2 text-center bg-muted/40">
+                          {att.type === "IMAGE" ? (
+                            <ImageIcon className="w-6 h-6 mb-1 text-primary-500" />
+                          ) : (
+                            <FileText className="w-6 h-6 mb-1 text-primary-500" />
+                          )}
+                          <span className="truncate max-w-full font-semibold text-foreground px-1">{att.fileName}</span>
+                          <span className="text-[10px] text-muted-foreground mt-0.5">Click to view</span>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                        View Full Size
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs font-semibold gap-1 p-2">
+                        <span className="truncate max-w-full text-center">{att.fileName}</span>
+                        <span className="px-2 py-0.5 rounded bg-primary-600/90 text-[10px]">Preview</span>
                       </div>
-                    </a>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -532,7 +550,7 @@ export default function IssueDetailsPage() {
                 <span className="text-muted-foreground block text-[11px]">Reported By</span>
                 <div className="flex items-center gap-2 mt-1">
                   <img
-                    src={issue.reporter.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(issue.reporter.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                    src={sanitizeAvatarUrl(issue.reporter.avatarUrl, issue.reporter.name)}
                     alt="Reporter"
                     className="w-6 h-6 rounded-full bg-slate-200"
                   />
@@ -548,7 +566,7 @@ export default function IssueDetailsPage() {
                 {issue.assignedStaff ? (
                   <div className="flex items-center gap-2 mt-1">
                     <img
-                      src={issue.assignedStaff.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(issue.assignedStaff.name)}&backgroundColor=ffd5dc,ffdfbf,d1d4f9`}
+                      src={sanitizeAvatarUrl(issue.assignedStaff.avatarUrl, issue.assignedStaff.name)}
                       alt="Staff"
                       className="w-6 h-6 rounded-full bg-slate-200"
                     />
@@ -743,6 +761,54 @@ export default function IssueDetailsPage() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Evidence Preview Lightbox Modal */}
+      <Modal
+        isOpen={Boolean(selectedAttachment)}
+        onClose={() => setSelectedAttachment(null)}
+        title={selectedAttachment?.fileName || "Attachment Preview"}
+        description={selectedAttachment?.type === "IMAGE" ? "Evidence Photo Preview" : "Attached File"}
+        maxWidth="lg"
+      >
+        {selectedAttachment && (
+          <div className="space-y-4">
+            <div className="rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center min-h-[260px] max-h-[65vh] p-2">
+              {selectedAttachment.type === "IMAGE" ? (
+                <img
+                  src={selectedAttachment.url}
+                  alt={selectedAttachment.fileName}
+                  className="max-h-[60vh] max-w-full object-contain mx-auto rounded"
+                />
+              ) : (
+                <div className="p-8 text-center text-white space-y-3">
+                  <FileText className="w-12 h-12 mx-auto text-primary-400" />
+                  <p className="text-sm font-semibold">{selectedAttachment.fileName}</p>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-xs text-muted-foreground">
+                {selectedAttachment.fileSize ? `${(selectedAttachment.fileSize / 1024).toFixed(1)} KB` : "Evidence file"}
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={selectedAttachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download={selectedAttachment.fileName}
+                >
+                  <Button size="sm" variant="outline" className="gap-1.5 text-xs">
+                    <ExternalLink className="w-3.5 h-3.5" /> Open Full
+                  </Button>
+                </a>
+                <Button size="sm" onClick={() => setSelectedAttachment(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

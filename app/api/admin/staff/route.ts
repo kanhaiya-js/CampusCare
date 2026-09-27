@@ -6,6 +6,7 @@ import { createStaffSchema } from "@/lib/validation/schemas";
 import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { createAuditLog } from "@/lib/services/audit";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { getAvatarUrl } from "@/lib/utils/avatar";
 
 export async function GET() {
   try {
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
-    const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+    const avatarUrl = getAvatarUrl(name);
 
     const newStaff = await prisma.user.create({
       data: {

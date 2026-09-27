@@ -21,6 +21,7 @@ import {
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { sanitizeAvatarUrl } from "@/lib/utils/avatar";
 
 import jsQR from "jsqr";
 
@@ -499,7 +500,7 @@ function ScanPageContent() {
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-primary-50/60 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800/60 text-left">
                 <div className="flex items-center gap-2.5">
                   <img
-                    src={currentUser.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(currentUser.name)}`}
+                    src={sanitizeAvatarUrl(currentUser.avatarUrl, currentUser.name)}
                     alt={currentUser.name}
                     className="w-8 h-8 rounded-full bg-slate-200 shrink-0 border border-border"
                   />

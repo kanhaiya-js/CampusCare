@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { sanitizeAvatarUrl } from "@/lib/utils/avatar";
 
 interface SessionUser {
   id: string;
@@ -566,7 +567,7 @@ export function Navbar() {
                 className="flex items-center gap-2 p-1 rounded-lg hover:bg-muted/80 transition-colors"
               >
                 <img
-                  src={user.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                  src={sanitizeAvatarUrl(user.avatarUrl, user.name)}
                   alt={user.name}
                   className="w-7 h-7 rounded-full bg-slate-200 border border-border shrink-0"
                 />

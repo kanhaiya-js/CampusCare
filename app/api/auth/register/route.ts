@@ -8,6 +8,7 @@ import { checkRateLimit } from "@/lib/security/rate-limit";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeText } from "@/lib/security/sanitize";
 import { verifyTurnstileToken } from "@/lib/security/turnstile";
+import { getAvatarUrl } from "@/lib/utils/avatar";
 
 export async function POST(req: NextRequest) {
   try {
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
     const passwordHash = await hashPassword(password);
     const sanitizedName = sanitizeText(name, 100);
     const sanitizedId = studentOrEmployeeId ? sanitizeText(studentOrEmployeeId, 50) : null;
-    const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(sanitizedName)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+    const avatarUrl = getAvatarUrl(sanitizedName);
 
     const user = await prisma.user.create({
       data: {
