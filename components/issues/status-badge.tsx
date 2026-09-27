@@ -11,13 +11,13 @@ export function StatusBadge({ status, className }: { status: string; className?:
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold border shadow-2xs transition-colors",
+        "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border shadow-2xs transition-colors whitespace-nowrap shrink-0",
         config.badgeClass,
         className
       )}
     >
-      <span className={cn("w-2 h-2 rounded-full shrink-0", (config as any).dotColor || "bg-current")} />
-      {config.label}
+      <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", (config as any).dotColor || "bg-current")} />
+      <span className="whitespace-nowrap">{config.label}</span>
     </span>
   );
 }
@@ -31,12 +31,12 @@ export function PriorityBadge({ priority, className }: { priority: string; class
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border uppercase tracking-wider shadow-2xs transition-colors",
+        "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border uppercase tracking-wider shadow-2xs transition-colors whitespace-nowrap shrink-0",
         config.badgeClass,
         className
       )}
     >
-      {config.label}
+      <span className="whitespace-nowrap">{config.label}</span>
     </span>
   );
 }

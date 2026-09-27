@@ -16,26 +16,32 @@ export async function GET() {
     }
 
     const staffMembers = await prisma.user.findMany({
-      where: { role: "STAFF" },
+      where: {
+        role: { in: ["STAFF", "ADMIN"] },
+        status: "ACTIVE",
+      },
       include: {
         staffProfile: true,
         assignedIssues: {
           select: { id: true, status: true, priority: true },
         },
       },
-      orderBy: { name: "asc" },
+      orderBy: [{ role: "desc" }, { name: "asc" }],
     });
 
     const formatted = staffMembers.map((s) => ({
       id: s.id,
       name: s.name,
       email: s.email,
+      role: s.role,
       status: s.status,
       avatarUrl: s.avatarUrl,
       studentOrEmployeeId: s.studentOrEmployeeId,
-      specialization: s.staffProfile?.specialization || "GENERAL",
+      specialization: s.staffProfile?.specialization || (s.role === "ADMIN" ? "OPERATIONS_LEAD" : "GENERAL"),
       availability: s.staffProfile?.availability ?? true,
-      currentWorkload: s.staffProfile?.currentWorkload || 0,
+      currentWorkload: s.staffProfile?.currentWorkload ?? s.assignedIssues.filter(
+        (i) => i.status !== "RESOLVED" && i.status !== "CLOSED" && i.status !== "REJECTED"
+      ).length,
       totalAssigned: s.assignedIssues.length,
       activeTickets: s.assignedIssues.filter(
         (i) => i.status !== "RESOLVED" && i.status !== "CLOSED" && i.status !== "REJECTED"

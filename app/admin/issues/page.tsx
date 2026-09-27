@@ -178,14 +178,14 @@ export default function AdminIssuesPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px]">
               <tr>
-                <th className="p-3.5">Ticket ID</th>
+                <th className="p-3.5 whitespace-nowrap">Ticket ID</th>
                 <th className="p-3.5">Issue Title</th>
-                <th className="p-3.5">Category</th>
-                <th className="p-3.5">Location</th>
-                <th className="p-3.5">Priority</th>
-                <th className="p-3.5">Status</th>
-                <th className="p-3.5">Assigned Staff</th>
-                <th className="p-3.5 text-right">Actions</th>
+                <th className="p-3.5 whitespace-nowrap">Category</th>
+                <th className="p-3.5 whitespace-nowrap">Location</th>
+                <th className="p-3.5 whitespace-nowrap">Priority</th>
+                <th className="p-3.5 whitespace-nowrap">Status</th>
+                <th className="p-3.5 whitespace-nowrap">Assigned Staff</th>
+                <th className="p-3.5 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -204,43 +204,48 @@ export default function AdminIssuesPage() {
               ) : (
                 issues.map((issue) => (
                   <tr key={issue.id} className="hover:bg-muted/40 transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-primary-600 dark:text-primary-400">
+                    <td className="p-3.5 font-mono font-bold text-primary-600 dark:text-primary-400 whitespace-nowrap">
                       #{issue.publicIssueId}
                     </td>
-                    <td className="p-3.5 font-semibold text-foreground max-w-[200px] truncate">
-                      {issue.title}
+                    <td className="p-3.5 font-semibold text-foreground min-w-[200px] max-w-[300px]">
+                      <Link href={`/issues/${issue.id}`} className="hover:text-primary-600 transition-colors line-clamp-1">
+                        {issue.title}
+                      </Link>
                     </td>
-                    <td className="p-3.5 text-muted-foreground">{issue.category.name}</td>
-                    <td className="p-3.5 text-muted-foreground">
+                    <td className="p-3.5 text-muted-foreground whitespace-nowrap">{issue.category.name}</td>
+                    <td className="p-3.5 text-muted-foreground whitespace-nowrap">
                       {issue.location.building} {issue.room ? `(${issue.room})` : ""}
                     </td>
-                    <td className="p-3.5">
+                    <td className="p-3.5 whitespace-nowrap">
                       <PriorityBadge priority={issue.priority} />
                     </td>
-                    <td className="p-3.5">
+                    <td className="p-3.5 whitespace-nowrap">
                       <StatusBadge status={issue.status} />
                     </td>
-                    <td className="p-3.5">
+                    <td className="p-3.5 whitespace-nowrap">
                       {issue.assignedStaff ? (
                         <span className="font-medium text-foreground">{issue.assignedStaff.name}</span>
                       ) : (
-                        <span className="text-amber-600 font-semibold">Unassigned</span>
+                        <span className="text-amber-600 font-semibold text-[11px] px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
+                          Unassigned
+                        </span>
                       )}
                     </td>
-                    <td className="p-3.5 text-right space-x-2">
+                    <td className="p-3.5 text-right whitespace-nowrap space-x-1.5">
                       <button
                         onClick={() => {
                           setSelectedIssue(issue);
                           setTargetStaffId(issue.assignedStaffId || "");
                           setReassignModalOpen(true);
+                          fetchStaff();
                         }}
-                        className="px-2 py-1 rounded bg-muted hover:bg-slate-200 dark:hover:bg-slate-700 text-[11px] font-semibold transition-colors"
+                        className="px-2.5 py-1 rounded-md bg-muted hover:bg-slate-200 dark:hover:bg-slate-800 text-[11px] font-semibold text-foreground transition-colors"
                       >
                         Assign
                       </button>
                       <Link
                         href={`/issues/${issue.id}`}
-                        className="px-2 py-1 rounded bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-300 font-semibold text-[11px] hover:underline"
+                        className="px-2.5 py-1 rounded-md bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-300 font-semibold text-[11px] hover:underline"
                       >
                         View
                       </Link>
@@ -282,27 +287,77 @@ export default function AdminIssuesPage() {
       <Modal
         isOpen={reassignModalOpen}
         onClose={() => setReassignModalOpen(false)}
-        title="Assign / Reassign Issue"
-        description={`Direct dispatch for #${selectedIssue?.publicIssueId}: "${selectedIssue?.title}"`}
+        title="Assign / Reassign Maintenance Staff"
+        description={`Direct ticket dispatch for #${selectedIssue?.publicIssueId}: "${selectedIssue?.title}"`}
       >
         <div className="space-y-4 text-xs">
-          <div>
-            <label className="block font-semibold text-foreground mb-1.5">
-              Select Maintenance Staff
-            </label>
-            <select
-              value={targetStaffId}
-              onChange={(e) => setTargetStaffId(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background"
-            >
-              <option value="">-- Choose Staff Member --</option>
-              {staffList.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} ({s.specialization}) - Workload: {s.currentWorkload} active
-                </option>
-              ))}
-            </select>
-          </div>
+          {staffList.length === 0 ? (
+            <div className="p-3.5 rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 space-y-2">
+              <p className="font-semibold flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-amber-600" /> No maintenance staff members found
+              </p>
+              <p className="text-[11px]">
+                Staff technicians need to be registered in the directory before tickets can be assigned.
+              </p>
+              <Link href="/admin/staff" className="inline-block mt-1">
+                <Button size="sm" variant="outline" className="text-xs">
+                  Go to Staff Directory →
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div>
+              <label className="block font-semibold text-foreground mb-1.5">
+                Select Maintenance Staff
+              </label>
+              <select
+                value={targetStaffId}
+                onChange={(e) => setTargetStaffId(e.target.value)}
+                className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary-500 font-medium"
+              >
+                <option value="">-- Choose Staff Member --</option>
+                {staffList.filter((s) => s.role === "STAFF").length > 0 && (
+                  <optgroup label="Dedicated Maintenance Technicians">
+                    {staffList
+                      .filter((s) => s.role === "STAFF")
+                      .map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.specialization}) — Active: {s.currentWorkload} ticket(s)
+                        </option>
+                      ))}
+                  </optgroup>
+                )}
+                {staffList.filter((s) => s.role === "ADMIN").length > 0 && (
+                  <optgroup label="Operations Supervisors (Admin)">
+                    {staffList
+                      .filter((s) => s.role === "ADMIN")
+                      .map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} (Admin / Supervisor) — Active: {s.currentWorkload} ticket(s)
+                        </option>
+                      ))}
+                  </optgroup>
+                )}
+              </select>
+            </div>
+          )}
+
+          {targetStaffId && (
+            <div className="p-3 rounded-lg border border-border bg-muted/40 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="font-semibold text-foreground">
+                  {staffList.find((s) => s.id === targetStaffId)?.name}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-bold uppercase">
+                  {staffList.find((s) => s.id === targetStaffId)?.specialization}
+                </span>
+              </div>
+              <span className="text-[11px] text-muted-foreground">
+                Workload: {staffList.find((s) => s.id === targetStaffId)?.currentWorkload} active tickets
+              </span>
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 pt-3 border-t border-border">
             <Button variant="outline" size="sm" onClick={() => setReassignModalOpen(false)}>

@@ -263,7 +263,103 @@ async function main() {
     },
   });
 
-  console.log("[Seed] Seeded GLBITM Users: Kanhaiya Kumar (Student), Prabhat Sir (Admin) & Kamal Rai (Admin)");
+  // 4b. Seed GLBITM Maintenance Technicians & Staff
+  const staffElectrical = await prisma.user.create({
+    data: {
+      name: "Ramesh Sharma",
+      email: "ramesh.sharma@glbitm.edu",
+      passwordHash: defaultPasswordHash,
+      role: "STAFF",
+      status: "ACTIVE",
+      studentOrEmployeeId: "GLB-STAFF-ELEC01",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=RameshSharma&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      staffProfile: {
+        create: {
+          specialization: "ELECTRICAL",
+          availability: true,
+          currentWorkload: 0,
+        },
+      },
+    },
+  });
+
+  const staffPlumbing = await prisma.user.create({
+    data: {
+      name: "Manoj Kumar",
+      email: "manoj.kumar@glbitm.edu",
+      passwordHash: defaultPasswordHash,
+      role: "STAFF",
+      status: "ACTIVE",
+      studentOrEmployeeId: "GLB-STAFF-PLUMB01",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=ManojKumar&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      staffProfile: {
+        create: {
+          specialization: "PLUMBING",
+          availability: true,
+          currentWorkload: 0,
+        },
+      },
+    },
+  });
+
+  const staffHVAC = await prisma.user.create({
+    data: {
+      name: "Suresh Verma",
+      email: "suresh.verma@glbitm.edu",
+      passwordHash: defaultPasswordHash,
+      role: "STAFF",
+      status: "ACTIVE",
+      studentOrEmployeeId: "GLB-STAFF-HVAC01",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=SureshVerma&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      staffProfile: {
+        create: {
+          specialization: "HVAC",
+          availability: true,
+          currentWorkload: 0,
+        },
+      },
+    },
+  });
+
+  const staffIT = await prisma.user.create({
+    data: {
+      name: "Amit Singh",
+      email: "amit.singh@glbitm.edu",
+      passwordHash: defaultPasswordHash,
+      role: "STAFF",
+      status: "ACTIVE",
+      studentOrEmployeeId: "GLB-STAFF-IT01",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=AmitSingh&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      staffProfile: {
+        create: {
+          specialization: "NETWORK",
+          availability: true,
+          currentWorkload: 0,
+        },
+      },
+    },
+  });
+
+  const staffCarpentry = await prisma.user.create({
+    data: {
+      name: "Dinesh Yadav",
+      email: "dinesh.yadav@glbitm.edu",
+      passwordHash: defaultPasswordHash,
+      role: "STAFF",
+      status: "ACTIVE",
+      studentOrEmployeeId: "GLB-STAFF-CIVIL01",
+      avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=DineshYadav&backgroundColor=b6e3f4,c0aede,d1d4f9",
+      staffProfile: {
+        create: {
+          specialization: "CARPENTRY",
+          availability: true,
+          currentWorkload: 0,
+        },
+      },
+    },
+  });
+
+  console.log("[Seed] Seeded GLBITM Users: 5 Maintenance Staff, Kanhaiya Kumar (Student), Prabhat Sir (Admin) & Kamal Rai (Admin)");
 
   // 5. Create GLBITM Campus Facilities & Categories
   const catElectrical = await prisma.category.create({

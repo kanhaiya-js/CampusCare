@@ -166,37 +166,65 @@ export default async function AdminOverviewPage() {
             </Link>
           </div>
 
-          <div className="space-y-3">
-            {recentIssues.map((issue) => (
-              <Link
-                key={issue.id}
-                href={`/issues/${issue.id}`}
-                className="block p-4 rounded-xl border border-border bg-card hover:border-primary-400 dark:hover:border-primary-700 transition-all shadow-sm"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-xs text-primary-600 dark:text-primary-400">
+          <div className="rounded-xl border border-border bg-card shadow-xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px]">
+                  <tr>
+                    <th className="p-3 whitespace-nowrap">Ticket ID</th>
+                    <th className="p-3">Issue Title</th>
+                    <th className="p-3 whitespace-nowrap">Location</th>
+                    <th className="p-3 whitespace-nowrap">Priority</th>
+                    <th className="p-3 whitespace-nowrap">Status</th>
+                    <th className="p-3 whitespace-nowrap">Staff</th>
+                    <th className="p-3 text-right whitespace-nowrap">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {recentIssues.map((issue) => (
+                    <tr key={issue.id} className="hover:bg-muted/40 transition-colors group">
+                      <td className="p-3 font-mono font-bold text-primary-600 dark:text-primary-400 whitespace-nowrap">
                         #{issue.publicIssueId}
-                      </span>
-                      <StatusBadge status={issue.status} />
-                      <PriorityBadge priority={issue.priority} />
-                    </div>
-                    <h3 className="font-bold text-sm text-foreground mt-1 hover:text-primary-600">
-                      {issue.title}
-                    </h3>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground shrink-0">
-                    {formatRelativeTime(issue.createdAt)}
-                  </span>
-                </div>
-
-                <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{issue.location.building} {issue.room ? `(${issue.room})` : ""}</span>
-                  <span className="flex items-center gap-1"><Wrench className="w-3.5 h-3.5" /> {issue.assignedStaff?.name || "Unassigned"}</span>
-                </div>
-              </Link>
-            ))}
+                      </td>
+                      <td className="p-3 min-w-[170px] max-w-[240px]">
+                        <Link href={`/issues/${issue.id}`} className="block">
+                          <p className="font-semibold text-foreground truncate group-hover:text-primary-600 transition-colors">
+                            {issue.title}
+                          </p>
+                          <span className="text-[10px] text-muted-foreground">{issue.category.name}</span>
+                        </Link>
+                      </td>
+                      <td className="p-3 text-muted-foreground whitespace-nowrap">
+                        {issue.location.building} {issue.room ? `(${issue.room})` : ""}
+                      </td>
+                      <td className="p-3 whitespace-nowrap">
+                        <PriorityBadge priority={issue.priority} />
+                      </td>
+                      <td className="p-3 whitespace-nowrap">
+                        <StatusBadge status={issue.status} />
+                      </td>
+                      <td className="p-3 whitespace-nowrap">
+                        {issue.assignedStaff ? (
+                          <span className="font-medium text-foreground">{issue.assignedStaff.name}</span>
+                        ) : (
+                          <span className="text-amber-600 font-semibold text-[10px] px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
+                            Unassigned
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3 text-right whitespace-nowrap">
+                        <Link
+                          href={`/issues/${issue.id}`}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:underline px-2 py-0.5 rounded bg-primary-50 dark:bg-primary-950/60"
+                        >
+                          View <ArrowUpRight className="w-3 h-3" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 

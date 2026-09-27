@@ -161,59 +161,62 @@ export default async function UserDashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
-              {issues.slice(0, 5).map((issue) => (
-                <Link
-                  key={issue.id}
-                  href={`/issues/${issue.id}`}
-                  className="block p-4 rounded-xl border border-border bg-card hover:border-primary-400 dark:hover:border-primary-600 transition-all hover:shadow-xs group"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-mono font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/80 px-2 py-0.5 rounded border border-primary-200 dark:border-primary-800">
+            <div className="rounded-xl border border-border bg-card shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px]">
+                    <tr>
+                      <th className="p-3.5 whitespace-nowrap">Ticket ID</th>
+                      <th className="p-3.5">Issue Summary</th>
+                      <th className="p-3.5 whitespace-nowrap">Location</th>
+                      <th className="p-3.5 whitespace-nowrap">Priority</th>
+                      <th className="p-3.5 whitespace-nowrap">Status</th>
+                      <th className="p-3.5 whitespace-nowrap">Reported</th>
+                      <th className="p-3.5 text-right whitespace-nowrap">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {issues.slice(0, 6).map((issue) => (
+                      <tr key={issue.id} className="hover:bg-muted/40 transition-colors group">
+                        <td className="p-3.5 font-mono font-bold text-primary-600 dark:text-primary-400 whitespace-nowrap">
                           #{issue.publicIssueId}
-                        </span>
-                        <StatusBadge status={issue.status} />
-                        <PriorityBadge priority={issue.priority} />
-                      </div>
-                      <h3 className="font-bold text-sm text-foreground group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                        {issue.title}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{issue.description}</p>
-                    </div>
-
-                    <div className="shrink-0 text-right">
-                      <span className="text-[11px] text-muted-foreground font-medium">
-                        {formatRelativeTime(issue.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1 font-medium">
-                        <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0" />
-                        {issue.location.building} {issue.room ? `(${issue.room})` : ""}
-                      </span>
-                      <span className="hidden sm:inline-block">·</span>
-                      <span className="hidden sm:inline-block font-medium">{issue.category.name}</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {issue._count.comments > 0 && (
-                        <span className="flex items-center gap-1 text-[11px] font-medium">
-                          <MessageSquare className="w-3 h-3" />
-                          {issue._count.comments}
-                        </span>
-                      )}
-                      <span className="text-xs font-bold text-primary-600 dark:text-primary-400 group-hover:underline flex items-center gap-0.5">
-                        Details <ArrowUpRight className="w-3 h-3" />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                        </td>
+                        <td className="p-3.5 min-w-[180px] max-w-[280px]">
+                          <Link href={`/issues/${issue.id}`} className="block">
+                            <p className="font-semibold text-foreground truncate group-hover:text-primary-600 transition-colors">
+                              {issue.title}
+                            </p>
+                            <span className="text-[11px] text-muted-foreground">{issue.category.name}</span>
+                          </Link>
+                        </td>
+                        <td className="p-3.5 text-muted-foreground whitespace-nowrap">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0" />
+                            {issue.location.building} {issue.room ? `(${issue.room})` : ""}
+                          </span>
+                        </td>
+                        <td className="p-3.5 whitespace-nowrap">
+                          <PriorityBadge priority={issue.priority} />
+                        </td>
+                        <td className="p-3.5 whitespace-nowrap">
+                          <StatusBadge status={issue.status} />
+                        </td>
+                        <td className="p-3.5 text-muted-foreground whitespace-nowrap text-[11px]">
+                          {formatRelativeTime(issue.createdAt)}
+                        </td>
+                        <td className="p-3.5 text-right whitespace-nowrap">
+                          <Link
+                            href={`/issues/${issue.id}`}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline px-2.5 py-1 rounded-md bg-primary-50 dark:bg-primary-950/60"
+                          >
+                            View <ArrowUpRight className="w-3 h-3" />
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>

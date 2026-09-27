@@ -37,8 +37,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       where: { id: staffId },
       include: { staffProfile: true },
     });
-    if (!staffUser || staffUser.role !== "STAFF" || staffUser.status !== "ACTIVE") {
-      return apiError("BAD_REQUEST", "Selected user is not an active staff member", 400);
+    if (!staffUser || (staffUser.role !== "STAFF" && staffUser.role !== "ADMIN") || staffUser.status !== "ACTIVE") {
+      return apiError("BAD_REQUEST", "Selected user is not an active staff member or operations supervisor", 400);
     }
 
     const oldStaffId = issue.assignedStaffId;
