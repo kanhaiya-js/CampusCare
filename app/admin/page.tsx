@@ -194,8 +194,13 @@ export default async function AdminOverviewPage() {
                           <span className="text-[10px] text-muted-foreground">{issue.category.name}</span>
                         </Link>
                       </td>
-                      <td className="p-3 text-muted-foreground whitespace-nowrap">
-                        {issue.location.building} {issue.room ? `(${issue.room})` : ""}
+                      <td className="p-3 text-xs">
+                        <div className="font-medium text-foreground truncate max-w-[150px]" title={issue.location.building}>
+                          {issue.location.building}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground truncate max-w-[150px]" title={issue.room || "General Campus"}>
+                          {issue.room ? issue.room : "General Campus"}
+                        </div>
                       </td>
                       <td className="p-3 whitespace-nowrap">
                         <PriorityBadge priority={issue.priority} />

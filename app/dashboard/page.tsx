@@ -189,11 +189,16 @@ export default async function UserDashboardPage() {
                             <span className="text-[11px] text-muted-foreground">{issue.category.name}</span>
                           </Link>
                         </td>
-                        <td className="p-3.5 text-muted-foreground whitespace-nowrap">
-                          <span className="flex items-center gap-1">
+                        <td className="p-3 text-xs">
+                          <div className="flex items-center gap-1 font-medium text-foreground truncate max-w-[170px]" title={issue.location.building}>
                             <MapPin className="w-3.5 h-3.5 text-primary-500 shrink-0" />
-                            {issue.location.building} {issue.room ? `(${issue.room})` : ""}
-                          </span>
+                            <span className="truncate">{issue.location.building}</span>
+                          </div>
+                          {issue.room && (
+                            <div className="pl-4 text-[10px] text-muted-foreground truncate max-w-[170px]" title={issue.room}>
+                              {issue.room}
+                            </div>
+                          )}
                         </td>
                         <td className="p-3.5 whitespace-nowrap">
                           <PriorityBadge priority={issue.priority} />

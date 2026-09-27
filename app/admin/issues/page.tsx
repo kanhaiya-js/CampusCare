@@ -175,17 +175,27 @@ export default function AdminIssuesPage() {
       {/* Issues Table */}
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full table-fixed text-left text-xs min-w-[840px] lg:min-w-full">
+            <colgroup>
+              <col className="w-[110px]" />
+              <col className="w-auto" />
+              <col className="w-[125px]" />
+              <col className="w-[160px]" />
+              <col className="w-[85px]" />
+              <col className="w-[115px]" />
+              <col className="w-[120px]" />
+              <col className="w-[110px]" />
+            </colgroup>
             <thead className="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px]">
               <tr>
-                <th className="p-3.5 whitespace-nowrap">Ticket ID</th>
-                <th className="p-3.5">Issue Title</th>
-                <th className="p-3.5 whitespace-nowrap">Category</th>
-                <th className="p-3.5 whitespace-nowrap">Location</th>
-                <th className="p-3.5 whitespace-nowrap">Priority</th>
-                <th className="p-3.5 whitespace-nowrap">Status</th>
-                <th className="p-3.5 whitespace-nowrap">Assigned Staff</th>
-                <th className="p-3.5 text-right whitespace-nowrap">Actions</th>
+                <th className="px-3 py-3">Ticket ID</th>
+                <th className="px-3 py-3">Issue Title</th>
+                <th className="px-3 py-3">Category</th>
+                <th className="px-3 py-3">Location</th>
+                <th className="px-2 py-3 text-center">Priority</th>
+                <th className="px-2 py-3 text-center">Status</th>
+                <th className="px-3 py-3">Assigned Staff</th>
+                <th className="px-3 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -204,51 +214,69 @@ export default function AdminIssuesPage() {
               ) : (
                 issues.map((issue) => (
                   <tr key={issue.id} className="hover:bg-muted/40 transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-primary-600 dark:text-primary-400 whitespace-nowrap">
+                    <td className="px-3 py-2.5 font-mono font-bold text-primary-600 dark:text-primary-400 whitespace-nowrap text-xs">
                       #{issue.publicIssueId}
                     </td>
-                    <td className="p-3.5 font-semibold text-foreground min-w-[200px] max-w-[300px]">
-                      <Link href={`/issues/${issue.id}`} className="hover:text-primary-600 transition-colors line-clamp-1">
+                    <td className="px-3 py-2.5 font-semibold text-foreground">
+                      <Link
+                        href={`/issues/${issue.id}`}
+                        className="hover:text-primary-600 transition-colors line-clamp-1 block"
+                        title={issue.title}
+                      >
                         {issue.title}
                       </Link>
                     </td>
-                    <td className="p-3.5 text-muted-foreground whitespace-nowrap">{issue.category.name}</td>
-                    <td className="p-3.5 text-muted-foreground whitespace-nowrap">
-                      {issue.location.building} {issue.room ? `(${issue.room})` : ""}
+                    <td className="px-3 py-2.5 text-muted-foreground text-xs">
+                      <span className="truncate block" title={issue.category.name}>
+                        {issue.category.name}
+                      </span>
                     </td>
-                    <td className="p-3.5 whitespace-nowrap">
+                    <td className="px-3 py-2.5 text-xs">
+                      <div className="truncate font-medium text-foreground" title={issue.location.building}>
+                        {issue.location.building}
+                      </div>
+                      <div className="truncate text-[10px] text-muted-foreground" title={issue.room || "General Campus"}>
+                        {issue.room ? issue.room : "General Campus"}
+                      </div>
+                    </td>
+                    <td className="px-2 py-2.5 text-center whitespace-nowrap">
                       <PriorityBadge priority={issue.priority} />
                     </td>
-                    <td className="p-3.5 whitespace-nowrap">
+                    <td className="px-2 py-2.5 text-center whitespace-nowrap">
                       <StatusBadge status={issue.status} />
                     </td>
-                    <td className="p-3.5 whitespace-nowrap">
+                    <td className="px-3 py-2.5 whitespace-nowrap text-xs">
                       {issue.assignedStaff ? (
-                        <span className="font-medium text-foreground">{issue.assignedStaff.name}</span>
+                        <span className="font-medium text-foreground truncate block" title={issue.assignedStaff.name}>
+                          {issue.assignedStaff.name}
+                        </span>
                       ) : (
-                        <span className="text-amber-600 font-semibold text-[11px] px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
+                        <span className="inline-block text-amber-600 dark:text-amber-400 font-semibold text-[10px] px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
                           Unassigned
                         </span>
                       )}
                     </td>
-                    <td className="p-3.5 text-right whitespace-nowrap space-x-1.5">
-                      <button
-                        onClick={() => {
-                          setSelectedIssue(issue);
-                          setTargetStaffId(issue.assignedStaffId || "");
-                          setReassignModalOpen(true);
-                          fetchStaff();
-                        }}
-                        className="px-2.5 py-1 rounded-md bg-muted hover:bg-slate-200 dark:hover:bg-slate-800 text-[11px] font-semibold text-foreground transition-colors"
-                      >
-                        Assign
-                      </button>
-                      <Link
-                        href={`/issues/${issue.id}`}
-                        className="px-2.5 py-1 rounded-md bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-300 font-semibold text-[11px] hover:underline"
-                      >
-                        View
-                      </Link>
+                    <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => {
+                            setSelectedIssue(issue);
+                            setTargetStaffId(issue.assignedStaffId || "");
+                            setReassignModalOpen(true);
+                            fetchStaff();
+                          }}
+                          className="px-2 py-1 rounded bg-muted hover:bg-slate-200 dark:hover:bg-slate-800 text-[11px] font-semibold text-foreground transition-colors"
+                          title="Assign staff technician"
+                        >
+                          Assign
+                        </button>
+                        <Link
+                          href={`/issues/${issue.id}`}
+                          className="px-2.5 py-1 rounded bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/80 dark:hover:bg-primary-900 text-primary-600 dark:text-primary-300 font-semibold text-[11px] transition-colors"
+                        >
+                          View
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))
