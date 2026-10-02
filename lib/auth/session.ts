@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from "jose";
+import { SignJWT, jwtVerify, decodeJwt } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/db/prisma";
@@ -16,6 +16,10 @@ export interface SessionPayload {
 }
 
 const COOKIE_NAME = "campuscare_session";
+
+// Session lifetime: 30 days. Sliding renewal triggers at 50% remaining TTL.
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const SESSION_RENEWAL_THRESHOLD = 0.5; // Renew when <50% TTL remains
 
 // SECURITY: Use only the env-configured secret with min 32 chars.
 function getSecretKey(): Uint8Array {
@@ -41,7 +45,7 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime(`${SESSION_MAX_AGE_SECONDS}s`)
     .sign(getSecretKey());
 }
 
@@ -79,7 +83,7 @@ export async function setSessionCookie(payload: SessionPayload): Promise<string>
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: SESSION_MAX_AGE_SECONDS, // 30 days
   };
   cookieStore.set(COOKIE_NAME, token, cookieOptions);
   return token;
@@ -125,6 +129,47 @@ export async function requireRole(allowedRoles: UserRole[]): Promise<SessionPayl
     throw new Error("FORBIDDEN");
   }
   return session;
+}
+
+/**
+ * Sliding session renewal: if the JWT is past 50% of its TTL, re-issue
+ * a fresh token with a full 30-day window. Call this on every authenticated
+ * page/API hit so active users are never auto-logged-out.
+ *
+ * Returns true if the cookie was refreshed, false if no refresh was needed.
+ */
+export async function refreshSessionCookie(token: string): Promise<boolean> {
+  try {
+    // Decode without verification (we already verified elsewhere)
+    const payload = decodeJwt(token);
+    const now = Math.floor(Date.now() / 1000);
+    const iat = typeof payload.iat === "number" ? payload.iat : now;
+    const exp = typeof payload.exp === "number" ? payload.exp : now + SESSION_MAX_AGE_SECONDS;
+
+    const totalTTL = exp - iat;
+    const remaining = exp - now;
+
+    // Only renew if past the renewal threshold (less than 50% TTL remaining)
+    if (totalTTL <= 0 || remaining > totalTTL * SESSION_RENEWAL_THRESHOLD) {
+      return false;
+    }
+
+    // Re-issue a fresh session cookie with full TTL
+    const sessionPayload: SessionPayload = {
+      userId: payload.userId as string,
+      email: payload.email as string,
+      name: payload.name as string,
+      role: payload.role as UserRole,
+      tokenVersion: typeof payload.tokenVersion === "number" ? payload.tokenVersion : 0,
+      avatarUrl: (payload.avatarUrl as string | undefined | null) ?? null,
+      studentOrEmployeeId: (payload.studentOrEmployeeId as string | undefined | null) ?? null,
+    };
+
+    await setSessionCookie(sessionPayload);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

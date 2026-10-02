@@ -1,10 +1,13 @@
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 import prisma from "@/lib/db/prisma";
-import { getSession } from "@/lib/auth/session";
+import { getSession, refreshSessionCookie } from "@/lib/auth/session";
 import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { sanitizeText } from "@/lib/security/sanitize";
 
 export const dynamic = "force-dynamic";
+
+const COOKIE_NAME = "campuscare_session";
 
 export async function GET() {
   const session = await getSession();
@@ -45,6 +48,18 @@ export async function GET() {
     session.tokenVersion !== user.tokenVersion
   ) {
     return apiError("UNAUTHORIZED", "Your session has been revoked. Please log in again.", 401);
+  }
+
+  // Sliding session renewal: transparently refresh the cookie if past 50% TTL.
+  // This ensures active users are NEVER auto-logged-out.
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get(COOKIE_NAME)?.value;
+    if (token) {
+      await refreshSessionCookie(token);
+    }
+  } catch {
+    // Non-critical: renewal failure shouldn't break the /me response
   }
 
   return apiSuccess({ user });

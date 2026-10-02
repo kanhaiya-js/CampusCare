@@ -1,302 +1,191 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Shield,
-  Cookie,
-  Bell,
-  Camera,
-  Volume2,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  SlidersHorizontal,
-  Lock,
-} from "lucide-react";
+import Link from "next/link";
+import { Cookie, X, Settings2, ShieldCheck, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/toast";
 
 export const PERMISSIONS_STORAGE_KEY = "campuscare_permissions_consented";
+export const COOKIE_CONSENT_KEY = "campuscare_cookie_consent";
 
 export function PermissionConsentModal() {
-  const { success, info } = useToast();
+  const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [isCustomizing, setIsCustomizing] = useState(false);
-
-  // Permission toggles
-  const [allowNotifications, setAllowNotifications] = useState(true);
-  const [allowCamera, setAllowCamera] = useState(true);
-  const [allowSound, setAllowSound] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [preferences, setPreferences] = useState({
+    functional: true,
+    notifications: true,
+  });
 
   useEffect(() => {
-    // Check if user is authenticated
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.data?.user) {
-          // User is authenticated
-          const consented = localStorage.getItem(PERMISSIONS_STORAGE_KEY);
-          if (!consented) {
-            // Show prompt with a small delay for smooth page transition
-            const timer = setTimeout(() => {
-              setIsOpen(true);
-            }, 800);
-            return () => clearTimeout(timer);
-          }
-        }
-      })
-      .catch(() => {
-        // Not authenticated or network error; suppress prompt
-      });
+    setMounted(true);
+
+    try {
+      // Check if user has already granted cookie consent
+      const existingConsent =
+        localStorage.getItem(COOKIE_CONSENT_KEY) ||
+        localStorage.getItem(PERMISSIONS_STORAGE_KEY);
+
+      if (existingConsent) {
+        return; // Already allowed, do not prompt
+      }
+
+      // User just opened the web application: prompt gently after smooth delay
+      setIsOpen(true);
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 700);
+
+      return () => clearTimeout(timer);
+    } catch {
+      // Ignore storage access errors if in restricted iframe/incognito
+    }
   }, []);
 
-  const savePermissions = async (options: {
-    notifications: boolean;
-    camera: boolean;
-    sound: boolean;
-  }) => {
-    // If notifications allowed, request browser Notification API
-    if (options.notifications && typeof window !== "undefined" && "Notification" in window) {
-      try {
-        if (Notification.permission === "default") {
-          await Notification.requestPermission();
-        }
-      } catch (err) {
-        console.warn("Notification permission request error:", err);
-      }
+  const handleSaveConsent = (type: "all" | "essential" | "custom") => {
+    const isAll = type === "all";
+    const allowExtra = isAll || (type === "custom" && preferences.functional);
+
+    try {
+      const payload = {
+        essentialCookies: true,
+        functionalCookies: allowExtra,
+        notifications: isAll ? true : type === "custom" ? preferences.notifications : false,
+        camera: isAll,
+        sound: isAll,
+        consented: true,
+        consentedAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem(PERMISSIONS_STORAGE_KEY, JSON.stringify(payload));
+      localStorage.setItem(COOKIE_CONSENT_KEY, isAll ? "accepted" : "essential");
+    } catch {
+      // Ignore storage errors
     }
 
-    const payload = {
-      essentialCookies: true,
-      notifications: options.notifications,
-      camera: options.camera,
-      sound: options.sound,
-      consentedAt: new Date().toISOString(),
-    };
-
-    localStorage.setItem(PERMISSIONS_STORAGE_KEY, JSON.stringify(payload));
-    setIsOpen(false);
-
-    if (options.notifications && options.camera) {
-      success("Permissions configured! Push alerts and QR camera scanning are active.");
-    } else {
-      info("Your privacy and device preferences have been saved.");
-    }
+    // Smooth exit animation
+    setIsVisible(false);
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 400);
   };
 
-  const handleAcceptAll = () => {
-    savePermissions({
-      notifications: true,
-      camera: true,
-      sound: true,
-    });
-  };
-
-  const handleSaveCustom = () => {
-    savePermissions({
-      notifications: allowNotifications,
-      camera: allowCamera,
-      sound: allowSound,
-    });
-  };
-
-  const handleEssentialOnly = () => {
-    savePermissions({
-      notifications: false,
-      camera: false,
-      sound: false,
-    });
-  };
-
-  if (!isOpen) return null;
+  if (!mounted || !isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="relative w-full max-w-lg rounded-2xl bg-card border border-border shadow-2xl p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-200">
-        {/* Header with Institution Branding */}
-        <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-950 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0 border border-primary-200 dark:border-primary-800">
-            <Shield className="w-5 h-5" />
+    <aside
+      aria-label="Cookie & Privacy Preferences"
+      className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[390px] transition-all duration-500 ease-out transform ${
+        isVisible
+          ? "translate-y-0 opacity-100 scale-100 pointer-events-auto"
+          : "translate-y-6 opacity-0 scale-95 pointer-events-none"
+      }`}
+    >
+      <div className="bg-card/95 backdrop-blur-md border border-border shadow-xl rounded-2xl p-5 text-foreground relative">
+        {/* Quick Close Button */}
+        <button
+          type="button"
+          onClick={() => handleSaveConsent("essential")}
+          aria-label="Dismiss cookie notice"
+          className="absolute top-3.5 right-3.5 p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header & Icon */}
+        <div className="flex items-start gap-3 pr-6">
+          <div className="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-950/70 border border-primary-200/80 dark:border-primary-800/80 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0">
+            <Cookie className="w-4 h-4" />
           </div>
-          <div className="flex-1">
-            <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-              Device Permissions &amp; Privacy Choices
+          <div>
+            <h3 className="text-sm font-semibold tracking-tight text-foreground">
+              Cookie &amp; Privacy Preferences
             </h3>
-            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-              CampusCare needs permission to deliver real-time ticket alerts, door placard QR scanning, and session authentication.
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              We use essential cookies to maintain secure sessions and ensure smooth campus operations. Review our{" "}
+              <Link
+                href="/privacy"
+                className="text-primary-600 dark:text-primary-400 hover:underline font-medium"
+              >
+                Privacy Policy
+              </Link>
+              .
             </p>
           </div>
         </div>
 
-        {/* Feature List */}
-        <div className="space-y-3 divide-y divide-border/60 text-xs">
-          {/* 1. Essential Cookies */}
-          <div className="pt-2.5 first:pt-0 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 border border-emerald-200 dark:border-emerald-800">
-                <Cookie className="w-4 h-4" />
+        {/* Optional Expanded Customization */}
+        {showPreferences && (
+          <div className="mt-4 pt-3 border-t border-border/60 space-y-2 text-xs">
+            <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border/40">
+              <div className="pr-2">
+                <div className="flex items-center gap-1.5 font-medium text-foreground">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Essential Session Cookies</span>
+                </div>
+                <span className="text-[11px] text-muted-foreground block mt-0.5">
+                  Required for login authentication &amp; CSRF protection
+                </span>
               </div>
-              <div>
-                <p className="font-semibold text-foreground">Essential Session Cookies</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Secures your login token, anti-tampering hash, and active campus session.
-                </p>
-              </div>
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800 flex items-center gap-1 shrink-0">
-              <Lock className="w-2.5 h-2.5" /> Required
-            </span>
-          </div>
-
-          {/* 2. Notifications */}
-          <div className="pt-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0 border border-blue-200 dark:border-blue-800">
-                <Bell className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">Status &amp; Emergency Alerts</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Notifies you when technicians are dispatched or your reported issues are resolved.
-                </p>
-              </div>
-            </div>
-            {isCustomizing ? (
-              <button
-                type="button"
-                onClick={() => setAllowNotifications(!allowNotifications)}
-                className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  allowNotifications ? "bg-primary-600" : "bg-slate-300 dark:bg-slate-700"
-                }`}
-              >
-                <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                    allowNotifications ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
-            ) : (
-              <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/80 px-2 py-0.5 rounded border border-primary-200 dark:border-primary-800 shrink-0">
-                Recommended
+              <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shrink-0">
+                Required
               </span>
-            )}
-          </div>
-
-          {/* 3. Camera / Scanner */}
-          <div className="pt-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 border border-indigo-200 dark:border-indigo-800">
-                <Camera className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">Door Placard QR Camera Scanner</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Enables camera to scan classroom, lab, or hostel door placards instantly.
-                </p>
-              </div>
             </div>
-            {isCustomizing ? (
-              <button
-                type="button"
-                onClick={() => setAllowCamera(!allowCamera)}
-                className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  allowCamera ? "bg-primary-600" : "bg-slate-300 dark:bg-slate-700"
-                }`}
-              >
-                <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                    allowCamera ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
-            ) : (
-              <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/80 px-2 py-0.5 rounded border border-primary-200 dark:border-primary-800 shrink-0">
-                Recommended
-              </span>
-            )}
-          </div>
 
-          {/* 4. Audio Chimes */}
-          <div className="pt-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 border border-amber-200 dark:border-amber-800">
-                <Volume2 className="w-4 h-4" />
+            <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border/40">
+              <div className="pr-2">
+                <span className="font-medium text-foreground block">Preferences &amp; Alerts</span>
+                <span className="text-[11px] text-muted-foreground block mt-0.5">
+                  Save facility filters &amp; ticket status notification alerts
+                </span>
               </div>
-              <div>
-                <p className="font-semibold text-foreground">Sound &amp; Chime Feedback</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Provides subtle audio confirmation when scan succeeds or complaint is filed.
-                </p>
-              </div>
+              <input
+                type="checkbox"
+                checked={preferences.functional}
+                onChange={(e) =>
+                  setPreferences((prev) => ({ ...prev, functional: e.target.checked }))
+                }
+                className="h-4 w-4 rounded border-border text-primary-600 focus:ring-primary-500 cursor-pointer"
+              />
             </div>
-            {isCustomizing ? (
-              <button
-                type="button"
-                onClick={() => setAllowSound(!allowSound)}
-                className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  allowSound ? "bg-primary-600" : "bg-slate-300 dark:bg-slate-700"
-                }`}
-              >
-                <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                    allowSound ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
-            ) : (
-              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800 shrink-0">
-                Optional
-              </span>
-            )}
           </div>
-        </div>
+        )}
 
-        {/* Toggle Customization Mode */}
-        <div className="pt-1 flex items-center justify-between text-xs">
+        {/* Footer Actions */}
+        <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between gap-2">
           <button
             type="button"
-            onClick={() => setIsCustomizing(!isCustomizing)}
-            className="text-primary-600 dark:text-primary-400 hover:underline font-semibold flex items-center gap-1.5"
+            onClick={() => setShowPreferences((prev) => !prev)}
+            className="text-[11px] font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            {isCustomizing ? "Collapse Preferences" : "Customize Permissions Separately"}
-            {isCustomizing ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            <Settings2 className="w-3.5 h-3.5" />
+            {showPreferences ? "Simple View" : "Customize"}
           </button>
-        </div>
 
-        {/* Actions */}
-        <div className="pt-2 border-t border-border flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleEssentialOnly}
-            className="w-full sm:w-auto text-xs"
-          >
-            Essential Only
-          </Button>
-
-          {isCustomizing ? (
+          <div className="flex items-center gap-2">
             <Button
               type="button"
+              variant="outline"
               size="sm"
-              onClick={handleSaveCustom}
-              className="w-full sm:w-auto text-xs"
+              onClick={() => handleSaveConsent(showPreferences ? "custom" : "essential")}
+              className="text-xs h-8 px-3"
             >
-              Save My Preferences
+              Essential Only
             </Button>
-          ) : (
             <Button
               type="button"
+              variant="primary"
               size="sm"
-              onClick={handleAcceptAll}
-              className="w-full sm:w-auto text-xs gap-1.5"
+              onClick={() => handleSaveConsent("all")}
+              className="text-xs h-8 px-3.5 gap-1 shadow-sm"
             >
-              <Check className="w-4 h-4" /> Allow All &amp; Continue
+              <Check className="w-3.5 h-3.5" />
+              Accept All
             </Button>
-          )}
+          </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

@@ -153,7 +153,7 @@ export default function RegisterPage() {
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="e.g. Aryan Verma"
+            placeholder="e.g. Kanhaiya Rai"
             required
           />
 
@@ -162,7 +162,7 @@ export default function RegisterPage() {
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="e.g. aryan.verma@glbitm.edu"
+            placeholder="e.g. kanhaiya.rai@glbitm.edu"
             required
           />
 
