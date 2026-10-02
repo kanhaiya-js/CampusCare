@@ -7,6 +7,19 @@ import CampusMap from "@/components/maps/campus-map";
 import { Button } from "@/components/ui/button";
 import { StatusBadge, PriorityBadge } from "@/components/issues/status-badge";
 
+const BUILDING_COORDS: Record<string, [number, number]> = {
+  "Block A": [28.4731, 77.4892],
+  "Block B": [28.4725, 77.4889],
+  "Block C": [28.4722, 77.4896],
+  "Central Library": [28.4732, 77.4893],
+  "SHD Auditorium": [28.4735, 77.4898],
+  "Boys Hostel": [28.4718, 77.4902],
+  "Girls Hostel": [28.4720, 77.4882],
+  "Cafeteria": [28.4727, 77.4899],
+  "Sports Ground": [28.4715, 77.489],
+  "Knowledge Park": [28.4728, 77.4895],
+};
+
 export default function CampusMapPage() {
   const [issues, setIssues] = useState<any[]>([]);
   const [selectedIssue, setSelectedIssue] = useState<any>(null);
@@ -21,26 +34,62 @@ export default function CampusMapPage() {
   const fetchMapIssues = async () => {
     setIsLoading(true);
     try {
-      const query = new URLSearchParams({ limit: "50" });
+      const query = new URLSearchParams({ limit: "100", scope: "all" });
       if (filterPriority) query.set("priority", filterPriority);
       if (filterStatus) query.set("status", filterStatus);
 
       const res = await fetch(`/api/issues?${query.toString()}`);
       const data = await res.json();
-      if (data.success) {
-        // Map into format required by CampusMap
-        const formatted = data.data.issues.map((i: any) => ({
-          id: i.id,
-          publicIssueId: i.publicIssueId,
-          title: i.title,
-          latitude: i.latitude || i.location?.latitude || null,
-          longitude: i.longitude || i.location?.longitude || null,
-          priority: i.priority,
-          status: i.status,
-          locationName: i.location?.name || "Campus Location",
-          room: i.room,
-          categoryName: i.category?.name || "Maintenance",
-        }));
+      if (data.success && data.data?.issues) {
+        // Map into format required by CampusMap with fallback coordinate resolution
+        const formatted = data.data.issues.map((i: any, index: number) => {
+          let lat =
+            i.latitude ||
+            i.location?.latitude ||
+            i.location?.parentLocation?.latitude ||
+            null;
+          let lng =
+            i.longitude ||
+            i.location?.longitude ||
+            i.location?.parentLocation?.longitude ||
+            null;
+
+          // If still null, resolve coordinate from building name
+          if (!lat || !lng) {
+            const b = (i.location?.building || i.location?.name || "").toLowerCase();
+            const matchedKey = Object.keys(BUILDING_COORDS).find((k) =>
+              b.includes(k.toLowerCase())
+            );
+
+            if (matchedKey) {
+              const [baseLat, baseLng] = BUILDING_COORDS[matchedKey];
+              // Offset slightly so multiple issues at same building don't overlap completely
+              const offsetLat = ((index % 5) - 2) * 0.00008;
+              const offsetLng = ((Math.floor(index / 5) % 5) - 2) * 0.00008;
+              lat = baseLat + offsetLat;
+              lng = baseLng + offsetLng;
+            } else {
+              // Default campus centroid with deterministic slight spread
+              const offsetLat = ((index % 6) - 3) * 0.0001;
+              const offsetLng = ((Math.floor(index / 6) % 6) - 3) * 0.0001;
+              lat = 28.4728 + offsetLat;
+              lng = 77.4895 + offsetLng;
+            }
+          }
+
+          return {
+            id: i.id,
+            publicIssueId: i.publicIssueId,
+            title: i.title,
+            latitude: lat,
+            longitude: lng,
+            priority: i.priority,
+            status: i.status,
+            locationName: i.location?.name || i.location?.building || "GLBITM Campus",
+            room: i.room,
+            categoryName: i.category?.name || "Maintenance",
+          };
+        });
         setIssues(formatted);
       }
     } catch (err) {

@@ -17,9 +17,6 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
-    if (!session) {
-      return apiError("UNAUTHORIZED", "Authentication required", 401);
-    }
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search")?.trim() || "";
@@ -32,7 +29,7 @@ export async function GET(req: NextRequest) {
     const scope = searchParams.get("scope")?.trim() || ""; // "my", "assigned", "all"
     const sortBy = searchParams.get("sortBy")?.trim() || "newest";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const skip = (page - 1) * limit;
 
     // Build Prisma query where clause
@@ -75,32 +72,45 @@ export async function GET(req: NextRequest) {
     }
 
     // Role-based scoping
-    const userRole = session.role as string;
-    const isStudentOrFaculty =
-      userRole === "USER" || userRole === "STUDENT" || userRole === "FACULTY";
-    if (isStudentOrFaculty && scope !== "all") {
+    const userRole = session ? (session.role as string) : "PUBLIC";
+    const isStaffOrAdmin =
+      session &&
+      ["ADMIN", "STAFF", "MAINTENANCE_STAFF", "DEPARTMENT_COORDINATOR"].includes(session.role);
+
+    if (scope === "my") {
+      if (!session) {
+        return apiError("UNAUTHORIZED", "Authentication required to view your reported issues", 401);
+      }
       where.reporterId = session.userId;
-    } else if (isStudentOrFaculty && scope === "all") {
-      // SECURITY: General users cannot see sensitive issues reported by others
-      where.AND = [
-        ...(where.AND || []),
-        {
-          OR: [{ isSensitive: false }, { reporterId: session.userId }],
-        },
-      ];
-    } else if (
-      (userRole === "STAFF" || userRole === "MAINTENANCE_STAFF") &&
-      scope === "assigned"
-    ) {
+    } else if (scope === "assigned") {
+      if (!session) {
+        return apiError("UNAUTHORIZED", "Authentication required to view assigned issues", 401);
+      }
       where.assignedStaffId = session.userId;
-    } else if (userRole === "DEPARTMENT_COORDINATOR" && !departmentId) {
-      // Coordinator defaults to their department if not overridden
-      const user = await prisma.user.findUnique({
-        where: { id: session.userId },
-        select: { departmentId: true },
-      });
-      if (user?.departmentId) {
-        where.departmentId = user.departmentId;
+    } else {
+      // Default: "all" or "" (Browsing all campus issues)
+      if (isStaffOrAdmin) {
+        // Staff/Admin can review all campus issues
+        if (userRole === "DEPARTMENT_COORDINATOR" && !departmentId) {
+          const user = await prisma.user.findUnique({
+            where: { id: session!.userId },
+            select: { departmentId: true },
+          });
+          if (user?.departmentId) {
+            where.departmentId = user.departmentId;
+          }
+        }
+      } else if (session) {
+        // Students/Faculty see all public campus issues + their own sensitive tickets
+        where.AND = [
+          ...(where.AND || []),
+          {
+            OR: [{ isSensitive: false }, { reporterId: session.userId }],
+          },
+        ];
+      } else {
+        // Unauthenticated campus visitors see all non-sensitive campus issues
+        where.isSensitive = false;
       }
     }
 
@@ -114,13 +124,26 @@ export async function GET(req: NextRequest) {
       orderBy = [{ priority: "desc" }, { createdAt: "desc" }];
     }
 
-    const [total, issues] = await Promise.all([
+    const [total, rawIssues] = await Promise.all([
       prisma.issue.count({ where }),
       prisma.issue.findMany({
         where,
         include: {
           category: { select: { id: true, name: true, icon: true } },
-          location: { select: { id: true, name: true, building: true, floor: true, room: true } },
+          location: {
+            select: {
+              id: true,
+              name: true,
+              building: true,
+              floor: true,
+              room: true,
+              latitude: true,
+              longitude: true,
+              parentLocation: {
+                select: { id: true, name: true, building: true, latitude: true, longitude: true },
+              },
+            },
+          },
           department: { select: { id: true, name: true, code: true } },
           club: { select: { id: true, name: true } },
           reporter: { select: { id: true, name: true, email: true, avatarUrl: true } },
@@ -132,6 +155,31 @@ export async function GET(req: NextRequest) {
         take: limit,
       }),
     ]);
+
+    // Calculate unread comments count for logged-in user per ticket
+    const unreadMap: Record<string, number> = {};
+    if (session && rawIssues.length > 0) {
+      const issueIds = rawIssues.map((i) => i.id);
+      const unreadNotifs = await prisma.notification.groupBy({
+        by: ["issueId"],
+        where: {
+          userId: session.userId,
+          issueId: { in: issueIds },
+          readAt: null,
+        },
+        _count: { id: true },
+      });
+      for (const item of unreadNotifs) {
+        if (item.issueId) {
+          unreadMap[item.issueId] = item._count.id;
+        }
+      }
+    }
+
+    const issues = rawIssues.map((issue) => ({
+      ...issue,
+      unreadCommentsCount: unreadMap[issue.id] || 0,
+    }));
 
     return apiSuccess({
       issues,

@@ -339,6 +339,16 @@ function IssuesListContent() {
                   <span className="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">
                     #{issue.publicIssueId}
                   </span>
+                  {(issue.unreadCommentsCount || 0) > 0 && (
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-sm ring-2 ring-rose-200 dark:ring-rose-950 animate-pulse"
+                      title={`${issue.unreadCommentsCount} unread message(s)`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                      <MessageSquare className="w-3 h-3 fill-current" />
+                      {issue.unreadCommentsCount} new {issue.unreadCommentsCount === 1 ? "message" : "messages"}
+                    </span>
+                  )}
                   <StatusBadge status={issue.status} />
                   <PriorityBadge priority={issue.priority} />
                   {issue.department && (
@@ -385,7 +395,13 @@ function IssuesListContent() {
                   )}
 
                   {issue._count?.comments > 0 && (
-                    <span className="flex items-center gap-1 text-[11px]">
+                    <span
+                      className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md ${
+                        (issue.unreadCommentsCount || 0) > 0
+                          ? "bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold border border-rose-200 dark:border-rose-800"
+                          : "text-muted-foreground"
+                      }`}
+                    >
                       <MessageSquare className="w-3 h-3" />
                       {issue._count.comments}
                     </span>

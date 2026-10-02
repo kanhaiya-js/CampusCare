@@ -113,6 +113,20 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       issue.reporter.studentOrEmployeeId = null;
     }
 
+    // Mark unread notifications for this ticket as read for the current user
+    try {
+      await prisma.notification.updateMany({
+        where: {
+          userId: session.userId,
+          issueId: issue.id,
+          readAt: null,
+        },
+        data: { readAt: new Date() },
+      });
+    } catch (e) {
+      console.error("Failed to mark notifications read:", e);
+    }
+
     return apiSuccess(issue);
   } catch (error) {
     console.error("Get issue error:", error);

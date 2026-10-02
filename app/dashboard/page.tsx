@@ -29,8 +29,8 @@ export default async function UserDashboardPage() {
     redirect("/login?error=session_expired");
   }
 
-  // Fetch user issues
-  const [issues, userNotifications] = await Promise.all([
+  // Fetch user issues and unread ticket notifications
+  const [issues, userNotifications, unreadNotifs] = await Promise.all([
     prisma.issue.findMany({
       where: { reporterId: session.userId },
       include: {
@@ -47,7 +47,20 @@ export default async function UserDashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
+    prisma.notification.groupBy({
+      by: ["issueId"],
+      where: {
+        userId: session.userId,
+        issueId: { not: null },
+        readAt: null,
+      },
+      _count: { id: true },
+    }),
   ]);
+
+  const unreadMap = Object.fromEntries(
+    unreadNotifs.filter((n) => n.issueId).map((n) => [n.issueId!, n._count.id])
+  );
 
   const activeIssues = issues.filter(
     (i) => i.status !== "CLOSED" && i.status !== "RESOLVED" && i.status !== "REJECTED"
@@ -178,8 +191,21 @@ export default async function UserDashboardPage() {
                   <tbody className="divide-y divide-border">
                     {issues.slice(0, 6).map((issue) => (
                       <tr key={issue.id} className="hover:bg-muted/40 transition-colors group">
-                        <td className="p-3.5 font-mono font-bold text-primary-600 dark:text-primary-400 whitespace-nowrap">
-                          #{issue.publicIssueId}
+                        <td className="p-3.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-primary-600 dark:text-primary-400">
+                              #{issue.publicIssueId}
+                            </span>
+                            {(unreadMap[issue.id] || 0) > 0 && (
+                              <span
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-sm ring-1 ring-rose-300 dark:ring-rose-800 animate-pulse"
+                                title={`${unreadMap[issue.id]} unread message(s)`}
+                              >
+                                <MessageSquare className="w-2.5 h-2.5 fill-current" />
+                                {unreadMap[issue.id]} new
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="p-3.5 min-w-[180px] max-w-[280px]">
                           <Link href={`/issues/${issue.id}`} className="block">

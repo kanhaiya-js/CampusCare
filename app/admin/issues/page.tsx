@@ -12,6 +12,7 @@ import {
   Download,
   Eye,
   MoreVertical,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge, PriorityBadge } from "@/components/issues/status-badge";
@@ -215,7 +216,18 @@ export default function AdminIssuesPage() {
                 issues.map((issue) => (
                   <tr key={issue.id} className="hover:bg-muted/40 transition-colors">
                     <td className="px-3 py-2.5 font-mono font-bold text-primary-600 dark:text-primary-400 whitespace-nowrap text-xs">
-                      #{issue.publicIssueId}
+                      <div className="flex items-center gap-1.5">
+                        <span>#{issue.publicIssueId}</span>
+                        {(issue.unreadCommentsCount || 0) > 0 && (
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-sm ring-1 ring-rose-300 dark:ring-rose-800 animate-pulse"
+                            title={`${issue.unreadCommentsCount} unread message(s)`}
+                          >
+                            <MessageSquare className="w-2.5 h-2.5 fill-current" />
+                            {issue.unreadCommentsCount} new
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-2.5 font-semibold text-foreground">
                       <Link

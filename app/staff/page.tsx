@@ -13,6 +13,7 @@ import {
   User,
   Shield,
   Activity,
+  MessageSquare,
 } from "lucide-react";
 import prisma from "@/lib/db/prisma";
 import { getActiveSession } from "@/lib/auth/session";
@@ -33,8 +34,8 @@ export default async function StaffDashboardPage() {
     redirect("/dashboard");
   }
 
-  // Fetch staff profile and assigned issues
-  const [staffProfile, assignedIssues] = await Promise.all([
+  // Fetch staff profile, assigned issues, and unread notifications
+  const [staffProfile, assignedIssues, unreadNotifs] = await Promise.all([
     prisma.staffProfile.findUnique({
       where: { userId: session.userId },
     }),
@@ -49,7 +50,20 @@ export default async function StaffDashboardPage() {
       },
       orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
     }),
+    prisma.notification.groupBy({
+      by: ["issueId"],
+      where: {
+        userId: session.userId,
+        issueId: { not: null },
+        readAt: null,
+      },
+      _count: { id: true },
+    }),
   ]);
+
+  const unreadMap = Object.fromEntries(
+    unreadNotifs.filter((n) => n.issueId).map((n) => [n.issueId!, n._count.id])
+  );
 
   const inProgressTickets = assignedIssues.filter((i) => i.status === "IN_PROGRESS");
   const pendingAcceptance = assignedIssues.filter((i) => i.status === "ASSIGNED");
@@ -190,9 +204,20 @@ export default async function StaffDashboardPage() {
               >
                 <div>
                   <div className="flex items-center justify-between pb-2 border-b border-border">
-                    <span className="font-mono font-bold text-xs text-primary-600 dark:text-primary-400">
-                      #{ticket.publicIssueId}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-xs text-primary-600 dark:text-primary-400">
+                        #{ticket.publicIssueId}
+                      </span>
+                      {(unreadMap[ticket.id] || 0) > 0 && (
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-sm ring-1 ring-rose-300 dark:ring-rose-800 animate-pulse"
+                          title={`${unreadMap[ticket.id]} unread message(s)`}
+                        >
+                          <MessageSquare className="w-2.5 h-2.5 fill-current" />
+                          {unreadMap[ticket.id]} new
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1.5">
                       <PriorityBadge priority={ticket.priority} />
                       <StatusBadge status={ticket.status} />
