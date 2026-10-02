@@ -149,6 +149,11 @@ export function Navbar() {
     }
   };
 
+  // Track consecutive heartbeat failures to avoid logout on transient network errors
+  const heartbeatFailuresRef = useRef(0);
+  const MAX_HEARTBEAT_FAILURES = 3; // Only force-logout after 3 consecutive server-confirmed failures
+  const isFetchingRef = useRef(false); // Prevent overlapping fetches
+
   useEffect(() => {
     fetchUser();
     setShowNotifications(false);
@@ -156,41 +161,68 @@ export function Navbar() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  // Periodic heartbeat + focus listener: continuously verify active session state in real-time
+  // Stable heartbeat: does NOT depend on pathname so the interval never tears down on navigation
   useEffect(() => {
     const handleHeartbeat = () => {
-      fetchUser();
+      // Only fetch when the page is visible — no point checking while tab is hidden
+      if (document.visibilityState === "visible") {
+        fetchUser(true);
+      }
     };
 
-    // Check every 15 seconds so admin actions (suspension/deletion) reflect immediately
-    const interval = setInterval(handleHeartbeat, 15000);
+    const handleVisibility = () => {
+      // Only fire when the page becomes VISIBLE, not when it becomes hidden
+      if (document.visibilityState === "visible") {
+        fetchUser(true);
+      }
+    };
+
+    // Check every 30 seconds — enough to catch admin actions without hammering the server
+    const interval = setInterval(handleHeartbeat, 30000);
     window.addEventListener("focus", handleHeartbeat);
-    document.addEventListener("visibilitychange", handleHeartbeat);
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("focus", handleHeartbeat);
-      document.removeEventListener("visibilitychange", handleHeartbeat);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [pathname]);
+  }, []); // Empty deps — stable interval that never recreates
 
-  const fetchUser = async () => {
+  const fetchUser = async (isHeartbeat = false) => {
+    // Prevent overlapping fetches (multiple events firing at once)
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
       if (data.success && data.data?.user) {
         setUser(data.data.user);
+        heartbeatFailuresRef.current = 0; // Reset failure counter on success
         fetchNotifications();
-      } else {
+      } else if (res.status === 401 || res.status === 403) {
+        // Only act on EXPLICIT server rejection (401/403), not on network glitches
+        heartbeatFailuresRef.current++;
+
+        // For heartbeat polls, require multiple consecutive failures before forcing logout
+        // This prevents a single flaky response from logging the user out
+        if (isHeartbeat && heartbeatFailuresRef.current < MAX_HEARTBEAT_FAILURES) {
+          // Don't wipe user state yet — could be a transient error
+          isFetchingRef.current = false;
+          return;
+        }
+
         setUser(null);
 
         // If user account is suspended or deleted while on a protected route, redirect to login immediately
+        const currentPath = window.location.pathname;
         const isProtectedPath =
-          pathname.startsWith("/dashboard") ||
-          pathname.startsWith("/admin") ||
-          pathname.startsWith("/staff") ||
-          pathname.startsWith("/settings") ||
-          pathname.startsWith("/issues/report");
+          currentPath.startsWith("/dashboard") ||
+          currentPath.startsWith("/admin") ||
+          currentPath.startsWith("/staff") ||
+          currentPath.startsWith("/settings") ||
+          currentPath.startsWith("/issues/report");
 
         if (isProtectedPath) {
           if (data.error?.code === "ACCOUNT_SUSPENDED" || data.error?.message?.toLowerCase().includes("suspended")) {
@@ -200,8 +232,13 @@ export function Navbar() {
           }
         }
       }
+      // For any other status (500, etc.), silently ignore — don't wipe user state
     } catch {
-      setUser(null);
+      // Network error (offline, DNS, timeout) — do NOT wipe user state
+      // The user's JWT cookie is still valid, no reason to log them out
+      // Just silently ignore and retry on the next heartbeat
+    } finally {
+      isFetchingRef.current = false;
     }
   };
 
