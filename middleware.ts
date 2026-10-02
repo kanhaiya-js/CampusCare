@@ -139,15 +139,28 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/profile") ||
       pathname.startsWith("/settings");
 
-    // If on login/register page and already authenticated, redirect to appropriate home
-    if (isAuthPage && session) {
-      if (session.role === "ADMIN") {
-        return NextResponse.redirect(new URL("/admin", request.url));
+    // If on login/register page:
+    // If arriving with force, suspended, or error query, wipe any stale session and allow login page
+    if (isAuthPage) {
+      if (
+        request.nextUrl.searchParams.has("force") ||
+        request.nextUrl.searchParams.has("suspended") ||
+        request.nextUrl.searchParams.has("error")
+      ) {
+        const response = NextResponse.next();
+        response.cookies.delete(COOKIE_NAME);
+        return response;
       }
-      if (session.role === "STAFF") {
-        return NextResponse.redirect(new URL("/staff", request.url));
+
+      if (session) {
+        if (session.role === "ADMIN") {
+          return NextResponse.redirect(new URL("/admin", request.url));
+        }
+        if (session.role === "STAFF") {
+          return NextResponse.redirect(new URL("/staff", request.url));
+        }
+        return NextResponse.redirect(new URL("/dashboard", request.url));
       }
-      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
     // If accessing protected page without session, redirect to login

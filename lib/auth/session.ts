@@ -177,6 +177,61 @@ export async function refreshSessionCookie(token: string): Promise<boolean> {
  * 1. User account still exists and is ACTIVE (not suspended/deactivated)
  * 2. Role has not been revoked
  * 3. Session tokenVersion matches DB (invalidated on password change / logout all)
+ * If the user was deleted, suspended, or revoked, clears the cookie immediately and returns null.
+ */
+export async function getActiveSession(): Promise<SessionPayload | null> {
+  const session = await getSession();
+  if (!session) return null;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        tokenVersion: true,
+        avatarUrl: true,
+        studentOrEmployeeId: true,
+      },
+    });
+
+    if (!user || user.status !== "ACTIVE") {
+      await clearSessionCookie();
+      return null;
+    }
+
+    if (
+      session.tokenVersion !== undefined &&
+      user.tokenVersion !== undefined &&
+      session.tokenVersion !== user.tokenVersion
+    ) {
+      await clearSessionCookie();
+      return null;
+    }
+
+    return {
+      ...session,
+      name: user.name,
+      email: user.email,
+      role: user.role as UserRole,
+      avatarUrl: user.avatarUrl,
+      studentOrEmployeeId: user.studentOrEmployeeId,
+      tokenVersion: user.tokenVersion ?? 0,
+    };
+  } catch (error) {
+    console.error("getActiveSession DB error:", error);
+    return session;
+  }
+}
+
+/**
+ * SECURITY: Re-validates the session against the database to guarantee:
+ * 1. User account still exists and is ACTIVE (not suspended/deactivated)
+ * 2. Role has not been revoked
+ * 3. Session tokenVersion matches DB (invalidated on password change / logout all)
  */
 export async function requireActiveUser(allowedRoles?: UserRole[]): Promise<SessionPayload> {
   const session = await requireAuth();
@@ -187,6 +242,7 @@ export async function requireActiveUser(allowedRoles?: UserRole[]): Promise<Sess
   });
 
   if (!user || user.status !== "ACTIVE") {
+    await clearSessionCookie();
     throw new Error("UNAUTHORIZED");
   }
 
@@ -196,6 +252,7 @@ export async function requireActiveUser(allowedRoles?: UserRole[]): Promise<Sess
     user.tokenVersion !== undefined &&
     session.tokenVersion !== user.tokenVersion
   ) {
+    await clearSessionCookie();
     throw new Error("UNAUTHORIZED");
   }
 

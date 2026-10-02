@@ -73,7 +73,42 @@ export async function POST(req: NextRequest) {
       where: { email: normalizedEmail },
     });
 
-    // 5. Constant-time password verification to prevent user enumeration via timing
+    // 5. Account suspension check
+    // If account is suspended, notify the user immediately as required
+    if (user && user.status === "SUSPENDED") {
+      await createAuditLog({
+        actorId: user.id,
+        action: "SUSPENDED_LOGIN_ATTEMPT",
+        entityType: "User",
+        entityId: user.id,
+        ipAddress: ip,
+        userAgent: req.headers.get("user-agent"),
+      });
+      return apiError(
+        "ACCOUNT_SUSPENDED",
+        "This account has been suspended. Please contact the administrator.",
+        403
+      );
+    }
+
+    if (user && user.status !== "ACTIVE") {
+      await createAuditLog({
+        actorId: user.id,
+        action: "INACTIVE_LOGIN_ATTEMPT",
+        entityType: "User",
+        entityId: user.id,
+        ipAddress: ip,
+        userAgent: req.headers.get("user-agent"),
+      });
+      return apiError(
+        "ACCOUNT_INACTIVE",
+        "This account is inactive. Please contact the administrator.",
+        403
+      );
+    }
+
+    // 6. Constant-time password verification to prevent user enumeration via timing
+    // For deleted or nonexistent accounts, returns "Invalid email or password"
     const hashToVerify = user ? user.passwordHash : DUMMY_HASH;
     const isValid = await verifyPassword(password, hashToVerify);
 
@@ -93,23 +128,6 @@ export async function POST(req: NextRequest) {
 
       // OWASP: Uniform response, never disclose whether email exists
       return apiError("INVALID_CREDENTIALS", "Invalid email or password", 401);
-    }
-
-    // 6. Check account status
-    if (user.status !== "ACTIVE") {
-      await createAuditLog({
-        actorId: user.id,
-        action: "SUSPENDED_LOGIN_ATTEMPT",
-        entityType: "User",
-        entityId: user.id,
-        ipAddress: ip,
-        userAgent: req.headers.get("user-agent"),
-      });
-      return apiError(
-        "ACCOUNT_INACTIVE",
-        "Your account is inactive or suspended. Please contact the campus administrator.",
-        403
-      );
     }
 
     // Reset failed attempt counter on success

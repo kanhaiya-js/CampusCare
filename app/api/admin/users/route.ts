@@ -108,7 +108,12 @@ export async function PATCH(req: NextRequest) {
     }
 
     const updateData: any = {};
-    if (status) updateData.status = status;
+    if (status) {
+      updateData.status = status;
+      if (status === "SUSPENDED" || status === "INACTIVE") {
+        updateData.tokenVersion = { increment: 1 };
+      }
+    }
     if (role) updateData.role = role;
     if (studentOrEmployeeId !== undefined) {
       updateData.studentOrEmployeeId = studentOrEmployeeId ? studentOrEmployeeId.trim().slice(0, 50) : null;

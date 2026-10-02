@@ -156,6 +156,24 @@ export function Navbar() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // Periodic heartbeat + focus listener: continuously verify active session state in real-time
+  useEffect(() => {
+    const handleHeartbeat = () => {
+      fetchUser();
+    };
+
+    // Check every 15 seconds so admin actions (suspension/deletion) reflect immediately
+    const interval = setInterval(handleHeartbeat, 15000);
+    window.addEventListener("focus", handleHeartbeat);
+    document.addEventListener("visibilitychange", handleHeartbeat);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleHeartbeat);
+      document.removeEventListener("visibilitychange", handleHeartbeat);
+    };
+  }, [pathname]);
+
   const fetchUser = async () => {
     try {
       const res = await fetch("/api/auth/me");
@@ -165,6 +183,22 @@ export function Navbar() {
         fetchNotifications();
       } else {
         setUser(null);
+
+        // If user account is suspended or deleted while on a protected route, redirect to login immediately
+        const isProtectedPath =
+          pathname.startsWith("/dashboard") ||
+          pathname.startsWith("/admin") ||
+          pathname.startsWith("/staff") ||
+          pathname.startsWith("/settings") ||
+          pathname.startsWith("/issues/report");
+
+        if (isProtectedPath) {
+          if (data.error?.code === "ACCOUNT_SUSPENDED" || data.error?.message?.toLowerCase().includes("suspended")) {
+            window.location.href = "/login?suspended=1";
+          } else {
+            window.location.href = "/login?error=session_expired";
+          }
+        }
       }
     } catch {
       setUser(null);
@@ -642,7 +676,7 @@ export function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link href="/login">
+              <Link href="/login?force=1">
                 <Button variant="ghost" size="sm">
                   Sign In
                 </Button>

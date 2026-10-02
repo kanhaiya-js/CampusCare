@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/db/prisma";
-import { getSession, refreshSessionCookie } from "@/lib/auth/session";
+import { getSession, refreshSessionCookie, clearSessionCookie } from "@/lib/auth/session";
 import { apiError, apiSuccess } from "@/lib/utils/api-response";
 import { sanitizeText } from "@/lib/security/sanitize";
 
@@ -38,6 +38,14 @@ export async function GET() {
   });
 
   if (!user || user.status !== "ACTIVE") {
+    await clearSessionCookie();
+    if (user && user.status === "SUSPENDED") {
+      return apiError(
+        "ACCOUNT_SUSPENDED",
+        "This account has been suspended. Please contact the administrator.",
+        401
+      );
+    }
     return apiError("UNAUTHORIZED", "User session is no longer active", 401);
   }
 
@@ -47,6 +55,7 @@ export async function GET() {
     user.tokenVersion !== undefined &&
     session.tokenVersion !== user.tokenVersion
   ) {
+    await clearSessionCookie();
     return apiError("UNAUTHORIZED", "Your session has been revoked. Please log in again.", 401);
   }
 

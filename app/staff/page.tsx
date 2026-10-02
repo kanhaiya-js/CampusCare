@@ -15,7 +15,7 @@ import {
   Activity,
 } from "lucide-react";
 import prisma from "@/lib/db/prisma";
-import { getSession } from "@/lib/auth/session";
+import { getActiveSession } from "@/lib/auth/session";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StatusBadge, PriorityBadge } from "@/components/issues/status-badge";
@@ -24,9 +24,9 @@ import { formatRelativeTime } from "@/lib/utils/format";
 export const dynamic = "force-dynamic";
 
 export default async function StaffDashboardPage() {
-  const session = await getSession();
+  const session = await getActiveSession();
   if (!session) {
-    redirect("/login");
+    redirect("/login?error=session_expired");
   }
 
   if (session.role !== "STAFF" && session.role !== "ADMIN") {

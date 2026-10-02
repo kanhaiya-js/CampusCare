@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback, Suspense } from "react";
+import React, { useState, useRef, useCallback, Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, Lock, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
@@ -24,6 +24,16 @@ function LoginForm() {
   const turnstileRef = useRef<TurnstileRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (searchParams.get("suspended") === "1" || searchParams.get("error") === "suspended") {
+      setErrorMessage("This account has been suspended. Please contact the administrator.");
+    } else if (searchParams.get("error") === "session_expired") {
+      setErrorMessage("Your session has expired or is no longer active. Please sign in again.");
+    } else if (searchParams.get("error") === "deleted") {
+      setErrorMessage("This account has been removed. Please contact the administrator.");
+    }
+  }, [searchParams]);
 
   const handleVerify = useCallback((token: string) => {
     setTurnstileToken(token);

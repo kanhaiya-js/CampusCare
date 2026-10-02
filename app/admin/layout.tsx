@@ -1,6 +1,6 @@
 import React from "react";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
+import { getActiveSession } from "@/lib/auth/session";
 import { Sidebar } from "@/components/layout/sidebar";
 
 export const dynamic = "force-dynamic";
@@ -10,9 +10,9 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const session = await getActiveSession();
   if (!session) {
-    redirect("/login");
+    redirect("/login?error=session_expired");
   }
 
   if (session.role !== "ADMIN") {
